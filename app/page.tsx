@@ -1,11 +1,13 @@
 "use client"; // Next.js directive para componentes que usam hooks (executam no cliente)
 
 import { useState } from "react"; // Importa hook de estado
+import { useRouter } from "next/navigation"; // Importa o hook de roteamento
 import Image from "next/image";    // Componente otimizado de imagem do Next.js
 
 export default function Home() {
   // Estado para armazenar o arquivo XML selecionado
   const [arquivo, setArquivo] = useState(null);
+  const router = useRouter(); // Hook para navegar entre páginas
 
   // Função para enviar o arquivo para a API
   const enviarArquivo = async (e) => {
@@ -31,9 +33,17 @@ export default function Home() {
       // Recebe e exibe a resposta da API
       const resultado = await resposta.json();
       alert(resultado.mensagem);
-    } catch (error) {
+
+      //simula o redirecionamento para a página de tags
+      router.push("/selecionandoTags");
+    } 
+    catch (error) 
+    {
       console.error("Erro ao enviar:", error);
       alert("Erro ao enviar o arquivo.");
+
+
+      router.push("/selecionandoTags");
     }
   };
 
