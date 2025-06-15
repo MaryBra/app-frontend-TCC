@@ -1,64 +1,103 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function SelecionandoTags() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const tagsQuery = searchParams.get("tags");
 
   const [tagsSelecionadas, setTagsSelecionadas] = useState([]);
+  const [novaTag, setNovaTag] = useState("");
 
-  const tagsDisponiveis = [
-    "Inteligência Artificial",
-    "Desenvolvimento Web",
-    "Banco de Dados",
-    "Análise de Dados",
-    "Redes de Computadores",
-    "Segurança da Informação",
-  ];
+  // Quando a página carregar, pega as tags da URL
+  useEffect(() => {
+    if (tagsQuery) {
+      const tagsArray = tagsQuery.split(",").map((tag) => tag.trim());
+      setTagsSelecionadas(tagsArray);
+    }
+  }, [tagsQuery]);
 
-  const handleCheckboxChange = (tag) => {
-    if (tagsSelecionadas.includes(tag)) {
-      setTagsSelecionadas(tagsSelecionadas.filter((t) => t !== tag));
-    } else {
-      setTagsSelecionadas([...tagsSelecionadas, tag]);
+  // Adicionar nova tag manualmente
+  const handleAddTag = () => {
+    const tagFormatada = novaTag.trim();
+    if (tagFormatada !== "" && !tagsSelecionadas.includes(tagFormatada)) {
+      setTagsSelecionadas([...tagsSelecionadas, tagFormatada]);
+      setNovaTag("");
     }
   };
 
-const handleContinuar = () => {
-    const tagsQuery = tagsSelecionadas.join(",");
-    router.push(`/telaPerfil?tags=${encodeURIComponent(tagsQuery)}`);
-};
+  // Remover uma tag
+  const handleRemoveTag = (tagParaRemover) => {
+    setTagsSelecionadas(tagsSelecionadas.filter((tag) => tag !== tagParaRemover));
+  };
 
-  
+  // Quando clicar em Continuar: enviar as tags via query string para a próxima tela
+  const handleContinuar = () => {
+    const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
+    router.push(`/telaPerfil?tags=${tagsString}`);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white">
-      <h1 className="text-3xl md:text-5xl font-bold text-[#990000] mb-6">
-        Selecione suas Tags
-      </h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#E9E9E9]">
+      <h1 className="text-3xl font-bold mb-4">Escolha as tags que mais combinam com você!</h1>
+      <h3 className="text-md text-center mb-6">
+        Elas foram geradas automaticamente a partir das palavras-chave do seu currículo.
+        Você pode adicionar ou remover como quiser.
+      </h3>
 
-      <div className="flex flex-col gap-4 mb-8">
-        {tagsDisponiveis.map((tag) => (
-          <label key={tag} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              value={tag}
-              checked={tagsSelecionadas.includes(tag)}
-              onChange={() => handleCheckboxChange(tag)}
-              className="w-5 h-5 accent-[#990000]"
-            />
-            <span className="text-lg">{tag}</span>
-          </label>
-        ))}
+      <div className="bg-white p-6 rounded-2xl w-full max-w-2xl">
+        {/* Input para adicionar nova tag */}
+        <div className="flex mb-4">
+          <input
+            type="text"
+            placeholder="Adicionar nova tag"
+            value={novaTag}
+            onChange={(e) => setNovaTag(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddTag();
+              }
+            }}
+            className="flex-grow border rounded-l px-4 py-2"
+          />
+          <button
+            onClick={handleAddTag}
+            className="bg-[#990000] text-white px-4 rounded-r"
+          >
+            Adicionar
+          </button>
+        </div>
+
+        {/* Exibir tags selecionadas */}
+        <div className="flex flex-wrap gap-2">
+          {tagsSelecionadas.map((tag, index) => (
+            <div
+              key={index}
+              className="flex items-center bg-gray-200 px-3 py-1 rounded-full"
+            >
+              <span>{tag}</span>
+              <button
+                onClick={() => handleRemoveTag(tag)}
+                className="ml-2 text-red-600 font-bold"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Botão para continuar */}
+        <button
+          onClick={handleContinuar}
+          className="mt-6 bg-[#990000] text-white px-6 py-2 rounded"
+        >
+          Continuar
+        </button>
       </div>
-
-      <button
-        onClick={handleContinuar}
-        className="bg-[#990000] text-white px-8 py-3 rounded hover:bg-[#b30000] transition"
-      >
-        Continuar
-      </button>
     </div>
   );
 }

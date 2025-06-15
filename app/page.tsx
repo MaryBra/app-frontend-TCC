@@ -30,12 +30,16 @@ export default function Home() {
         body: formData,
       });
 
-      // Recebe e exibe a resposta da API
       const resultado = await resposta.json();
-      alert(resultado.mensagem);
 
-      //simula o redirecionamento para a página de tags
-      router.push("/selecionandoTags");
+      // Simulando um array de palavras (o que você vai receber do backend Flask depois)
+      const palavrasChave = resultado.keywords;  // Exemplo: ["Engenharia Química", "Biotecnologia", "Processos Industriais"]
+
+      // Transforma o array em string separada por vírgula
+      const tagsQuery = encodeURIComponent(palavrasChave.join(","));
+
+      // Redireciona para a página de seleção de tags, passando as tags por query param
+      router.push(`/selecionandoTags?tags=${tagsQuery}`);
     } 
     catch (error) 
     {
