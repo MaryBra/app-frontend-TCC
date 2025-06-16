@@ -1,147 +1,345 @@
-"use client"; // Next.js directive para componentes que usam hooks (executam no cliente)
+"use client";
 
-import { useState } from "react"; // Importa hook de estado
-import { useRouter } from "next/navigation"; // Importa o hook de roteamento
-import Image from "next/image";    // Componente otimizado de imagem do Next.js
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  // Estado para armazenar o arquivo XML selecionado
-  const [arquivo, setArquivo] = useState(null);
-  const router = useRouter(); // Hook para navegar entre páginas
+  const [arquivo, setArquivo] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  // Função para enviar o arquivo para a API
-  const enviarArquivo = async (e) => {
-    e.preventDefault(); // Previne o comportamento padrão do form
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    setError(null);
+  };
 
-    // Verifica se o usuário selecionou algum arquivo
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type === "text/xml" || file.name.endsWith(".xml")) {
+        setArquivo(file);
+        setError(null);
+      } else {
+        setError("Por favor, selecione um arquivo XML válido.");
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      if (file.type === "text/xml" || file.name.endsWith(".xml")) {
+        setArquivo(file);
+        setError(null);
+      } else {
+        setError("Por favor, selecione um arquivo XML válido.");
+      }
+    }
+  };
+
+  const enviarArquivo = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!arquivo) {
-      alert("Selecione um arquivo XML.");
+      setError("Selecione um arquivo XML.");
       return;
     }
 
-    // Cria um FormData para enviar o arquivo
+    setIsLoading(true);
+    setError(null);
+
     const formData = new FormData();
-    formData.append("xml", arquivo); // Adiciona o arquivo no campo 'xml'
+    formData.append("xml", arquivo);
 
     try {
-      // Faz uma requisição POST para a API backend
       const resposta = await fetch("http://localhost:8080/api/upload", {
         method: "POST",
         body: formData,
       });
 
+      if (!resposta.ok) {
+        throw new Error("Erro ao enviar o arquivo.");
+      }
+
       const resultado = await resposta.json();
-
-      // Simulando um array de palavras (o que você vai receber do backend Flask depois)
-      const palavrasChave = resultado.keywords;  // Exemplo: ["Engenharia Química", "Biotecnologia", "Processos Industriais"]
-
-      // Transforma o array em string separada por vírgula
+      const palavrasChave = resultado.keywords || [
+        "Engenharia Química",
+        "Biotecnologia",
+        "Processos Industriais",
+      ];
       const tagsQuery = encodeURIComponent(palavrasChave.join(","));
 
-      // Redireciona para a página de seleção de tags, passando as tags por query param
       router.push(`/selecionandoTags?tags=${tagsQuery}`);
-    } 
-    catch (error) 
-    {
+    } catch (error) {
       console.error("Erro ao enviar:", error);
-      alert("Erro ao enviar o arquivo.");
-
-
-      router.push("/selecionandoTags");
+      setError("Erro ao processar o arquivo. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen font-[family-name:var(--font-geist-sans)]">
-      {/** 
-       * Layout principal
-       * - flex-col no mobile (um em cima do outro)
-       * - flex-row no desktop (lado a lado)
-       */}
+    <div className="flex flex-col md:flex-row min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
+      {/* Lado esquerdo - Conteúdo informativo */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full md:w-1/2 bg-white flex flex-col items-center justify-center py-8 md:py-12 px-4"
+      >
+        <div className="w-full max-w-md flex flex-col items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            className="flex flex-col items-center"
+          >
+            <Image
+              src="/images/logo_1.png"
+              alt="Logo"
+              width={200}
+              height={200}
+              quality={100}
+              priority
+              className="drop-shadow-md"
+            />
+            <motion.p
+              className="text-center mt-6 text-gray-700 text-xl md:text-2xl font-medium"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              Faça o Upload do seu currículo Lattes para finalizar o seu
+              cadastro
+            </motion.p>
+          </motion.div>
+        </div>
 
-      {/* Lado direito no desktop — logo e texto */}
-      <div className="bg-white w-full md:w-1/2 h-[50%] md:h-screen flex flex-col justify-between items-center">
-        {/* Container branco */}
-
-        {/* Topo - Logo e texto explicativo */}
-        <div className="flex flex-col items-center mt-8 md:mt-32">
+        <motion.div
+          className="w-full max-w-2xl flex justify-center mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
           <Image
-            src="/images/logo_1.png"
-            alt="Logo"
-            width={150}
-            height={150}
+            src="/images/ilustracao-importacao.png"
+            alt="ilustracao-importacao"
+            width={600}
+            height={600}
+            className="w-full max-w-md md:max-w-lg lg:max-w-xl h-auto object-contain"
             quality={100}
             priority
           />
-          <p className="text-center mt-4 px-4 text-base md:text-xl">
-            Faça o Upload do seu currículo Lattes para finalizar o seu cadastro
-          </p>
-        </div>
+        </motion.div>
+      </motion.div>
 
-        {/* Imagem ilustrativa no fundo da div */}
-        <div className="mb-0 md:mb-0">
-          <div className="mb-0 md:mb-0 flex justify-center">
-            <Image
-              src="/images/ilustracao-importacao.png"
-              alt="ilustracao-importacao"
-              width={400}
-              height={400}
-              className="w-[250px] md:w-[400px] lg:w-[600px] h-auto object-contain"
-              quality={100}
-              priority
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Lado esquerdo no desktop — upload */}
-      <div className="bg-[#990000] w-full md:w-1/2 h-[50%] md:h-screen text-white flex flex-col items-center justify-center">
-        {/* Container vermelho */}
-
-        {/* Título */}
-        <h1 className="text-xl md:text-2xl mb-4 text-center px-4">
-          Upload do Currículo Lattes (XML)
-        </h1>
-
-        {/* Formulário de envio */}
-        <form onSubmit={enviarArquivo} className="flex flex-col items-center">
-          {/* Input de arquivo escondido */}
-          <input
-            id="arquivo"
-            type="file"
-            accept=".xml"
-            onChange={(e) => setArquivo(e.target.files[0])} // Atualiza o estado com o arquivo selecionado
-            className="hidden"
-          />
-
-          {/* Label que funciona como botão para selecionar o arquivo */}
-          <label htmlFor="arquivo" className="cursor-pointer">
-            <Image
-              src="/images/upload.png"
-              alt="curriculo-import"
-              width={100}
-              height={100}
-            />
-          </label>
-
-          {/* Exibe o nome do arquivo se houver arquivo selecionado */}
-          {arquivo && (
-            <p className="mt-2 text-sm text-center px-4">
-              Arquivo selecionado: <span className="font-semibold">{arquivo.name}</span>
-            </p>
-          )}
-
-          <br />
-
-          {/* Botão de envio */}
-          <button
-            type="submit"
-            className="bg-white text-[#990000] px-4 py-2 rounded"
+      {/* Lado direito - Área de upload */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full md:w-1/2 bg-[#990000] text-white flex flex-col items-center justify-center py-12 px-4"
+      >
+        <div className="w-full max-w-md flex flex-col items-center">
+          <motion.h1
+            className="text-2xl md:text-3xl font-bold mb-6 text-center"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Enviar para a API
-          </button>
-        </form>
-      </div>
+            Upload do Currículo Lattes (XML)
+          </motion.h1>
+
+          <form onSubmit={enviarArquivo} className="w-full max-w-sm">
+            <input
+              id="arquivo"
+              type="file"
+              accept=".xml"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              className="hidden"
+            />
+
+            <motion.div
+              className={`w-full p-8 rounded-xl border-2 border-dashed min-h-[250px] ${
+                isDragging ? "border-white bg-[#b30000]" : "border-[#ff9999]"
+              } flex flex-col items-center justify-center cursor-pointer transition-all duration-300 mb-4`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: isDragging ? [0, -5, 0] : 0 }}
+                transition={{ repeat: isDragging ? Infinity : 0, duration: 1 }}
+              >
+                <Image
+                  src="/images/upload.png"
+                  alt="curriculo-import"
+                  width={120}
+                  height={120}
+                  className="mb-4"
+                />
+              </motion.div>
+
+              <p className="text-center text-lg font-medium mb-2">
+                {isDragging
+                  ? "Solte seu arquivo aqui"
+                  : "Arraste e solte ou clique para selecionar"}
+              </p>
+              <p className="text-center text-sm opacity-80">
+                Apenas arquivos XML são aceitos
+              </p>
+            </motion.div>
+
+            {/* Mensagem de erro */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4 w-full overflow-hidden"
+                >
+                  <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded">
+                    <div className="flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="font-medium">{error}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {arquivo && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6 overflow-hidden"
+                >
+                  <div className="bg-[#b30000] rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <svg
+                        className="w-6 h-6 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      <span className="truncate max-w-xs">{arquivo.name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setArquivo(null)}
+                      className="text-white hover:text-gray-200 transition-colors duration-200 cursor-pointer"
+                      style={{ cursor: "pointer" }}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.button
+              type="submit"
+              className={`w-full py-3 px-6 rounded-lg font-medium text-[#990000] bg-white hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center ${
+                !arquivo ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              }`}
+              disabled={!arquivo || isLoading}
+              whileHover={arquivo ? { scale: 1.02 } : {}}
+              whileTap={arquivo ? { scale: 0.95 } : {}}
+              style={{ cursor: arquivo ? "pointer" : "not-allowed" }}
+            >
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-[#990000]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processando...
+                </>
+              ) : (
+                "Enviar para a API"
+              )}
+            </motion.button>
+          </form>
+        </div>
+      </motion.div>
     </div>
   );
 }
