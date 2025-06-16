@@ -9,7 +9,7 @@ export default function SelecionandoTags() {
 
   const tagsQuery = searchParams.get("tags");
 
-  const [tagsSelecionadas, setTagsSelecionadas] = useState([]);
+  const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
   const [novaTag, setNovaTag] = useState("");
 
   // Quando a página carregar, pega as tags da URL
@@ -30,7 +30,7 @@ export default function SelecionandoTags() {
   };
 
   // Remover uma tag
-  const handleRemoveTag = (tagParaRemover) => {
+  const handleRemoveTag = (tagParaRemover: string) => {
     setTagsSelecionadas(tagsSelecionadas.filter((tag) => tag !== tagParaRemover));
   };
 

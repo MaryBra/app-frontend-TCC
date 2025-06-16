@@ -6,11 +6,11 @@ import Image from "next/image";    // Componente otimizado de imagem do Next.js
 
 export default function Home() {
   // Estado para armazenar o arquivo XML selecionado
-  const [arquivo, setArquivo] = useState(null);
+  const [arquivo, setArquivo] = useState<File | null>(null);
   const router = useRouter(); // Hook para navegar entre páginas
 
   // Função para enviar o arquivo para a API
-  const enviarArquivo = async (e) => {
+  const enviarArquivo = async (e: { preventDefault: () => void; }) => {
     e.preventDefault(); // Previne o comportamento padrão do form
 
     // Verifica se o usuário selecionou algum arquivo
@@ -110,7 +110,12 @@ export default function Home() {
             id="arquivo"
             type="file"
             accept=".xml"
-            onChange={(e) => setArquivo(e.target.files[0])} // Atualiza o estado com o arquivo selecionado
+            onChange={(e) => {
+              const files = (e.target as HTMLInputElement).files;
+              if (files && files.length > 0) {
+                setArquivo(files[0]);
+              }
+            }} // Atualiza o estado com o arquivo selecionado
             className="hidden"
           />
 
