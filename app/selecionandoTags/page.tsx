@@ -2,398 +2,254 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { FiSearch, FiX, FiArrowRight, FiAlertCircle } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 
 export default function SelecionandoTags() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const tagsQuery = searchParams.get("tags");
 
-  const [tagsSelecionadas, setTagsSelecionadas] = useState([]);
+  const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
   const [novaTag, setNovaTag] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
     if (tagsQuery) {
       const tagsArray = tagsQuery.split(",").map((tag) => tag.trim());
       setTagsSelecionadas(tagsArray);
     }
+    setIsLoading(false);
   }, [tagsQuery]);
 
   const handleAddTag = () => {
     const tagFormatada = novaTag.trim();
-    if (tagFormatada !== "" && !tagsSelecionadas.includes(tagFormatada)) {
-      setTagsSelecionadas([...tagsSelecionadas, tagFormatada]);
-      setNovaTag("");
-      setError("");
-    } else if (tagFormatada === "") {
-      setError("Por favor, digite uma tag válida");
-    }
-  };
 
-  const handleRemoveTag = (tagParaRemover) => {
-    setTagsSelecionadas(
-      tagsSelecionadas.filter((tag) => tag !== tagParaRemover)
-    );
-  };
-
-  const handleContinuar = () => {
-    if (tagsSelecionadas.length === 0) {
-      setError("Selecione pelo menos uma tag para continuar");
+    if (tagFormatada === "") {
+      setErro("Por favor, digite uma tag válida");
       return;
     }
 
-    setIsLoading(true);
-    const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
-    setTimeout(() => {
-      router.push(`/telaPerfil?tags=${tagsString}`);
-    }, 500);
+    if (tagsSelecionadas.includes(tagFormatada)) {
+      setErro("Esta tag já foi adicionada");
+      return;
+    }
+
+    setTagsSelecionadas([...tagsSelecionadas, tagFormatada]);
+    setNovaTag("");
+    setErro("");
   };
 
-  const handleVoltar = () => {
-    router.back();
+  const handleRemoveTag = (tagParaRemover: string) => {
+    setTagsSelecionadas(
+      tagsSelecionadas.filter((tag) => tag !== tagParaRemover)
+    );
+    setErro("");
   };
+
+  const handleContinuar = () => {
+    const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
+    router.push(`/telaPerfil?tags=${tagsString}`);
+  };
+
+  const PulsePlaceholder = () => (
+    <div className="flex space-x-2 animate-pulse">
+      <div className="h-3 w-3 rounded-full bg-gray-300"></div>
+      <div className="h-3 w-3 rounded-full bg-gray-300"></div>
+      <div className="h-3 w-3 rounded-full bg-gray-300"></div>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
-      {/* Lado esquerdo - Conteúdo informativo */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center py-8 md:py-12 px-4"
-      >
-        <div className="w-full max-w-md flex flex-col items-center justify-center mb-8">
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-            className="flex flex-col items-center"
-          >
-            <Image
-              src="/images/logo_1.png"
-              alt="Logo"
-              width={200}
-              height={200}
-              quality={100}
-              priority
-              className="drop-shadow-lg mb-8 transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-            />
-            <motion.h1
-              className="text-3xl md:text-4xl font-bold mb-2 text-center text-gray-800 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              Personalize seu Perfil
-            </motion.h1>
-            <motion.div
-              className="bg-white/80 p-6 rounded-xl border border-gray-200 max-w-md shadow-lg backdrop-blur-sm mt-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              <p className="text-gray-700 text-center">
-                Essas tags foram geradas automaticamente a partir do seu
-                currículo. Você pode adicionar novas ou remover as que não se
-                aplicam.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        <motion.div
-          className="w-full max-w-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
+    >
+      {/* Cabeçalho */}
+      <div className="w-full max-w-4xl mb-6 sm:mb-8 lg:mb-10 text-center">
+        <motion.h1
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4"
         >
-          <Image
-            src="/images/ilustracao-importacao.png"
-            alt="Ilustração de tags"
-            width={500}
-            height={400}
-            className="w-full h-auto object-contain transform hover:scale-105 transition-transform duration-500"
-            quality={100}
-            priority
-          />
-        </motion.div>
-      </motion.div>
+          Escolha as tags que mais combinam com você!
+        </motion.h1>
 
-      {/* Lado direito - Área de seleção de tags */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-sm sm:text-base lg:text-lg text-gray-600 px-2 sm:px-0"
+        >
+          Elas foram geradas automaticamente a partir das palavras-chave
+          encontradas no seu currículo e ajudam a destacar suas áreas de
+          atuação. Você pode editá-las a qualquer momento, se desejar.
+        </motion.p>
+      </div>
+
+      {/* Container principal */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full md:w-1/2 bg-gradient-to-br from-[#990000] to-[#660000] text-white flex flex-col items-center justify-center py-12 px-4"
+        initial={{ scale: 0.98, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="bg-white p-4 sm:p-6 md:p-8 lg:p-10 rounded-xl sm:rounded-2xl w-full max-w-4xl shadow-md sm:shadow-lg border border-gray-200"
       >
-        <div className="w-full max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8 text-center"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">Suas Tags</h2>
-            <p className="text-white/80 mb-4">
-              Selecione as tags que melhor representam suas habilidades e
-              interesses profissionais.
-            </p>
-          </motion.div>
-
-          {/* Input para adicionar nova tag */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mb-6"
-          >
-            <div className="flex shadow-xl rounded-lg overflow-hidden">
-              <input
-                type="text"
-                placeholder="Digite uma nova tag..."
-                value={novaTag}
-                onChange={(e) => {
-                  setNovaTag(e.target.value);
-                  setError("");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-                className="flex-grow border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all text-white placeholder-white/50 hover:bg-white/15"
-              />
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  backgroundColor: "rgba(255,255,255,0.9)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleAddTag}
-                className="bg-white text-[#990000] px-6 font-medium transition-all flex items-center justify-center cursor-pointer hover:bg-gray-100"
-              >
-                <span className="text-xl">+</span>
-              </motion.button>
-            </div>
+        {/* Container do input com mensagem de erro */}
+        <div className="mb-2 sm:mb-3">
+          <motion.div whileHover={{ scale: 1.005 }} className="relative w-full">
+            <input
+              type="text"
+              placeholder="Adicionar outras tags"
+              value={novaTag}
+              onChange={(e) => {
+                setNovaTag(e.target.value);
+                setErro("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+              className={`w-full border-2 ${
+                erro ? "border-red-500" : "border-gray-200"
+              } rounded-full px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg text-gray-900 focus:outline-none focus:ring-2 ${
+                erro ? "focus:ring-red-200" : "focus:ring-red-200"
+              } pr-12 sm:pr-14 placeholder-gray-500 bg-white shadow-sm transition-all duration-300`}
+            />
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleAddTag}
+              className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-red-600 hover:text-red-700 cursor-pointer transition-colors duration-200"
+              aria-label="Adicionar tag"
+            >
+              <FiSearch size={20} className="sm:w-6 sm:h-6" />
+            </motion.button>
           </motion.div>
 
           {/* Mensagem de erro */}
           <AnimatePresence>
-            {error && (
+            {erro && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-4 overflow-hidden"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center mt-1 sm:mt-2 ml-3 sm:ml-4 text-red-600 text-xs sm:text-sm"
               >
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{error}</span>
-                </div>
+                <FiAlertCircle className="mr-1 w-3 h-3 sm:w-4 sm:h-4" />
+                <span>{erro}</span>
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
 
-          {/* Área de tags */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mb-8 p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 min-h-[250px] shadow-inner"
-          >
-            <motion.h3
-              className="text-lg font-semibold mb-4 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              Tags Selecionadas
-            </motion.h3>
-
-            {tagsSelecionadas.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center h-full py-8"
-              >
-                <svg
-                  className="w-12 h-12 text-white/30 mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                  />
-                </svg>
-                <p className="text-white/50 italic">Nenhuma tag selecionada</p>
-              </motion.div>
-            ) : (
-              <div className="flex flex-wrap gap-3 justify-center">
-                <AnimatePresence>
+        {/* Área de tags */}
+        <div className="w-full min-h-40 sm:min-h-52 p-3 sm:p-4 md:p-6 rounded-lg sm:rounded-xl bg-gray-50 border-2 border-gray-200 transition-all duration-300 hover:border-gray-300">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32 sm:h-40">
+              <PulsePlaceholder />
+            </div>
+          ) : (
+            <AnimatePresence>
+              {tagsSelecionadas.length > 0 ? (
+                <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
                   {tagsSelecionadas.map((tag) => (
                     <motion.div
                       key={tag}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
-                      whileHover={{
-                        scale: 1.05,
-                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                      layout
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, x: 20 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
                       }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center bg-white text-[#990000] px-4 py-2 rounded-full shadow-md cursor-pointer hover:shadow-lg transition-all"
+                      whileHover={{ scale: 1.05 }}
+                      className="flex items-center gap-2 sm:gap-3 border-2 border-gray-200 rounded-full px-3 sm:px-4 md:px-5 py-1 sm:py-2 md:py-3 bg-white text-gray-800 text-sm sm:text-base font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                     >
-                      <span className="font-medium whitespace-nowrap">
+                      <motion.span
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <FiX
+                          size={14}
+                          className="sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] text-red-600 cursor-pointer hover:text-red-800 transition-colors duration-200"
+                          onClick={() => handleRemoveTag(tag)}
+                          aria-label={`Remover tag ${tag}`}
+                        />
+                      </motion.span>
+                      <span className="truncate max-w-[120px] sm:max-w-[150px] md:max-w-xs">
                         {tag}
                       </span>
-                      <motion.button
-                        whileHover={{ scale: 1.3, color: "#800000" }}
-                        whileTap={{ scale: 0.8 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveTag(tag);
-                        }}
-                        className="ml-2 font-bold text-lg transition-all cursor-pointer"
-                      >
-                        ×
-                      </motion.button>
                     </motion.div>
                   ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </motion.div>
-
-          {/* Botões de ação */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="flex justify-between gap-4"
-          >
-            <motion.button
-              onClick={handleVoltar}
-              whileHover={{
-                scale: 1.02,
-                backgroundColor: "rgba(255,255,255,0.15)",
-              }}
-              whileTap={{ scale: 0.98 }}
-              className="flex-1 py-3 text-white font-medium rounded-lg border border-white/30 transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-white/50"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Voltar
-            </motion.button>
-
-            <motion.button
-              whileHover={{
-                scale: 1.02,
-                boxShadow: "0 4px 14px rgba(255,255,255,0.3)",
-              }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleContinuar}
-              disabled={isLoading || tagsSelecionadas.length === 0}
-              className={`flex-1 py-3 rounded-lg font-semibold text-lg transition-all flex items-center justify-center gap-2 ${
-                isLoading || tagsSelecionadas.length === 0
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-white text-[#990000] hover:bg-gray-100 cursor-pointer"
-              }`}
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processando...
-                </>
+                </div>
               ) : (
-                <>
-                  Continuar
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
-                </>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center justify-center h-32 sm:h-40"
+                >
+                  <p className="text-gray-500 text-sm sm:text-base md:text-lg">
+                    Adicione tags para começar...
+                  </p>
+                </motion.div>
               )}
-            </motion.button>
-          </motion.div>
+            </AnimatePresence>
+          )}
         </div>
       </motion.div>
 
-      <style jsx global>{`
-        .cursor-pointer {
-          cursor: pointer;
-        }
-        .cursor-pointer:hover {
-          cursor: pointer;
-        }
-        button,
-        input[type="text"],
-        .tag-item {
-          transition: all 0.3s ease;
-        }
-      `}</style>
-    </div>
+      {/* Botão de continuar*/}
+      <motion.div
+        className="flex justify-end w-full max-w-4xl mt-4 sm:mt-5 md:mt-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <motion.button
+          onClick={handleContinuar}
+          disabled={tagsSelecionadas.length === 0}
+          whileHover={
+            tagsSelecionadas.length > 0
+              ? {
+                  scale: 1.03,
+                  boxShadow: "0px 5px 15px rgba(176, 0, 0, 0.3)",
+                }
+              : {}
+          }
+          whileTap={tagsSelecionadas.length > 0 ? { scale: 0.97 } : {}}
+          className={`flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 rounded-md font-semibold text-white text-base sm:text-lg transition-all duration-300 ${
+            tagsSelecionadas.length === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#b00000] hover:bg-[#900000] cursor-pointer shadow-md"
+          }`}
+          aria-label="Continuar para o próximo passo"
+        >
+          Continuar
+          <motion.span
+            animate={tagsSelecionadas.length > 0 ? { x: [0, 5, 0] } : {}}
+            transition={
+              tagsSelecionadas.length > 0
+                ? {
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut",
+                  }
+                : {}
+            }
+          >
+            <FiArrowRight size={18} className="sm:w-5 sm:h-5" />
+          </motion.span>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }
