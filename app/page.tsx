@@ -107,7 +107,7 @@ export default function Home() {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full md:w-1/2 bg-white flex flex-col items-center justify-center py-8 md:py-12 px-4"
+        className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center py-8 md:py-12 px-4"
       >
         <div className="w-full max-w-md flex flex-col items-center justify-center">
           <motion.div
@@ -123,7 +123,7 @@ export default function Home() {
               height={200}
               quality={100}
               priority
-              className="drop-shadow-md"
+              className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer"
             />
             <motion.p
               className="text-center mt-6 text-gray-700 text-xl md:text-2xl font-medium"
@@ -148,7 +148,7 @@ export default function Home() {
             alt="ilustracao-importacao"
             width={600}
             height={600}
-            className="w-full max-w-md md:max-w-lg lg:max-w-xl h-auto object-contain"
+            className="w-full max-w-md md:max-w-lg lg:max-w-xl h-auto object-contain transform hover:scale-105 transition-transform duration-500"
             quality={100}
             priority
           />
@@ -160,7 +160,7 @@ export default function Home() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full md:w-1/2 bg-[#990000] text-white flex flex-col items-center justify-center py-12 px-4"
+        className="w-full md:w-1/2 bg-gradient-to-br from-[#990000] to-[#660000] text-white flex flex-col items-center justify-center py-12 px-4"
       >
         <div className="w-full max-w-md flex flex-col items-center">
           <motion.h1
@@ -277,7 +277,6 @@ export default function Home() {
                       type="button"
                       onClick={() => setArquivo(null)}
                       className="text-white hover:text-gray-200 transition-colors duration-200 cursor-pointer"
-                      style={{ cursor: "pointer" }}
                     >
                       <svg
                         className="w-5 h-5"
@@ -307,7 +306,6 @@ export default function Home() {
               disabled={!arquivo || isLoading}
               whileHover={arquivo ? { scale: 1.02 } : {}}
               whileTap={arquivo ? { scale: 0.95 } : {}}
-              style={{ cursor: arquivo ? "pointer" : "not-allowed" }}
             >
               {isLoading ? (
                 <>
@@ -340,6 +338,20 @@ export default function Home() {
           </form>
         </div>
       </motion.div>
+
+      <style jsx global>{`
+        .cursor-pointer {
+          cursor: pointer;
+        }
+        .cursor-pointer:hover {
+          cursor: pointer;
+        }
+        button,
+        input[type="text"],
+        .tag-item {
+          transition: all 0.3s ease;
+        }
+      `}</style>
     </div>
   );
 }
