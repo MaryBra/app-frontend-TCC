@@ -30,4 +30,38 @@ export default function TelaPerfil() {
       </ul>
     </div>
   );
+  
+  // Modal para ver meios de contato
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      
+      <button
+        className="bg-[#990000] text-white px-6 py-2 rounded hover:bg-red-700"
+        onClick={() => setAberto(true)}
+      >
+        Ver meios de contato
+      </button>
+
+      
+      {aberto && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-2xl font-semibold mb-4 text-center">Meios de Contato</h2>
+
+            <div className="space-y-2">
+              <p><strong>Telefone:</strong> {telefone}</p>
+              <p><strong>Email:</strong> {email}</p>
+            </div>
+
+            <button
+              className="mt-6 w-full bg-[#990000] text-white px-4 py-2 rounded hover:bg-red-700"
+              onClick={() => setAberto(false)}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
