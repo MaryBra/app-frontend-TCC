@@ -6,8 +6,20 @@ import Image from "next/image";    // Componente otimizado de imagem do Next.js
 
 export default function Home() {
   // Estado para armazenar o arquivo XML selecionado
-  const [arquivo, setArquivo] = useState(null);
+
+  const [arquivo, setArquivo] = useState<File | null>(null);
   const router = useRouter(); // Hook para navegar entre páginas
+
+  // Função para enviar o arquivo para a API
+  const enviarArquivo = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault(); // Previne o comportamento padrão do form
+
+  const [arquivo, setArquivo] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Função para enviar o arquivo para a API
   const enviarArquivo = async (e) => {
@@ -110,8 +122,29 @@ export default function Home() {
             id="arquivo"
             type="file"
             accept=".xml"
-            onChange={(e) => setArquivo(e.target.files[0])} // Atualiza o estado com o arquivo selecionado
+            onChange={(e) => {
+              const files = (e.target as HTMLInputElement).files;
+              if (files && files.length > 0) {
+                setArquivo(files[0]);
+              }
+            }} // Atualiza o estado com o arquivo selecionado
             className="hidden"
+
+
+        <motion.div
+          className="w-full max-w-2xl flex justify-center mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Image
+            src="/images/ilustracao-importacao.png"
+            alt="ilustracao-importacao"
+            width={600}
+            height={600}
+            className="w-full max-w-md md:max-w-lg lg:max-w-xl h-auto object-contain transform hover:scale-105 transition-transform duration-500"
+            quality={100}
+            priority
           />
 
           {/* Label que funciona como botão para selecionar o arquivo */}

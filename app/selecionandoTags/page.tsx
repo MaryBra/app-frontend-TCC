@@ -30,8 +30,15 @@ export default function SelecionandoTags() {
   };
 
   // Remover uma tag
-  const handleRemoveTag = (tagParaRemover) => {
+
+  const handleRemoveTag = (tagParaRemover: string) => {
     setTagsSelecionadas(tagsSelecionadas.filter((tag) => tag !== tagParaRemover));
+
+  const handleRemoveTag = (tagParaRemover: string) => {
+    setTagsSelecionadas(
+      tagsSelecionadas.filter((tag) => tag !== tagParaRemover)
+    );
+    setErro("");
   };
 
   // Quando clicar em Continuar: enviar as tags via query string para a próxima tela
