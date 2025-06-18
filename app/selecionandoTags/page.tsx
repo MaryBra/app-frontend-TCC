@@ -41,6 +41,10 @@ export default function SelecionandoTags() {
     setErro("");
   };
 
+  // Remover uma tag
+  const handleRemoveTag = (tagParaRemover: string) => {
+    setTagsSelecionadas(tagsSelecionadas.filter((tag) => tag !== tagParaRemover));
+
   const handleRemoveTag = (tagParaRemover: string) => {
     setTagsSelecionadas(
       tagsSelecionadas.filter((tag) => tag !== tagParaRemover)

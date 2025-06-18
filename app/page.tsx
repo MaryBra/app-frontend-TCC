@@ -6,6 +6,14 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
+  // Estado para armazenar o arquivo XML selecionado
+  const [arquivo, setArquivo] = useState<File | null>(null);
+  const router = useRouter(); // Hook para navegar entre páginas
+
+  // Função para enviar o arquivo para a API
+  const enviarArquivo = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault(); // Previne o comportamento padrão do form
+
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -136,6 +144,32 @@ export default function Home() {
             </motion.p>
           </motion.div>
         </div>
+      </div>
+
+      {/* Lado esquerdo no desktop — upload */}
+      <div className="bg-[#990000] w-full md:w-1/2 h-[50%] md:h-screen text-white flex flex-col items-center justify-center">
+        {/* Container vermelho */}
+
+        {/* Título */}
+        <h1 className="text-xl md:text-2xl mb-4 text-center px-4">
+          Upload do Currículo Lattes (XML)
+        </h1>
+
+        {/* Formulário de envio */}
+        <form onSubmit={enviarArquivo} className="flex flex-col items-center">
+          {/* Input de arquivo escondido */}
+          <input
+            id="arquivo"
+            type="file"
+            accept=".xml"
+            onChange={(e) => {
+              const files = (e.target as HTMLInputElement).files;
+              if (files && files.length > 0) {
+                setArquivo(files[0]);
+              }
+            }} // Atualiza o estado com o arquivo selecionado
+            className="hidden"
+
 
         <motion.div
           className="w-full max-w-2xl flex justify-center mt-8"
