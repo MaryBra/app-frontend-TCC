@@ -9,6 +9,9 @@ export default function SelecionandoTags() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tagsQuery = searchParams.get("tags");
+  const idPesquisador = searchParams.get("idPesquisador");
+
+  console.log("Id do pesquisador na tela de seleção de tags: " + idPesquisador);
 
   const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
   const [novaTag, setNovaTag] = useState("");

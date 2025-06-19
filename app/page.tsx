@@ -60,45 +60,94 @@ export default function Home() {
   };
 
   const enviarArquivo = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!arquivo) {
-      setError("Selecione um arquivo XML.");
-      return;
-    }
+  if (!arquivo) {
+    setError("Selecione um arquivo XML.");
+    return;
+  }
 
-    setIsLoading(true);
-    setError(null);
+  setIsLoading(true);
+  setError(null);
 
+  try {
     const formData = new FormData();
     formData.append("xml", arquivo);
 
-    try {
-      const resposta = await fetch("http://localhost:8080/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+    // Faz upload do XML
+    const respostaUpload = await fetch("http://localhost:8080/api/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!resposta.ok) {
-        throw new Error("Erro ao enviar o arquivo.");
-      }
-
-      const resultado = await resposta.json();
-      const palavrasChave = resultado.keywords || [
-        "Engenharia Química",
-        "Biotecnologia",
-        "Processos Industriais",
-      ];
-      const tagsQuery = encodeURIComponent(palavrasChave.join(","));
-
-      router.push(`/selecionandoTags?tags=${tagsQuery}`);
-    } catch (error) {
-      console.error("Erro ao enviar:", error);
-      setError("Erro ao processar o arquivo. Tente novamente.");
-    } finally {
-      setIsLoading(false);
+    if (!respostaUpload.ok) {
+      throw new Error("Erro ao enviar o arquivo para upload.");
     }
-  };
+
+    // Lê o conteúdo de palavras-chave que o backend respondeu
+    const resultadoUpload = await respostaUpload.json();
+    const palavrasChave = resultadoUpload.keywords || ["Engenharia Química"];
+
+    // Agora lê o conteúdo do arquivo localmente para extrair dados (nome, nacionalidade, etc)
+    const xmlText = await arquivo.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+
+    const nomeNode = xmlDoc.querySelector('DADOS-GERAIS');
+    const nomeCompleto = nomeNode?.getAttribute('NOME-COMPLETO') || '';
+    const nacionalidade = nomeNode?.getAttribute('NACIONALIDADE') || '';
+    const paisNascimento = nomeNode?.getAttribute('PAIS-DE-NASCIMENTO') || '';
+    const dataAtualizacaoRaw = xmlDoc.documentElement.getAttribute('DATA-ATUALIZACAO') || '';
+
+    const partesNome = nomeCompleto.split(' ');
+    const nomePesquisador = partesNome.slice(0, -1).join(' ');
+    const sobrenome = partesNome.slice(-1).join(' ');
+
+    let dataAtualizacao = null;
+    if (dataAtualizacaoRaw.length === 8) {
+      dataAtualizacao = `${dataAtualizacaoRaw.substring(4, 8)}-${dataAtualizacaoRaw.substring(2, 4)}-${dataAtualizacaoRaw.substring(0, 2)}`;
+    }
+
+    const jsonData = {
+      usuario: { id: 1 },  // Troque por id do usuário logado se tiver auth
+      nomePesquisador: nomePesquisador,
+      sobrenome: sobrenome,
+      dataNascimento: null,
+      nomeCitacoesBibliograficas: nomeCompleto,
+      dataAtualizacao: dataAtualizacao,
+      horaAtualizacao: "10:00:00",
+      nacionalidade: nacionalidade,
+      paisNascimento: paisNascimento,
+      lattesId: null
+    };
+
+    // Agora envia o pesquisador para o backend
+    const respostaPesquisador = await fetch("http://localhost:8080/pesquisadores", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(jsonData)
+    });
+
+    if (!respostaPesquisador.ok) {
+      throw new Error("Erro ao salvar pesquisador.");
+    }
+
+    const resultadoPesquisador = await respostaPesquisador.json();
+    const idPesquisador = resultadoPesquisador.id;
+
+    console.log("ID Pesquisador criado:", idPesquisador);
+
+    // Por fim, redireciona para a tela de tags com id + tags
+    const tagsQuery = encodeURIComponent(palavrasChave.join(","));
+    router.push(`/selecionandoTags?tags=${tagsQuery}&idPesquisador=${idPesquisador}`);
+
+  } catch (error) {
+    console.error("Erro no processo:", error);
+    setError("Erro ao processar o arquivo ou salvar o pesquisador.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
