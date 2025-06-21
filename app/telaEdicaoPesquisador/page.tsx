@@ -13,20 +13,25 @@ import {
     UserRound,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function EditProfile() {
     // estado de exemplo
-    const [tags, setTags] = useState([
-        "Desenvolvimento de Software",
-        "Suporte Técnico",
-        "Redes de Computadores",
-        "Análise de Sistemas",
-        "DevOps",
-    ]);
+    const searchParams = useSearchParams();
+    const tagsParam = searchParams.get("tags");
+    const initialTags = tagsParam ? tagsParam.split(",") : [];
+    const [tags, setTags] = useState<string[]>(initialTags);
     const [newTag, setNewTag] = useState("");
     const [academics, setAcademics] = useState([
         { id: 1, titulo: "Ensino Médio Regular", ano: "2010", descricao: "Lorem ipsum dolor sit amet…" },
     ]);
+
+    const router = useRouter();
+
+    const [nome, setNome] = useState("Nome Completo");
+    const [especialidade, setEspecialidade] = useState("Especialidade");
+    const [telefone, setTelefone] = useState("(41) 99999‑9999");
+    const [email, setEmail] = useState("projetolaverse@gmail.com");
 
     const addTag = () => {
         if (newTag.trim()) {
@@ -92,7 +97,8 @@ export default function EditProfile() {
                                 <label className="block text-sm font-medium text-gray-600">Nome</label>
                                 <input
                                     type="text"
-                                    defaultValue="Malu Oliveira"
+                                    value={nome}
+                                    onChange={(e) => setNome(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -100,7 +106,8 @@ export default function EditProfile() {
                                 <label className="block text-sm font-medium text-gray-600">Especialidade</label>
                                 <input
                                     type="text"
-                                    defaultValue="Dev FrontEnd"
+                                    value={especialidade}
+                                    onChange={(e) => setEspecialidade(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -148,7 +155,8 @@ export default function EditProfile() {
                                 <label className="block text-sm text-gray-600">Email</label>
                                 <input
                                     type="email"
-                                    defaultValue="projetolaverse@gmail.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -156,7 +164,8 @@ export default function EditProfile() {
                                 <label className="block text-sm text-gray-600">Telefone</label>
                                 <input
                                     type="text"
-                                    defaultValue="(41) 99999‑9999"
+                                    value={telefone}
+                                    onChange={(e) => setTelefone(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -238,7 +247,13 @@ export default function EditProfile() {
                         <button className="px-6 py-2 border border-gray-400 rounded text-gray-700 hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800">
+                        <button 
+                            className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
+                            onClick={() => {
+                                const url = `/telaPerfil?nome=${encodeURIComponent(nome)}&especialidade=${encodeURIComponent(especialidade)}&tags=${encodeURIComponent(tags.join(","))}&email=${encodeURIComponent(email)}&telefone=${encodeURIComponent(telefone)}`;
+                                router.push(url);
+                            }}
+                        >
                             Gravar
                         </button>
                     </div>
