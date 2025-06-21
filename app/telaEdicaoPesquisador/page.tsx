@@ -19,6 +19,7 @@ export default function EditProfile() {
     // estado de exemplo
     const searchParams = useSearchParams();
     const tagsParam = searchParams.get("tags");
+    const idTag = searchParams.get("idTag")
     const initialTags = tagsParam ? tagsParam.split(",") : [];
     const [tags, setTags] = useState<string[]>(initialTags);
     const [newTag, setNewTag] = useState("");
@@ -41,6 +42,27 @@ export default function EditProfile() {
     };
     const removeTag = (i: number) => setTags((t) => t.filter((_, idx) => idx !== i));
     const removeAcad = (id: number) => setAcademics((a) => a.filter((x) => x.id !== id));
+
+    const atualizarTags = (id: number) => {
+        fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            listaTags: tags
+            // inclua outros campos, se necessário
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Tag atualizada com sucesso:", data);
+        })
+        .catch(err => {
+          console.error("Erro ao atualizar tag:", err);
+        });
+    };
+      
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -250,7 +272,8 @@ export default function EditProfile() {
                         <button 
                             className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
                             onClick={() => {
-                                const url = `/telaPerfil?nome=${encodeURIComponent(nome)}&especialidade=${encodeURIComponent(especialidade)}&tags=${encodeURIComponent(tags.join(","))}&email=${encodeURIComponent(email)}&telefone=${encodeURIComponent(telefone)}`;
+                                atualizarTags(Number(idTag));
+                                const url = `/telaPerfil?nome=${encodeURIComponent(nome)}&especialidade=${encodeURIComponent(especialidade)}&tags=${encodeURIComponent(tags.join(","))}&email=${encodeURIComponent(email)}&telefone=${encodeURIComponent(telefone)}&idTag=${idTag}`;
                                 router.push(url);
                             }}
                         >

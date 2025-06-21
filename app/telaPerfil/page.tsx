@@ -9,6 +9,7 @@ import { useState } from "react";
 export default function TelaPerfil() {
   const searchParams = useSearchParams();
   const tagsParam = searchParams.get("tags");
+  const idTag = searchParams.get("idTag");
   const nome = searchParams.get("nome") || "Nome Completo";
   const especialidade = searchParams.get("especialidade") || "Especialidade";
   const [aberto, setAberto] = useState(false);
@@ -63,7 +64,7 @@ export default function TelaPerfil() {
         <div className="bg-[#990000] p-6 text-white relative shadow-md">
           {/* Botão de Edição */}
           <Link
-              href={`/telaEdicaoPesquisador?tags=${encodeURIComponent(tags.join(","))}`}
+              href={`/telaEdicaoPesquisador?tags=${encodeURIComponent(tags.join(","))}&idTag=${idTag}`}
               className="absolute top-4 right-4 bg-white text-[#990000] p-2 rounded-full shadow hover:bg-gray-100 transition"
               title="Editar Perfil"
           >
