@@ -67,10 +67,13 @@ export default function SelecionandoTags() {
       if (!resposta.ok) {
         throw new Error("Erro ao salvar as tags");
       }
-  
+
+      const data = await resposta.json(); // <- Aqui você pega o JSON com o id
+      console.log("Tag salva com sucesso. ID retornado:", data.id);
       // Se tudo der certo, redireciona
       const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
-      router.push(`/telaPerfil?tags=${tagsString}`);
+      router.push(`/telaPerfil?tags=${tagsString}&idTag=${data.id}`);
+
     } catch (error) {
       console.error("Erro ao salvar tags:", error);
       setErro("Não foi possível salvar as tags. Tente novamente.");

@@ -1,16 +1,20 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Home, User, Settings, LogOut, LayoutDashboard, Target } from "lucide-react";
+import { Home, User, Settings, LogOut, LayoutDashboard, Target, Pencil } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 
 export default function TelaPerfil() {
   const searchParams = useSearchParams();
   const tagsParam = searchParams.get("tags");
+  const idTag = searchParams.get("idTag");
+  const nome = searchParams.get("nome") || "Nome Completo";
+  const especialidade = searchParams.get("especialidade") || "Especialidade";
   const [aberto, setAberto] = useState(false);
-  const [telefone] = useState("(00) 12345-6789");
-  const [email] = useState("usuario@exemplo.com");
+  const email = searchParams.get("email") || "usuario@exemplo.com";
+  const telefone = searchParams.get("telefone") || "(00) 12345-6789";
 
   const tags = tagsParam ? tagsParam.split(",") : [];
 
@@ -58,6 +62,14 @@ export default function TelaPerfil() {
       <main className="flex-1 flex flex-col ml-20 bg-[#ECECEC]">
         {/* Topo Vermelho */}
         <div className="bg-[#990000] p-6 text-white relative shadow-md">
+          {/* Botão de Edição */}
+          <Link
+              href={`/telaEdicaoPesquisador?tags=${encodeURIComponent(tags.join(","))}&idTag=${idTag}`}
+              className="absolute top-4 right-4 bg-white text-[#990000] p-2 rounded-full shadow hover:bg-gray-100 transition"
+              title="Editar Perfil"
+          >
+            <Pencil size={20} />
+          </Link>
           <div className="flex items-start gap-6">
             {/* Foto do usuário */}
             <div className="rounded-md flex items-center justify-center overflow-hidden">
@@ -71,8 +83,8 @@ export default function TelaPerfil() {
 
             {/* Nome, Cargo e Tags */}
             <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-1">Nome Completo</h1>
-              <h2 className="text-xl mb-4">Especialidade</h2>
+              <h1 className="text-4xl font-bold mb-1">{nome}</h1>
+              <h2 className="text-xl mb-4">{especialidade}</h2>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
