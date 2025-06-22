@@ -51,9 +51,30 @@ export default function SelecionandoTags() {
     setErro("");
   };
 
-  const handleContinuar = () => {
-    const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
-    router.push(`/telaPerfil?tags=${tagsString}`);
+  const handleContinuar = async () => {
+    const jsonData = {
+      pesquisador: { id: Number(idPesquisador) },
+      listaTags: tagsSelecionadas,
+    };
+  
+    try {
+      const resposta = await fetch("http://localhost:8080/api/tags/salvarTag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
+      });
+  
+      if (!resposta.ok) {
+        throw new Error("Erro ao salvar as tags");
+      }
+  
+      // Se tudo der certo, redireciona
+      const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
+      router.push(`/telaPerfil?tags=${tagsString}`);
+    } catch (error) {
+      console.error("Erro ao salvar tags:", error);
+      setErro("Não foi possível salvar as tags. Tente novamente.");
+    }
   };
 
   const PulsePlaceholder = () => (
