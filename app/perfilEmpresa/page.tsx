@@ -53,7 +53,7 @@ export default function Empresa() {
           </div>
 
           {/* Botão editar (canto superior direito) */}
-          <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100">
+          <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100" onClick={() => router.push("/edicaoEmpresa")}>
             ✏️
           </button>
 
