@@ -74,11 +74,16 @@ export default function Inicio() {
       setor,
       frase,
       textoEmpresa,
-      endereco: { logradouro, numeroEndereco, cidade, estado, cep, bairro }
+      logradouro, 
+      numeroEndereco, 
+      cidade, 
+      estado, 
+      cep, 
+      bairro
     };
 
     try {
-      const res = await fetch("/localhost:8080/api/empresas/salvarEmpresa", { 
+      const res = await fetch("http://localhost:8080/api/empresas/salvarEmpresa", { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",

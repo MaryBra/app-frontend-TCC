@@ -1,31 +1,51 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, Camera } from 'lucide-react';
 import MenuLateral from "../components/MenuLateral";
+import { useParams, useSearchParams  } from 'next/navigation';
 
 export default function EditarPerfil() {
-  const [formData, setFormData] = useState({
-    // Informações Principais
-    nomeRegistro: 'Empresa de Tecnologia LTDA',
-    nomeComercial: 'TechCorp',
-    cnpj: '12.345.678/0001-90',
-    telefone: '(41) 99999-9999',
-    email: 'contato@techcorp.com.br',
-    site: 'www.techcorp.com.br',
-    setor: 'Desenvolvimento de Software',
-    
-    // Informações de Endereço
-    cep: '80010-000',
-    logradouro: 'Rua das Flores, 123',
-    numeroEndereco: '123',
-    bairro: 'Centro',
-    cidade: 'Curitiba',
-    estado: 'PR',
-    
-    // Informações Gerais
-    frase: 'Inovação e tecnologia para transformar o seu negócio',
-    textoEmpresa: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam bibendum, sem non gravida varius, libero lacus varius ipsum, a posuere lorem diam non elit. Aliquam gravida commodo enim, et volutpat libero tincidunt in. Sed sed feugiat felis, molestie cursus tortor. Maecenas ut amet sem lacus. Etiam eu semper nisl. Suspendisse quis elit id ligula ultrices aliquet commodo quis leo. Donec eleifend quam mauris, ac ornare purus congue vitae. Etiam ac pharetra elit. Vestibulum ipsum magna, vulputate vitae felis eu, dapibus venenatis elit. Mauris et nibh et dolor venenatis cursus a vel velit. Ut semper tincidunt erat eget tincidunt.'
-  });
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+  console.log(id)
+  const [formData, setFormData] = useState({});
+
+  const buscarInfoEmpresa = async () => {
+    try{
+      const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      const data = await res.json();
+      console.log(data)
+      setFormData(prev => ({
+        nomeRegistro: data.nomeRegistro || "",
+        nomeComercial: data.nomeComercial || "",
+        cnpj: data.cnpj || "",
+        telefone: data.telefone || "",
+        email: data.email || "",
+        site: data.site || "",
+        setor: data.setor || "Desenvolvimento de Software",
+        cep: data.cep || "",
+        logradouro: data.logradouro || "",
+        numeroEndereco: data.numeroEndereco || "",
+        bairro: data.bairro || "",
+        cidade: data.cidade || "",
+        estado: data.estado || "PR",
+        frase: data.frase || "",
+        textoEmpresa: data.textoEmpresa || ""
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar empresa:", error);
+    }
+  }
+
+  useEffect(() => {
+    buscarInfoEmpresa();
+  }, [id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,9 +60,18 @@ export default function EditarPerfil() {
     console.log('Cancelar edição');
   };
 
-  const handleSave = () => {
-    // Lógica para salvar os dados
-    console.log('Dados salvos:', formData);
+  const handleSave = async () => {
+    try{
+      const res = await fetch(`http://localhost:8080/api/empresas/alterarEmpresa/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if(!res.ok) throw new Error("Erro ao salvar empresa");
+    }catch (error){
+      console.error(error);
+    }
   };
 
   return (

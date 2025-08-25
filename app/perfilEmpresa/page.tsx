@@ -1,10 +1,32 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MenuLateral from "../components/MenuLateral";
 
 export default function Empresa() {
   const router = useRouter();
+  const [infoEmpresa, setInfoEmpresa] = useState({});
+
+  const buscarInfoEmpresa = async () => {
+    try{
+      const res = await fetch("http://localhost:8080/api/empresas/listarEmpresa/1", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      const data = await res.json();
+      setInfoEmpresa(data);
+    } catch (error) {
+      console.error("Erro ao buscar empresa:", error);
+    }
+  }
+
+  useEffect(() => {
+    buscarInfoEmpresa();
+  }, [])
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -25,23 +47,23 @@ export default function Empresa() {
           {/* Infos da empresa */}
           <div className="flex-1 flex flex-col justify-between">
             <div>
-              <h1 className="text-5xl font-bold text-gray-700 mb-2">Empresa de Tecnologia</h1>
-              <h2 className="text-2xl text-gray-700">Frase de destaque que represente a empresa</h2>
+              <h1 className="text-5xl font-bold text-gray-700 mb-2">{infoEmpresa.nomeComercial}</h1>
+              <h2 className="text-2xl text-gray-700">{infoEmpresa.frase}</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm text-white">
                 <div>
                   <p><span className="font-bold text-gray-700">Sede</span></p>
-                  <p className="text-gray-700 mb-2">📍Curitiba, PR</p>
+                  <p className="text-gray-700 mb-2">📍{infoEmpresa.cidade}, {infoEmpresa.estado}</p>
                   <p><span className="font-bold text-gray-700">Site</span></p>
-                  <p className="text-gray-700 mb-2">www.site.com.br</p>
+                  <p className="text-gray-700 mb-2">{infoEmpresa.site}</p>
                   <p><span className="font-bold text-gray-700">Setor</span></p>
-                  <p className="text-gray-700">Desenvolvimento de Software</p>
+                  <p className="text-gray-700">{infoEmpresa.setor}</p>
                 </div>
                 <div>
                   <p><span className="font-bold text-gray-700">Telefone</span></p>
-                  <p className="text-gray-700 mb-2">(41) 9999-9999</p>
+                  <p className="text-gray-700 mb-2">{infoEmpresa.telefone}</p>
                   <p><span className="font-bold text-gray-700">Email</span></p>
-                  <p className="text-gray-700">email@email.com.br</p>
+                  <p className="text-gray-700">{infoEmpresa.email}</p>
                 </div>
               </div>
             </div>
@@ -53,7 +75,7 @@ export default function Empresa() {
           </div>
 
           {/* Botão editar (canto superior direito) */}
-          <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100" onClick={() => router.push("/edicaoEmpresa")}>
+          <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100" onClick={() => router.push(`/edicaoEmpresa?id=${infoEmpresa.id}`)}>
             ✏️
           </button>
 
@@ -69,10 +91,7 @@ export default function Empresa() {
 
           <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
             <p>
-              A <strong>InovaTech Solutions</strong> é uma empresa especializada no desenvolvimento de software
-              sob medida, criada para transformar ideias em soluções digitais inovadoras. Nosso foco está em
-              criar sistemas ágeis, intuitivos e escaláveis, que ajudam empresas a otimizar processos e alcançar
-              melhores resultados.
+              A <strong>{infoEmpresa.nomeRegistro}</strong> {infoEmpresa.textoEmpresa}
             </p>
             <ul className="space-y-2 list-disc list-inside text-gray-700">
               <li>Desenvolvimento de aplicativos web e mobile personalizados.</li>
