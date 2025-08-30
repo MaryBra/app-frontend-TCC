@@ -1,20 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import MenuLateral from "../components/MenuLateral";
+import { useParams, useRouter } from "next/navigation";
+import MenuLateral from "../../components/MenuLateral";
 
 export default function Empresa() {
   const router = useRouter();
+  const { id } = useParams(); // pega o id da rota
   const [infoEmpresa, setInfoEmpresa] = useState({});
+  const [loading, setLoading] = useState(false); 
 
   const buscarInfoEmpresa = async () => {
-    try{
-      const res = await fetch("http://localhost:8080/api/empresas/listarEmpresa/1", {
+    try {
+      const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        }
+        headers: { "Content-Type": "application/json" }
       });
 
       const data = await res.json();
@@ -22,11 +22,20 @@ export default function Empresa() {
     } catch (error) {
       console.error("Erro ao buscar empresa:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    buscarInfoEmpresa();
-  }, [])
+    if (id) {
+      buscarInfoEmpresa();
+    }
+  }, [id]);
+
+  const handleEditar = () => {
+    setLoading(true); // ativa loading
+    setTimeout(() => {
+      router.push(`/edicaoEmpresa?id=${infoEmpresa.id}`);
+    }, 1000); // atraso pequeno só para mostrar o loading
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -74,9 +83,13 @@ export default function Empresa() {
             </button>
           </div>
 
-          {/* Botão editar (canto superior direito) */}
-          <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100" onClick={() => router.push(`/edicaoEmpresa?id=${infoEmpresa.id}`)}>
-            ✏️
+          {/* Botão editar */}
+          <button
+            className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
+            onClick={handleEditar}
+            disabled={loading}
+          >
+            {loading ? "⏳" : "✏️"}
           </button>
 
           {/* Última atualização */}
@@ -91,19 +104,18 @@ export default function Empresa() {
 
           <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
             <p>
-              A <strong>{infoEmpresa.nomeRegistro}</strong> {infoEmpresa.textoEmpresa}
+              {infoEmpresa.textoEmpresa}
             </p>
-            <ul className="space-y-2 list-disc list-inside text-gray-700">
-              <li>Desenvolvimento de aplicativos web e mobile personalizados.</li>
-              <li>Integração de sistemas e automação de processos.</li>
-              <li>Consultoria em tecnologia e transformação digital.</li>
-              <li>Equipe especializada em metodologias ágeis.</li>
-              <li>Suporte e manutenção contínua para garantir alta performance.</li>
-              <li>Soluções escaláveis que crescem junto com o seu negócio.</li>
-            </ul>
+            
           </div>
         </section>
       </main>
+      {/* Overlay de loading */}
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+        </div>
+      )}
     </div>
   );
 }

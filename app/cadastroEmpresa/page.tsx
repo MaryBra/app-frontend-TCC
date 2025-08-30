@@ -92,8 +92,9 @@ export default function Inicio() {
       });
 
       if (res.ok) {
+        const empresaCriada = await res.json(); //Back retorna o id cadastrado
         alert("Empresa cadastrada com sucesso!");
-        router.push("/perfilEmpresa"); 
+        router.push(`/perfilEmpresa/${empresaCriada.id}`); // vai direto para o perfil certo
       } else {
         alert("Erro ao cadastrar a empresa.");
       }
