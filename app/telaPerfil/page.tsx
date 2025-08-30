@@ -4,14 +4,17 @@ import { useSearchParams } from "next/navigation";
 import { Home, User, Settings, LogOut, LayoutDashboard, Target, Pencil } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function TelaPerfil() {
   const searchParams = useSearchParams();
   const tagsParam = searchParams.get("tags");
   const idTag = searchParams.get("idTag");
-  const nome = searchParams.get("nome") || "Nome Completo";
+  const [nome, setNome] = useState("Nome Completo");
   const especialidade = searchParams.get("especialidade") || "Especialidade";
+  const [paisNascimento, setPaisNascimento] = useState("País");
+  const [dataAtualizacao, setDataAtualizacao] = useState("");
+  const [horaAtualizacao, setHoraAtualizacao] = useState("");
   const [aberto, setAberto] = useState(false);
   const email = searchParams.get("email") || "usuario@exemplo.com";
   const telefone = searchParams.get("telefone") || "(00) 12345-6789";
@@ -23,6 +26,23 @@ export default function TelaPerfil() {
     { ano: "2024", titulo: "Artigo Infraestrutura de dados" },
     { ano: "2025", titulo: "Artigo Infraestrutura de dados" },
   ];
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/pesquisadores/listarPesquisadores")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const pesquisador = data.find((p) => p.id == Number(idTag));
+          if (pesquisador) {
+            setNome(`${pesquisador.nomePesquisador} ${pesquisador.sobrenome}`);
+            setPaisNascimento(pesquisador.paisNascimento || "Não informado");
+            setDataAtualizacao(pesquisador.dataAtualizacao || "");
+            setHoraAtualizacao(pesquisador.horaAtualizacao || "");
+          }
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar perfil:", err));
+  }, [idTag]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -129,8 +149,8 @@ export default function TelaPerfil() {
 
           {/* Info de localização e última atualização */}
           <div className="absolute right-6 bottom-4 text-sm">
-            <p>Cidade onde mora | Brasileira</p>
-            <p className="text-xs">Última atualização há 7 horas</p>
+            <p>{paisNascimento}</p>
+            <p className="text-xs">Última atualização em {dataAtualizacao} às {horaAtualizacao}</p>
           </div>
         </div>
 
@@ -163,15 +183,15 @@ export default function TelaPerfil() {
 
           {/* Card 2 - Formação Acadêmica */}
           <div className="flex-1 bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Formação Acadêmica</h2>
+            <h2 className="text-lg font-semibold mb-4 text-black">Formação Acadêmica</h2>
             <ul className="space-y-2">
-              <li className="bg-gray-100 p-3 rounded shadow-sm">
+              <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </li>
-              <li className="bg-gray-100 p-3 rounded shadow-sm">
+              <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </li>
-              <li className="bg-gray-100 p-3 rounded shadow-sm">
+              <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </li>
             </ul>
@@ -188,12 +208,12 @@ export default function TelaPerfil() {
               className="bg-white rounded-lg p-6 w-80 relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-semibold mb-4">Contato</h3>
+              <h3 className="text-xl font-semibold mb-4 text-black">Contato</h3>
               <p className="mb-2">
-                <strong>Telefone:</strong> {telefone}
+                <strong className="text-black">Telefone:</strong> {telefone}
               </p>
               <p className="mb-4">
-                <strong>Email:</strong> {email}
+                <strong className="text-black">Email:</strong> {email}
               </p>
               <button
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
