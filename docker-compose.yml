@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app-frontend:
+    build:
+      context: . # O contexto de build é o diretório atual, o que está correto.
+      target: deps # CORREÇÃO: Usa o estágio 'deps' do Dockerfile para desenvolvimento.
+    container_name: tcc-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Permite que o Next.js se atualize automaticamente ao salvar arquivos
+      - WATCHPACK_POLLING=true
+    volumes:
+      # Mapeia o diretório atual ('.') para a pasta /app do contêiner.
+      - .:/app
+      
+      # Esta linha continua sendo essencial para preservar a pasta node_modules
+      # que foi instalada durante o build da imagem.
+      - /app/node_modules
+    # Sobrescreve o CMD do Dockerfile para rodar em modo de desenvolvimento
+    command: npm run dev
