@@ -16,7 +16,6 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function EditProfileForm() { 
-// estado de exemplo
     const searchParams = useSearchParams();
     const tagsParam = searchParams.get("tags");
     const idTag = searchParams.get("idTag")
@@ -61,6 +60,22 @@ export default function EditProfileForm() {
         .catch(err => {
           console.error("Erro ao atualizar tag:", err);
         });
+    };
+
+    const excluirTags = (id: number) => {
+        fetch(`http://localhost:8080/api/tags/excluirTag/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Erro ao excluir tag");
+            console.log(`Tag com id ${id} removida com sucesso`);
+        })
+        .catch(err => {
+            console.error("Erro ao excluir tag:", err);
+        })
     };
       
 
@@ -272,7 +287,11 @@ export default function EditProfileForm() {
                         <button 
                             className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
                             onClick={() => {
-                                atualizarTags(Number(idTag));
+                                if (tags.length === 0) {
+                                    excluirTags(Number(idTag));
+                                } else {
+                                    atualizarTags(Number(idTag));
+                                }
                                 const url = `/telaPerfil?nome=${encodeURIComponent(nome)}&especialidade=${encodeURIComponent(especialidade)}&tags=${encodeURIComponent(tags.join(","))}&email=${encodeURIComponent(email)}&telefone=${encodeURIComponent(telefone)}&idTag=${idTag}`;
                                 router.push(url);
                             }}

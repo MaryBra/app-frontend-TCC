@@ -16,16 +16,13 @@ export default function ProfileScreen() {
     const [dataAtualizacao, setDataAtualizacao] = useState("");
     const [horaAtualizacao, setHoraAtualizacao] = useState("");
     const [aberto, setAberto] = useState(false);
-    const email = searchParams.get("email") || "usuario@exemplo.com";
-    const telefone = searchParams.get("telefone") || "(00) 12345-6789";
+    const [email, setEmail] = useState("");
+    const [telefone, setTelefone] = useState("");
+    const [formacao, setFormacao] = useState<any[]>([]);
 
     const tags = tagsParam ? tagsParam.split(",") : [];
 
-    const dados = [
-        { ano: "2023", titulo: "Artigo Engenharia de dados" },
-        { ano: "2024", titulo: "Artigo Infraestrutura de dados" },
-        { ano: "2025", titulo: "Artigo Infraestrutura de dados" },
-    ];
+    const [destaques, setDestaques] = useState<any[]>([]);
 
     useEffect(() => {
         fetch("http://localhost:8080/api/pesquisadores/listarPesquisadores")
@@ -43,6 +40,30 @@ export default function ProfileScreen() {
         })
         .catch((err) => console.error("Erro ao buscar perfil:", err));
     }, [idTag]);
+
+    useEffect(() => {
+        fetch("http://localhost:8080/api/enderecos/listarEnderecos")
+        .then((res) => res.json())
+        .then((data) => {
+            setEmail(data.email || "");
+            setTelefone(data.telefone || "");
+        })
+        .catch((err) => console.error("Erro ao buscar endereço:", err))
+    }, []);
+
+    useEffect(() => {
+        fetch("http://localhost:8080/premiacoes/listarPremiacoes")
+        .then((res) => res.json())
+        .then((data) => setDestaques(data))
+        .catch((err) => console.error("Erro ao buscar destaques:", err));
+    }, []);
+
+    useEffect(() => {
+        fetch("http://localhost:8080/formacoes/listarFormacoes")
+        .then((res) => res.json())
+        .then((data) => setFormacao(data))
+        .catch((err) => console.error("Erro ao buscar formação:", err));
+    }, []);
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -118,17 +139,7 @@ export default function ProfileScreen() {
                         </span>
                     ))
                     ) : (
-                    <>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Desenvolvimento de Software
-                        </span>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Suporte Técnico
-                        </span>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Redes de Computadores
-                        </span>
-                    </>
+                    <></>
                     )}
                 </div>
 
@@ -162,22 +173,23 @@ export default function ProfileScreen() {
 
                 {/* Caixa com scroll */}
                 <div className="relative border-l-2 border-gray-300 ml-4">
-                {dados.map((item, idx) => (
-                    <div key={idx} className="mb-8 flex items-center">
-                    <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
+                    {destaques.map((item, idx) => (
+                        <div key={idx} className="mb-8 flex items-center">
+                            <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
 
-                    {/* Ano + Título */}
-                    <div className="ml-6 flex items-center gap-2">
-                        <p className="text-lg font-semibold text-black">{item.ano}</p>
-                        <p className="text-sm text-gray-800">{item.titulo}</p>
-                    </div>
+                            {/* Ano + Título */}
+                            <div className="ml-6 flex items-center gap-2">
+                                <p className="text-lg font-semibold text-black">{item.ano}</p>
+                                <p className="text-sm text-gray-800">{item.titulo}</p>
+                                <p className="text-xs text-gray-600">{item.instituicao}</p>
+                            </div>
 
-                    {/* Botão */}
-                    <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
-                        Acessar
-                    </button>
-                    </div>
-                ))}
+                            {/* Botão */}
+                            <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
+                                Acessar
+                            </button>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -185,17 +197,27 @@ export default function ProfileScreen() {
             <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4 text-black">Formação Acadêmica</h2>
                 <ul className="space-y-2">
-                <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li className="bg-gray-100 p-3 rounded shadow-sm text-black">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
+                    {formacao.map((item, idx) => (
+                    <li key={idx} className="bg-gray-100 p-3 rounded shadow-sm text-black">
+                        <p className="font-semibold">{item.curso}</p>
+                        <p className="text-sm">{item.instituicao}</p>
+                        <p className="text-xs text-gray-600">
+                        {item.anoInicio} – {item.anoConclusao} ({item.status})
+                        </p>
+                        {item.tituloTrabalho && (
+                        <p className="text-xs text-gray-500 mt-1">
+                            <span className="font-semibold">Trabalho:</span> {item.tituloTrabalho}
+                        </p>
+                        )}
+                        {item.orientador && (
+                        <p className="text-xs text-gray-500">
+                            <span className="font-semibold">Orientador:</span> {item.orientador}
+                        </p>
+                        )}
+                    </li>
+                    ))}
                 </ul>
-            </div>
+                </div>
             </div>
 
             {/* Modal Contato */}
