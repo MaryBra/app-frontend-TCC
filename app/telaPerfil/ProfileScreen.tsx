@@ -173,23 +173,25 @@ export default function ProfileScreen() {
 
                 {/* Caixa com scroll */}
                 <div className="relative border-l-2 border-gray-300 ml-4">
-                    {destaques.map((item, idx) => (
-                        <div key={idx} className="mb-8 flex items-center">
-                            <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
+                    {Array.isArray(destaques) &&
+                        destaques.map((item, idx) => (
+                            <div key={idx} className="mb-8 flex items-center">
+                                <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
 
-                            {/* Ano + Título */}
-                            <div className="ml-6 flex items-center gap-2">
-                                <p className="text-lg font-semibold text-black">{item.ano}</p>
-                                <p className="text-sm text-gray-800">{item.titulo}</p>
-                                <p className="text-xs text-gray-600">{item.instituicao}</p>
+                                {/* Ano + Título */}
+                                <div className="ml-6 flex items-center gap-2">
+                                    <p className="text-lg font-semibold text-black">{item.ano}</p>
+                                    <p className="text-sm text-gray-800">{item.titulo}</p>
+                                    <p className="text-xs text-gray-600">{item.instituicao}</p>
+                                </div>
+
+                                {/* Botão */}
+                                <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
+                                    Acessar
+                                </button>
                             </div>
-
-                            {/* Botão */}
-                            <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
-                                Acessar
-                            </button>
-                        </div>
-                    ))}
+                        ))
+                    }
                 </div>
             </div>
 
@@ -197,25 +199,27 @@ export default function ProfileScreen() {
             <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4 text-black">Formação Acadêmica</h2>
                 <ul className="space-y-2">
-                    {formacao.map((item, idx) => (
-                    <li key={idx} className="bg-gray-100 p-3 rounded shadow-sm text-black">
-                        <p className="font-semibold">{item.curso}</p>
-                        <p className="text-sm">{item.instituicao}</p>
-                        <p className="text-xs text-gray-600">
-                        {item.anoInicio} – {item.anoConclusao} ({item.status})
-                        </p>
-                        {item.tituloTrabalho && (
-                        <p className="text-xs text-gray-500 mt-1">
-                            <span className="font-semibold">Trabalho:</span> {item.tituloTrabalho}
-                        </p>
-                        )}
-                        {item.orientador && (
-                        <p className="text-xs text-gray-500">
-                            <span className="font-semibold">Orientador:</span> {item.orientador}
-                        </p>
-                        )}
-                    </li>
-                    ))}
+                    {Array.isArray(formacao) &&
+                        formacao.map((item, idx) => (
+                            <li key={idx} className="bg-gray-100 p-3 rounded shadow-sm text-black">
+                                <p className="font-semibold">{item.curso}</p>
+                                <p className="text-sm">{item.instituicao}</p>
+                                <p className="text-xs text-gray-600">
+                                    {item.anoInicio} – {item.anoConclusao} ({item.status})
+                                </p>
+                                {item.tituloTrabalho && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    <span className="font-semibold">Trabalho:</span> {item.tituloTrabalho}
+                                </p>
+                                )}
+                                {item.orientador && (
+                                <p className="text-xs text-gray-500">
+                                    <span className="font-semibold">Orientador:</span> {item.orientador}
+                                </p>
+                                )}
+                            </li>
+                        ))
+                    }           
                 </ul>
                 </div>
             </div>
