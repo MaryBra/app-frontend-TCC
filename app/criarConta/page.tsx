@@ -40,12 +40,12 @@ export default function Cadastro() {
 
     // Enviar dados para o backend
     try {
-      const res = await fetch("http://localhost:8080/api/pesquisadores/salvarLogin", {
+      const res = await fetch("http://localhost:8080/api/usuarios/salvarUsuario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ "login": email, "password": senha, "role": "comum" }),
       });
 
       if (res.ok) {
