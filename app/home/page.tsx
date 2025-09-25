@@ -138,7 +138,7 @@ export default function Home() {
                     <h3 className="font-semibold">{item.nome}</h3>
                     <p className="text-gray-500 text-sm mb-4">{item.area}</p>
                     <div className="flex gap-2 mt-2 flex-wrap justify-center">
-                      {item.tags.map((tag, idx) => (
+                      {item.tags.map((tag: string, idx: string) => (
                         <span
                           key={idx}
                           className="text-xs bg-gray-200 px-2 py-1 rounded-full border border-gray-300"

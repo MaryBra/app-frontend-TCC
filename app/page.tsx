@@ -16,9 +16,17 @@ import { Earth } from 'lucide-react';
 export default function Inicio() {
   const router = useRouter();
   const [currentSection, setCurrentSection] = useState(0);
-  const [isVisible, setIsVisible] = useState({});
-
-  const sections = ['hero', 'projeto', 'como-funciona', 'beneficios', 'video', 'integrantes', 'contato'];
+  const sections = ['hero', 'projeto', 'como-funciona', 'beneficios', 'video', 'integrantes', 'contato'] as const;
+  type Section = typeof sections[number];
+  const [isVisible, setIsVisible] = useState<Record<Section, boolean>>({
+    hero: false,
+    projeto: false,
+    'como-funciona': false,
+    beneficios: false,
+    video: false,
+    integrantes: false,
+    contato: false,
+  });
 
   useEffect(() => {
     const observerOptions = {
@@ -34,7 +42,7 @@ export default function Inicio() {
             [entry.target.id]: true
           }));
           
-          const sectionIndex = sections.indexOf(entry.target.id);
+          const sectionIndex = sections.indexOf(entry.target.id as Section);
           if (sectionIndex !== -1) {
             setCurrentSection(sectionIndex);
           }
@@ -50,7 +58,7 @@ export default function Inicio() {
     return () => observer.disconnect();
   }, []);
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (sectionId: string) => {
     document.getElementById(sectionId)?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
