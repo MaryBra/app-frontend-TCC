@@ -12,6 +12,7 @@ export default function Cadastro() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validarEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validarSenha = (senha: string) =>
@@ -36,29 +37,44 @@ export default function Cadastro() {
       return;
     }
 
-    setErro(""); // limpa erros
+    setErro("");
+    setLoading(true);
 
-    // Enviar dados para o backend
     try {
-      const res = await fetch("http://localhost:8080/api/usuarios/salvarUsuario", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ "login": email, "password": senha, "role": "comum" }),
-      });
+      const res = await fetch(
+        "http://localhost:8080/api/usuarios/salvarUsuario",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            login: email,
+            password: senha,
+            tipo_usuario: abaAtiva,
+            roles: abaAtiva === "pesquisador" ? ["usuario"] : ["empresa"],
+          }),
+        }
+      );
 
       if (res.ok) {
-        const usuarioCriado = await res.json(); // backend retorna id ou dados do usuário
         alert("Conta criada com sucesso!");
-        router.push(`/perfilPesquisador/${usuarioCriado.id}`); // redireciona para perfil
+
+        // Redirecionar baseado no tipo de usuário
+        if (abaAtiva === "pesquisador") {
+          router.push("/upload-curriculo");
+        } else {
+          router.push("/cadastro-empresa");
+        }
       } else {
-        const erroData = await res.json();
-        alert(erroData.mensagem || "Erro ao criar a conta.");
+        const errorData = await res.json();
+        setErro(errorData.message || "Erro ao criar a conta.");
       }
     } catch (error) {
-      console.error(error);
-      alert("Erro na requisição ao servidor.");
+      console.error("Erro no cadastro:", error);
+      setErro("Erro ao conectar com o servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,7 +85,7 @@ export default function Cadastro() {
         <div className="relative h-screen w-[180%]">
           <Image
             src="/images/cadastro.png"
-            alt="Logo"
+            alt="Cadastro"
             fill
             quality={100}
             priority
@@ -123,42 +139,77 @@ export default function Cadastro() {
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {["Email", "Senha", "Confirmar Senha"].map((campo, i) => {
-              const stateMap = [email, senha, confirmarSenha];
-              const setStateMap = [setEmail, setSenha, setConfirmarSenha];
-              const type = campo === "Email" ? "email" : "password";
+            <div className="relative">
+              <input
+                type="email"
+                placeholder=" "
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
+                         focus:border-red-700 focus:outline-none focus:ring-0
+                         text-gray-700 py-2 px-2 transition-colors duration-300"
+              />
+              <label
+                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
+                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
+                             peer-placeholder-shown:top-2
+                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+              >
+                Email*
+              </label>
+            </div>
 
-              return (
-                <div key={i} className="relative">
-                  <input
-                    type={type}
-                    placeholder=" "
-                    value={stateMap[i]}
-                    onChange={(e) => setStateMap[i](e.target.value)}
-                    required
-                    className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                               focus:border-red-700 focus:outline-none focus:ring-0
-                               text-gray-700 py-2 px-2 transition-colors duration-300"
-                  />
-                  <label
-                    className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                               peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                               peer-placeholder-shown:top-2
-                               peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-                  >
-                    {campo}*
-                  </label>
-                </div>
-              );
-            })}
+            <div className="relative">
+              <input
+                type="password"
+                placeholder=" "
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
+                         focus:border-red-700 focus:outline-none focus:ring-0
+                         text-gray-700 py-2 px-2 transition-colors duration-300"
+              />
+              <label
+                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
+                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
+                             peer-placeholder-shown:top-2
+                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+              >
+                Senha*
+              </label>
+            </div>
+
+            <div className="relative">
+              <input
+                type="password"
+                placeholder=" "
+                value={confirmarSenha}
+                onChange={(e) => setConfirmarSenha(e.target.value)}
+                required
+                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
+                         focus:border-red-700 focus:outline-none focus:ring-0
+                         text-gray-700 py-2 px-2 transition-colors duration-300"
+              />
+              <label
+                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
+                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
+                             peer-placeholder-shown:top-2
+                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+              >
+                Confirmar Senha*
+              </label>
+            </div>
 
             {erro && <p className="text-red-600 text-sm">{erro}</p>}
 
             <button
               type="submit"
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition"
+              disabled={loading}
+              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
             >
-              Criar conta
+              {loading ? "Criando conta..." : "Criar conta"}
             </button>
           </form>
 
