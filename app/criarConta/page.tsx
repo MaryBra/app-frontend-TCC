@@ -62,9 +62,9 @@ export default function Cadastro() {
 
         // Redirecionar baseado no tipo de usuário
         if (abaAtiva === "pesquisador") {
-          router.push("/upload-curriculo");
+          router.push("/perfilPesquisador");
         } else {
-          router.push("/cadastro-empresa");
+          router.push("/perfilEmpresa");
         }
       } else {
         const errorData = await res.json();
