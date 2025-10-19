@@ -24,7 +24,7 @@ export default function Login() {
       setErro("Digite um email válido.");
       return;
     }
-    if (!senha) {
+    if (!validarSenha(senha)) {
       setErro("Senha é obrigatória.");
       return;
     }
@@ -49,8 +49,8 @@ export default function Login() {
         const data = await res.json();
 
         // Salvar token no localStorage
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userEmail", email);
+        // localStorage.setItem("4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4P", data.token);
+        // localStorage.setItem("userEmail", email);
 
         alert("Login realizado com sucesso!");
 

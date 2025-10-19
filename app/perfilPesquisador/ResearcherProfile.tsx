@@ -71,15 +71,15 @@ export default function ResearcherProfile() {
         setError(null);
 
         try {
-            const token = localStorage.getItem("token");
+            // const token = localStorage.getItem("4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4P");
 
-            if(!token) {
-                throw new Error("Usuário não autenticado. Faça o login novamente.");
-            };
+            // if(!token) {
+            //     throw new Error("Usuário não autenticado. Faça o login novamente.");
+            // };
 
-            const headers = {
-                'Authorization': `Bearer ${token}`
-            };
+            // const headers = {
+            //     'Authorization': `Bearer ${token}`
+            // };
 
             const formData = new FormData();
             formData.append("xml", arquivo);
@@ -87,7 +87,7 @@ export default function ResearcherProfile() {
             // Faz upload do XML
             const respostaUpload = await fetch("http://localhost:8080/api/upload", {
                 method: "POST",
-                headers: headers,
+                // headers: headers,
                 body: formData,
             });
 
@@ -139,7 +139,7 @@ export default function ResearcherProfile() {
             const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
                 method: "POST",
                 headers: { "Content-Type": "application/json",
-                    ...headers
+                    // ...headers
                 },
                 body: JSON.stringify(jsonData)
             });
