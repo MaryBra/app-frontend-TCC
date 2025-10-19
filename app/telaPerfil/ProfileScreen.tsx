@@ -1,10 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Home, User, Settings, LogOut, LayoutDashboard, Target, Pencil } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+
 
 export default function ProfileScreen() {
     const searchParams = useSearchParams();
@@ -146,15 +147,19 @@ export default function ProfileScreen() {
                 {/* Botões de Contato e Gerenciar */}
                 <div className="mt-4 flex gap-4">
                     <button
-                    className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition"
-                    onClick={() => setAberto(true)}
+                        className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition"
+                        onClick={() => router.push("/contato")}
                     >
-                    Contato
+                        Contato
                     </button>
-                    <button className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition">
-                    Gerenciar Listas
-                    </button>
-                </div>
+
+                    <Link
+                        href="/gerenciarListas"
+                        className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
+                    >
+                        Gerenciar Listas
+                    </Link>
+                    </div>
                 </div>
             </div>
 
