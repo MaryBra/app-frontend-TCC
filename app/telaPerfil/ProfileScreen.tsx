@@ -11,6 +11,7 @@ export default function ProfileScreen() {
     const searchParams = useSearchParams();
     const tagsParam = searchParams.get("tags");
     const idTag = searchParams.get("idTag");
+    const router = useRouter();
     const [nome, setNome] = useState("Nome Completo");
     const especialidade = searchParams.get("especialidade") || "Especialidade";
     const [paisNascimento, setPaisNascimento] = useState("País");

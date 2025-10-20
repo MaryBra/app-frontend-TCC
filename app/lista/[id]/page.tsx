@@ -5,20 +5,21 @@ import { useState } from "react";
 import MenuLateral from "../../components/MenuLateral";
 import { Heart, Bookmark, Trash2, X } from "lucide-react";
 
-// mock inicial de perfis
-const mockPerfis = {
-  1: [
+// mock inicial de perfis — usar chaves string para compatibilidade com params de rota
+const mockPerfis: Record<string, { id: number; nome: string; area: string; tags: string[] }[]> = {
+  "1": [
     { id: 101, nome: "Maria Silva", area: "Análise de Sistemas", tags: ["Análise de Sistemas", "Suporte Técnico"] },
     { id: 102, nome: "João Pereira", area: "Banco de Dados", tags: ["DBA", "SQL"] },
   ],
-  2: [{ id: 201, nome: "Carla Souza", area: "Redes de Computadores", tags: ["Redes", "Infraestrutura"] }],
-  3: [],
+  "2": [{ id: 201, nome: "Carla Souza", area: "Redes de Computadores", tags: ["Redes", "Infraestrutura"] }],
+  "3": [],
 };
 
 export default function ListaPage() {
   const { id } = useParams(); // pega id da lista na rota
   const router = useRouter();
-  const [perfis, setPerfis] = useState(mockPerfis[id as keyof typeof mockPerfis] || []);
+  const routeId = Array.isArray(id) ? id[0] : id ?? "1";
+  const [perfis, setPerfis] = useState(mockPerfis[routeId] || []);
 
   const [showModal, setShowModal] = useState(false);
   const [nomeLista, setNomeLista] = useState(`Lista ${id}`);

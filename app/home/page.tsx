@@ -22,12 +22,20 @@ export default function Home() {
   const router = useRouter();
 
   // Estados para busca
+  interface Resultado {
+    id: number;
+    nome: string;
+    area: string;
+    tags?: string[];
+    tipo: "pesquisador" | "empresa" | string;
+  }
+
   const [termoBusca, setTermoBusca] = useState("");
-  const [resultadosBusca, setResultadosBusca] = useState([]);
+  const [resultadosBusca, setResultadosBusca] = useState<Resultado[]>([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const searchRef = useRef(null);
-  const swiperRef = useRef(null);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+  const swiperRef = useRef<any>(null);
 
   // Simulação de usuário logado
   const usuario = {
@@ -36,9 +44,9 @@ export default function Home() {
   };
 
   // Mock - Recomendações
-  const [recomendacoes, setRecomendacoes] = useState([]);
+  const [recomendacoes, setRecomendacoes] = useState<Resultado[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<Resultado | null>(null);
 
   useEffect(() => {
     const mockData = Array.from({ length: 10 }, (_, i) => ({
@@ -53,21 +61,23 @@ export default function Home() {
 
   // Fechar resultados ao clicar fora
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setMostrarResultados(false);
       }
     }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
+  })
   // Função de busca
-  const handleBuscar = async (e) => {
-    if (e) e.preventDefault();
+  interface Resultado {
+    id: number;
+    nome: string;
+    area: string;
+    tags?: string[];
+    tipo: "pesquisador" | "empresa" | string;
+  }
+
+  const handleBuscar = async (e?: { preventDefault?: () => void } | null) => {
+    if (e) e.preventDefault?.();
 
     if (!termoBusca.trim()) {
       setMostrarResultados(false);
@@ -92,13 +102,13 @@ export default function Home() {
       );
 
       if (response.ok) {
-        const dados = await response.json();
+        const dados: Resultado[] = await response.json();
         setResultadosBusca(dados);
         setMostrarResultados(true);
       } else {
         console.error("Erro na busca");
         // Fallback para dados mockados em caso de erro
-        const resultadosMock = recomendacoes.filter(
+        const resultadosMock: Resultado[] = (recomendacoes as Resultado[]).filter(
           (item) =>
             item.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
             item.area.toLowerCase().includes(termoBusca.toLowerCase()) ||
@@ -113,7 +123,7 @@ export default function Home() {
     } catch (error) {
       console.error("Erro ao buscar:", error);
       // Fallback para dados mockados
-      const resultadosMock = recomendacoes.filter(
+      const resultadosMock: Resultado[] = (recomendacoes as Resultado[]).filter(
         (item) =>
           item.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
           item.area.toLowerCase().includes(termoBusca.toLowerCase()) ||
@@ -149,7 +159,7 @@ export default function Home() {
     setResultadosBusca([]);
   };
 
-  const handleSelecionarResultado = (resultado) => {
+  const handleSelecionarResultado = (resultado: Resultado) => {
     if (resultado.tipo === "pesquisador") {
       router.push(`/perfilPesquisador/${resultado.id}`);
     } else if (resultado.tipo === "empresa") {
@@ -159,7 +169,7 @@ export default function Home() {
     setTermoBusca("");
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter") {
       handleBuscar();
     }
@@ -168,13 +178,13 @@ export default function Home() {
   // Funções para as setas do carrossel
   const goNext = () => {
     if (swiperRef.current) {
-      swiperRef.current.swiper.slideNext();
+      (swiperRef.current as any).swiper?.slideNext?.();
     }
   };
 
   const goPrev = () => {
     if (swiperRef.current) {
-      swiperRef.current.swiper.slidePrev();
+      (swiperRef.current as any).swiper?.slidePrev?.();
     }
   };
 
@@ -372,7 +382,7 @@ export default function Home() {
                     <h3 className="font-semibold">{item.nome}</h3>
                     <p className="text-gray-500 text-sm mb-4">{item.area}</p>
                     <div className="flex gap-2 mt-2 flex-wrap justify-center">
-                      {item.tags.map((tag: string, idx: string) => (
+                      {(item.tags || []).map((tag, idx) => (
                         <span
                           key={idx}
                           className="text-xs bg-gray-200 px-2 py-1 rounded-full border border-gray-300 text-gray-700 cursor-default"
