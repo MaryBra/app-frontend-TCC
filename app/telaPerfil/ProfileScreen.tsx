@@ -36,8 +36,9 @@ export default function ProfileScreen() {
             return;
         }
 
-        fetch(`http://localhost:8080/api/pesquisadores/${idTag}`, {
+        fetch(`http://localhost:8080/api/pesquisadores/listarPesquisador/${idTag}`, {
             headers: {
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             }
         })
