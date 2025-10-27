@@ -29,12 +29,17 @@ export default function CompanyEditForm() {
 
     const [loading, setLoading] = useState(false);
 
+    const token = localStorage.getItem("token");
+
     // Buscar dados da empresa
     const buscarInfoEmpresa = async () => {
         try {
         const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
         });
         const data = await res.json();
 

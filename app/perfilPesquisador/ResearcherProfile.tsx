@@ -103,6 +103,8 @@ export default function ResearcherProfile() {
         const nomePesquisador = partesNome.slice(0, -1).join(' ');
         const sobrenome = partesNome.slice(-1).join(' ');
 
+        const token = localStorage.getItem("token");
+
         let dataAtualizacao = null;
         if (dataAtualizacaoRaw.length === 8) {
         dataAtualizacao = `${dataAtualizacaoRaw.substring(4, 8)}-${dataAtualizacaoRaw.substring(2, 4)}-${dataAtualizacaoRaw.substring(0, 2)}`;
@@ -121,10 +123,15 @@ export default function ResearcherProfile() {
         lattesId: null
         };
 
+        console.log(token)
+
         // Agora envia o pesquisador para o backend
         const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(jsonData)
         });
 
