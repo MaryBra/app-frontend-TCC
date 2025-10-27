@@ -123,8 +123,6 @@ export default function ResearcherProfile() {
         lattesId: null
         };
 
-        console.log(token)
-
         // Agora envia o pesquisador para o backend
         const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
         method: "POST",

@@ -24,10 +24,12 @@ export default function CompanyProfile() {
     const [loading, setLoading] = useState(false); 
 
     const buscarInfoEmpresa = async () => {
+        const token = localStorage.getItem("token");
         try {
         const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` }
         });
 
         const data = await res.json();

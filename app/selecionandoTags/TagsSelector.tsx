@@ -56,11 +56,13 @@ export default function TagsSelector() {
         pesquisador: { id: Number(idPesquisador) },
         listaTags: tagsSelecionadas,
         };
+        const token = localStorage.getItem("token");
     
         try {
         const resposta = await fetch("http://localhost:8080/api/tags/salvarTag", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` },
             body: JSON.stringify(jsonData),
         });
     
