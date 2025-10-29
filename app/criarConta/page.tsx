@@ -37,7 +37,7 @@ export default function Cadastro() {
       return;
     }
 
-    setErro("");
+    setErro(null);
     setLoading(true);
 
     try {
@@ -59,6 +59,12 @@ export default function Cadastro() {
 
       if (res.ok) {
         alert("Conta criada com sucesso!");
+
+        const data = await res.json();
+
+        const token = data.token;
+
+        localStorage.setItem("token", token)
 
         // Redirecionar baseado no tipo de usuário
         if (abaAtiva === "pesquisador") {

@@ -27,20 +27,34 @@ export default function ProfileScreen() {
     const [destaques, setDestaques] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/pesquisadores/listarPesquisadores")
-        .then((res) => res.json())
-        .then((data) => {
-            if (Array.isArray(data)) {
-            const pesquisador = data.find((p) => p.id == Number(idTag));
+
+        const token = localStorage.getItem("token");
+
+        if (!idTag) {
+            return;
+        }
+
+        fetch(`http://localhost:8080/api/pesquisadores/${idTag}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error("Falha ao buscar dados do pesquisador");
+            }
+            return res.json();
+        })
+        .then((pesquisador) => {
             if (pesquisador) {
                 setNome(`${pesquisador.nomePesquisador} ${pesquisador.sobrenome}`);
                 setPaisNascimento(pesquisador.paisNascimento || "Não informado");
                 setDataAtualizacao(pesquisador.dataAtualizacao || "");
                 setHoraAtualizacao(pesquisador.horaAtualizacao || "");
             }
-            }
         })
         .catch((err) => console.error("Erro ao buscar perfil:", err));
+
     }, [idTag]);
 
     useEffect(() => {

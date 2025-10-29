@@ -113,9 +113,11 @@ export default function ResearcherProfile() {
             const paisNascimento = nomeNode?.getAttribute('PAIS-DE-NASCIMENTO') || '';
             const dataAtualizacaoRaw = xmlDoc.documentElement.getAttribute('DATA-ATUALIZACAO') || '';
 
-            const partesNome = nomeCompleto.split(' ');
-            const nomePesquisador = partesNome.slice(0, -1).join(' ');
-            const sobrenome = partesNome.slice(-1).join(' ');
+        const partesNome = nomeCompleto.split(' ');
+        const nomePesquisador = partesNome.slice(0, -1).join(' ');
+        const sobrenome = partesNome.slice(-1).join(' ');
+
+        const token = localStorage.getItem("token");
 
             let dataAtualizacao = null;
             if (dataAtualizacaoRaw.length === 8) {
@@ -135,14 +137,15 @@ export default function ResearcherProfile() {
                 lattesId: null
             };
 
-            // Agora envia o pesquisador para o backend
-            const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
-                method: "POST",
-                headers: { "Content-Type": "application/json",
-                    // ...headers
-                },
-                body: JSON.stringify(jsonData)
-            });
+        // Agora envia o pesquisador para o backend
+        const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(jsonData)
+        });
 
             if (!respostaPesquisador.ok) {
                 throw new Error("Erro ao salvar pesquisador.");

@@ -86,6 +86,7 @@ export default function Home() {
     }
 
     setCarregando(true);
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch(
         "http://localhost:8080/api/pesquisa/buscar",
@@ -93,6 +94,7 @@ export default function Home() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
             termo: termoBusca,

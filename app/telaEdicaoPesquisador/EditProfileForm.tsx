@@ -41,12 +41,14 @@ export default function EditProfileForm() {
     };
     const removeTag = (i: number) => setTags((t) => t.filter((_, idx) => idx !== i));
     const removeAcad = (id: number) => setAcademics((a) => a.filter((x) => x.id !== id));
+    const token = localStorage.getItem("token");
 
     const atualizarTags = (id: number) => {
         fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
             listaTags: tags
