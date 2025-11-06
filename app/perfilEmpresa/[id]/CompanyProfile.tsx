@@ -25,6 +25,7 @@ export default function CompanyProfile() {
 
     const buscarInfoEmpresa = async () => {
         const token = localStorage.getItem("token");
+        console.log(token)
         try {
         const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
             method: "GET",

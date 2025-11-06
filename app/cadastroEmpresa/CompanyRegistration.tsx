@@ -95,8 +95,15 @@ export default function CompanyRegistration() {
         });
 
         if (res.ok) {
+
             const empresaCriada = await res.json(); //Back retorna o id cadastrado
             alert("Empresa cadastrada com sucesso!");
+            console.log(token)
+
+            if (token != null){
+               localStorage.setItem("token", token);
+            }
+            
             router.push(`/perfilEmpresa/${empresaCriada.id}`); // vai direto para o perfil certo
         } else {
             alert("Erro ao cadastrar a empresa.");

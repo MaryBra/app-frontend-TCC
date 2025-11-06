@@ -64,14 +64,14 @@ export default function Cadastro() {
         const data = await res.json();
 
         const token = data.token;
-
-        localStorage.setItem("token", token)
+        console.log(token)
+        localStorage.setItem("token", token.token)
 
         // Redirecionar baseado no tipo de usuário
         if (abaAtiva === "pesquisador") {
           router.push("/perfilPesquisador");
         } else {
-          router.push("/cadastro-empresa");
+          router.push("/cadastroEmpresa");
         }
       } else {
         const errorData = await res.json();
