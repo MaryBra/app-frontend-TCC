@@ -31,18 +31,13 @@ export default function ProfileScreen() {
     useEffect(() => {
 
         const token = localStorage.getItem("token");
-        const id = localStorage.getItem("idTag");
-        let idToUse = null;
 
-        if(!id){
-            idToUse = idTag;
-        }
+        const idStorage = localStorage.getItem("idTag");
 
-        if(!idTag){
-            idToUse = id;
-        }
+        let idToUse = idTag || idStorage; 
 
-        if (!idTag && !id) {
+        if (!idToUse || idToUse === "null" || idToUse === "undefined") {
+            console.error("ID do pesquisador não encontrado para buscar.");
             return;
         }
 

@@ -26,7 +26,6 @@ export default function Home() {
   const [resultadosBusca, setResultadosBusca] = useState([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [dados, setDados] = useState(null);
   const [nome, setNome] = useState(null);
   const searchRef = useRef(null);
   const swiperRef = useRef(null);
