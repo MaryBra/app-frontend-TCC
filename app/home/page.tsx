@@ -210,21 +210,6 @@ export default function Home() {
 
         const dadosPesquisador = await response.json();
 
-        // const jsonData = {
-        // usuario: { id: parseInt(dadosPesquisador.pesquisador.usuario.id) },  // Troque por id do usuário logado se tiver auth
-        // nomePesquisador: dadosPesquisador.pesquisador.nomePesquisador,
-        // sobrenome: dadosPesquisador.pesquisador.sobrenome,
-        // dataNascimento: null,
-        // nomeCitacoesBibliograficas: dadosPesquisador.pesquisador.nomePesquisador + dadosPesquisador.pesquisador.sobrenome,
-        // dataAtualizacao: dadosPesquisador.pesquisador.dataAtualizacao,
-        // horaAtualizacao: "10:00:00",
-        // nacionalidade: dadosPesquisador.pesquisador.nacionalidade,
-        // paisNascimento: dadosPesquisador.pesquisador.paisNascimento,
-        // lattesId: null
-        // };
-
-        // setDados(jsonData);
-
         localStorage.setItem("idTag", dadosPesquisador.pesquisador.id)
         console.log(dadosPesquisador)
         setNome(dadosPesquisador.pesquisador.nomePesquisador)
@@ -250,7 +235,6 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          // FIX: Use a variável 'email' direto na URL
           `http://localhost:8080/api/recomendacoes`,
           {
             method: "GET",

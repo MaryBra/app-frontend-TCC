@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 
 export default function ProfileScreen() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const tagsParam = searchParams.get("tags");
     const idTag = searchParams.get("idTag");
@@ -19,6 +20,7 @@ export default function ProfileScreen() {
     const [aberto, setAberto] = useState(false);
     const email = searchParams.get("email") || "usuario@exemplo.com";
     const telefone = searchParams.get("telefone") || "(00) 12345-6789";
+    const [listaDeTags, setListaDeTags] = useState([]);
 
     const tags = tagsParam ? tagsParam.split(",") : [];
 
@@ -31,6 +33,12 @@ export default function ProfileScreen() {
     useEffect(() => {
 
         const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("Usuário não logado. Redirecionando...");
+            router.push("/login");
+            return;
+        }
 
         const idStorage = localStorage.getItem("idTag");
 
@@ -63,6 +71,34 @@ export default function ProfileScreen() {
             }
         })
         .catch((err) => console.error("Erro ao buscar perfil:", err));
+
+        try {
+            fetch(
+            // FIX: Use a variável 'email' direto na URL
+            `http://localhost:8080/api/dadosPesquisador/${idToUse}`,
+            {
+                method: "GET",
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                },
+            }
+            ).then(async (res) => {
+            if (!res.ok) {
+                throw new Error("Falha ao buscar dados do pesquisador");
+            }
+            const data = await res.json();
+
+            console.log(data);
+            if (data && data.tags && data.tags.listaTags) {
+                setListaDeTags(data.tags.listaTags);
+            }
+            return data;
+        });
+
+        } catch(err){
+            console.error("Erro ao buscar perfil:", err);
+        }
 
     }, [idTag]);
 
@@ -130,10 +166,10 @@ export default function ProfileScreen() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                    {tags.length > 0 ? (
-                    tags.map((tag) => (
+                    {listaDeTags.length > 0 ? (
+                    listaDeTags.map((tag, index) => (
                         <span
-                        key={tag}
+                        key={index}
                         className="bg-white text-black px-4 py-2 rounded-full text-sm shadow-sm"
                         >
                         {tag}
