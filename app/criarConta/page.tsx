@@ -11,7 +11,7 @@ export default function Cadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [erro, setErro] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const validarEmail = (email: string) =>
@@ -59,31 +59,22 @@ export default function Cadastro() {
       );
 
       if (res.ok) {
-        alert("Conta criada com sucesso!");
-
         const data = await res.json();
-        console.log(data)
 
         const token = data.token;
-        console.log(token)
         localStorage.setItem("token", token.token)
+
         if(data.usuarioId){
           localStorage.setItem("usuarioId", data.usuarioId)
         }
-      
-        // Redirecionar baseado no tipo de usuário
-        if (abaAtiva === "pesquisador") {
-          router.push("/perfilPesquisador");
-        } else {
-          router.push("/cadastroEmpresa");
-        }
+        router.push(`/aguardandoVerificacao`);
       } else {
         const errorData = await res.json();
         setErro(errorData.message || "Erro ao criar a conta.");
       }
     } catch (error) {
       console.error("Erro no cadastro:", error);
-      setErro("Erro ao conectar com o servidor");
+      setErro("Erro ao conectar com o servidor.");
     } finally {
       setLoading(false);
     }

@@ -44,21 +44,22 @@ export default function Login() {
         }),
       });
 
+  
       if (res.ok) {
         const data = await res.json();
-
-        // Salvar token no localStorage
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userEmail", email);
+        if (data.emailVerificado == false) {
+          localStorage.setItem("emailCadastrado", email);
+          router.push("/aguardandoVerificacao");
+        } else {
+          router.push("/home");
+        }
 
-        alert("Login realizado com sucesso!");
-
-        // Redirecionar para home ou perfil
-        router.push("/home");
       } else {
         const errorData = await res.json();
         setErro(errorData.message || "Credenciais inválidas");
       }
+
     } catch (error) {
       console.error("Erro no login:", error);
       setErro("Erro ao conectar com o servidor");

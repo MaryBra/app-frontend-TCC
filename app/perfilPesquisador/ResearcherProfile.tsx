@@ -78,10 +78,14 @@ export default function ResearcherProfile() {
             setUsuarioId(idSalvo);
         }
         const formData = new FormData();
+        const email = localStorage.getItem("emailCadastrado") || ""
         formData.append("xml", arquivo);
         formData.append("usuarioId", usuarioId);
         // Faz upload do XML
         const respostaUpload = await fetch("http://localhost:8080/api/upload", {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }, 
         method: "POST",
         body: formData,
         });
@@ -108,8 +112,6 @@ export default function ResearcherProfile() {
         const partesNome = nomeCompleto.split(' ');
         const nomePesquisador = partesNome.slice(0, -1).join(' ');
         const sobrenome = partesNome.slice(-1).join(' ');
-
-        const token = localStorage.getItem("token");
 
         let dataAtualizacao = null;
         if (dataAtualizacaoRaw.length === 8) {
