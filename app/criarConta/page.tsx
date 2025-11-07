@@ -62,11 +62,15 @@ export default function Cadastro() {
         alert("Conta criada com sucesso!");
 
         const data = await res.json();
+        console.log(data)
 
         const token = data.token;
         console.log(token)
         localStorage.setItem("token", token.token)
-
+        if(data.usuarioId){
+          localStorage.setItem("usuarioId", data.usuarioId)
+        }
+      
         // Redirecionar baseado no tipo de usuário
         if (abaAtiva === "pesquisador") {
           router.push("/perfilPesquisador");

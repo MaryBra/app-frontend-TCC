@@ -26,6 +26,7 @@ export default function Home() {
   const [resultadosBusca, setResultadosBusca] = useState([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [login, setLogin] = useState("");
   const searchRef = useRef(null);
   const swiperRef = useRef(null);
 
@@ -64,7 +65,6 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   // Função de busca
   const handleBuscar = async (e) => {
     if (e) e.preventDefault();
@@ -145,6 +145,91 @@ export default function Home() {
     }
   }, [termoBusca]);
 
+  useEffect(() => {
+    const handleBuscarUsuario = async () =>{
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("userEmail");
+      console.log(token)
+
+      if (!token || !email) {
+        console.error("Usuário não logado. Redirecionando...");
+        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        return;
+      }
+
+      setCarregando(true);
+
+      try {
+        const response = await fetch(
+          // FIX: Use a variável 'email' direto na URL
+          `http://localhost:8080/api/usuarios/listarUsuario/${email}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados do usuario");
+        }
+
+        const dadosUsuario = await response.json();
+
+        handleDadosPesquisador(dadosUsuario.id);
+    } catch(err){
+      console.error("Erro ao buscar perfil:", err);
+    } finally {
+        setCarregando(false); // Opcional
+    }
+  }
+
+  const handleDadosPesquisador = async (id) => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Usuário não logado. Redirecionando...");
+        router.push("/login");
+        return;
+      }
+
+      setCarregando(true);
+
+      try {
+        const response = await fetch(
+          // FIX: Use a variável 'email' direto na URL
+          `http://localhost:8080/api/dadosPesquisador/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados do pesquisador");
+        }
+
+        const dadosPesquisador = await response.json();
+
+        console.log(dadosPesquisador);
+      } catch(err){
+        console.error("Erro ao buscar perfil:", err);
+      } finally {
+          setCarregando(false); // Opcional
+      }
+    }
+    handleBuscarUsuario();
+  }, [router]);
+
+  useEffect(() => {
+    
+  }, [router])
+
   const limparBusca = () => {
     setTermoBusca("");
     setMostrarResultados(false);
@@ -179,6 +264,14 @@ export default function Home() {
       swiperRef.current.swiper.slidePrev();
     }
   };
+
+  if (!usuario) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <p className="text-xl">Carregando dados do usuário...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -288,7 +381,7 @@ export default function Home() {
                   router.push(
                     usuario.tipoPerfil === "empresa"
                       ? "/perfilEmpresa"
-                      : "/perfilPesquisador"
+                      : "/telaPerfil"
                   )
                 }
               />
@@ -299,7 +392,7 @@ export default function Home() {
                   router.push(
                     usuario.tipoPerfil === "empresa"
                       ? "/perfilEmpresa"
-                      : "/perfilPesquisador"
+                      : "/telaPerfil"
                   )
                 }
               >

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function ResearcherProfile() {
     const [arquivo, setArquivo] = useState<File | null>(null);
+    const [usuarioId, setUsuarioId] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -71,9 +72,14 @@ export default function ResearcherProfile() {
     setError(null);
 
     try {
+        const idSalvo = localStorage.getItem("usuarioId");
+
+        if (idSalvo && idSalvo !== "null" && idSalvo !== "undefined"){
+            setUsuarioId(idSalvo);
+        }
         const formData = new FormData();
         formData.append("xml", arquivo);
-
+        formData.append("usuarioId", usuarioId);
         // Faz upload do XML
         const respostaUpload = await fetch("http://localhost:8080/api/upload", {
         method: "POST",
@@ -111,7 +117,7 @@ export default function ResearcherProfile() {
         }
 
         const jsonData = {
-        usuario: { id: 1 },  // Troque por id do usuário logado se tiver auth
+        usuario: { id: parseInt(usuarioId) },  // Troque por id do usuário logado se tiver auth
         nomePesquisador: nomePesquisador,
         sobrenome: sobrenome,
         dataNascimento: null,

@@ -48,7 +48,7 @@ export default function Login() {
         const data = await res.json();
 
         // Salvar token no localStorage
-        localStorage.setItem("token", data.token.token);
+        localStorage.setItem("token", data.token);
         localStorage.setItem("userEmail", email);
 
         alert("Login realizado com sucesso!");
