@@ -142,7 +142,7 @@ export default function Home() {
   useEffect(() => {
     const handleBuscarUsuario = async () =>{
       const token = localStorage.getItem("token");
-      const email = localStorage.getItem("userEmail");
+      const email = localStorage.getItem("email");
       console.log(token)
 
       if (!token || !email) {
@@ -238,7 +238,7 @@ export default function Home() {
 
     const handleRecomendacao = async (id) =>{
       const token = localStorage.getItem("token");
-      const email = localStorage.getItem("userEmail");
+      const email = localStorage.getItem("email");
       console.log(token)
 
       if (!token || !email) {

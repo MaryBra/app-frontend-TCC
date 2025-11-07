@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function ResearcherProfile() {
     const [arquivo, setArquivo] = useState<File | null>(null);
-    const [usuarioId, setUsuarioId] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -79,11 +78,15 @@ export default function ResearcherProfile() {
         const idSalvo = localStorage.getItem("usuarioId");
         console.log(idSalvo)
 
-        if (idSalvo && idSalvo !== "null" && idSalvo !== "undefined"){
-            setUsuarioId(idSalvo);
+        if (!idSalvo || idSalvo === "null" || idSalvo === "undefined") {
+            console.error("ID do usuário inválido no localStorage:", idSalvo);
+            setError("Erro: ID do usuário não encontrado. Faça o login novamente.");
+            setIsLoading(false);
+            return;
         }
+
         const formData = new FormData();
-        const email = localStorage.getItem("emailCadastrado") || "email@gmail.com"
+        const email = localStorage.getItem("email") || ""
         console.log(email)
         formData.append("xml", arquivo);
         formData.append("usuarioEmail", email);
@@ -122,7 +125,7 @@ export default function ResearcherProfile() {
         }
 
         const jsonData = {
-        usuario: { id: parseInt(usuarioId) },  // Troque por id do usuário logado se tiver auth
+        usuario: { id: parseInt(idSalvo) },  // Troque por id do usuário logado se tiver auth
         nomePesquisador: nomePesquisador,
         sobrenome: sobrenome,
         dataNascimento: null,
@@ -145,7 +148,15 @@ export default function ResearcherProfile() {
         });
 
         if (!respostaPesquisador.ok) {
-        throw new Error("Erro ao salvar pesquisador.");
+        console.error("### FALHA AO SALVAR PESQUISADOR ###");
+        console.error("STATUS HTTP:", respostaPesquisador.status); // Ex: 400, 401, 500
+        console.error("STATUS TEXT:", respostaPesquisador.statusText); // Ex: Bad Request, Unauthorized
+
+        // Tenta ler a mensagem de erro que o seu backend (Java) enviou
+        const errorText = await respostaPesquisador.text();
+        console.error("RESPOSTA DO BACKEND:", errorText);
+
+        throw new Error(`Erro ao salvar pesquisador. Status: ${respostaPesquisador.status}`);
         }
 
         const resultadoPesquisador = await respostaPesquisador.json();

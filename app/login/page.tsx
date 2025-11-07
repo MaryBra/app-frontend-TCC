@@ -49,7 +49,7 @@ export default function Login() {
         const data = await res.json();
         localStorage.setItem("token", data.token);
         if (data.emailVerificado == false) {
-          localStorage.setItem("emailCadastrado", email);
+          localStorage.setItem("email", email);
           router.push("/aguardandoVerificacao");
         } else {
           router.push("/home");

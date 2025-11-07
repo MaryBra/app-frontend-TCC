@@ -7,14 +7,15 @@ import { useEffect } from "react";
 
 export default function AguardandoVerificacao() {
   const params = useSearchParams();
-  const email = localStorage.getItem("emailCadastrado");
+  const email = localStorage.getItem("email");
 
 
   useEffect(() => {
     const verificarEmail = async () => {
       try {
         const token = localStorage.getItem("token")
-        const email = localStorage.getItem("emailCadastrado")
+        const email = localStorage.getItem("email")
+        console.log(email)
 
         const res = await fetch(`http://localhost:8080/api/email/enviarVerificacao?email=${email}`, {
           method: "POST",
