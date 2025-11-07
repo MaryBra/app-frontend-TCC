@@ -31,12 +31,22 @@ export default function ProfileScreen() {
     useEffect(() => {
 
         const token = localStorage.getItem("token");
+        const id = localStorage.getItem("idTag");
+        let idToUse = null;
 
-        if (!idTag) {
+        if(!id){
+            idToUse = idTag;
+        }
+
+        if(!idTag){
+            idToUse = id;
+        }
+
+        if (!idTag && !id) {
             return;
         }
 
-        fetch(`http://localhost:8080/api/pesquisadores/listarPesquisador/${idTag}`, {
+        fetch(`http://localhost:8080/api/pesquisadores/listarPesquisador/${idToUse}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
@@ -49,6 +59,7 @@ export default function ProfileScreen() {
             return res.json();
         })
         .then((pesquisador) => {
+            console.log(pesquisador)
             if (pesquisador) {
                 setNome(`${pesquisador.nomePesquisador} ${pesquisador.sobrenome}`);
                 setPaisNascimento(pesquisador.paisNascimento || "Não informado");

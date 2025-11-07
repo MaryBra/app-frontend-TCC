@@ -26,13 +26,14 @@ export default function Home() {
   const [resultadosBusca, setResultadosBusca] = useState([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [login, setLogin] = useState("");
+  const [dados, setDados] = useState(null);
+  const [nome, setNome] = useState(null);
   const searchRef = useRef(null);
   const swiperRef = useRef(null);
 
   // Simulação de usuário logado
   const usuario = {
-    nome: "Malu Oliveira",
+    nome: nome,
     tipoPerfil: "pesquisador",
   };
 
@@ -42,14 +43,7 @@ export default function Home() {
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    const mockData = Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      nome: `Usuário ${i + 1}`,
-      area: "Análise de Sistemas",
-      tags: ["Suporte Técnico", "Banco de Dados", "Desenvolvimento"],
-      tipo: "pesquisador",
-    }));
-    setRecomendacoes(mockData);
+    
   }, []);
 
   // Fechar resultados ao clicar fora
@@ -179,6 +173,7 @@ export default function Home() {
         const dadosUsuario = await response.json();
 
         handleDadosPesquisador(dadosUsuario.id);
+        handleRecomendacao(dadosUsuario.id);
     } catch(err){
       console.error("Erro ao buscar perfil:", err);
     } finally {
@@ -216,13 +211,71 @@ export default function Home() {
 
         const dadosPesquisador = await response.json();
 
-        console.log(dadosPesquisador);
+        // const jsonData = {
+        // usuario: { id: parseInt(dadosPesquisador.pesquisador.usuario.id) },  // Troque por id do usuário logado se tiver auth
+        // nomePesquisador: dadosPesquisador.pesquisador.nomePesquisador,
+        // sobrenome: dadosPesquisador.pesquisador.sobrenome,
+        // dataNascimento: null,
+        // nomeCitacoesBibliograficas: dadosPesquisador.pesquisador.nomePesquisador + dadosPesquisador.pesquisador.sobrenome,
+        // dataAtualizacao: dadosPesquisador.pesquisador.dataAtualizacao,
+        // horaAtualizacao: "10:00:00",
+        // nacionalidade: dadosPesquisador.pesquisador.nacionalidade,
+        // paisNascimento: dadosPesquisador.pesquisador.paisNascimento,
+        // lattesId: null
+        // };
+
+        // setDados(jsonData);
+
+        localStorage.setItem("idTag", dadosPesquisador.pesquisador.id)
+        console.log(dadosPesquisador)
+        setNome(dadosPesquisador.pesquisador.nomePesquisador)
       } catch(err){
         console.error("Erro ao buscar perfil:", err);
       } finally {
           setCarregando(false); // Opcional
       }
     }
+
+    const handleRecomendacao = async (id) =>{
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("userEmail");
+      console.log(token)
+
+      if (!token || !email) {
+        console.error("Usuário não logado. Redirecionando...");
+        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        return;
+      }
+
+      setCarregando(true);
+
+      try {
+        const response = await fetch(
+          // FIX: Use a variável 'email' direto na URL
+          `http://localhost:8080/api/recomendacoes`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const recomendacao = await response.json();
+
+        setRecomendacoes(recomendacao)
+
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados do usuario");
+        }
+
+    } catch(err){
+      console.error("Erro ao buscar perfil:", err);
+    } finally {
+        setCarregando(false); // Opcional
+    }
+  }
+
     handleBuscarUsuario();
   }, [router]);
 
@@ -265,7 +318,7 @@ export default function Home() {
     }
   };
 
-  if (!usuario) {
+  if (!nome) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-100">
         <p className="text-xl">Carregando dados do usuário...</p>
@@ -406,7 +459,7 @@ export default function Home() {
         <div className="bg-white rounded-xl shadow-md p-6 flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2 text-[#990000]">
-              Bem vinda, <span className="text-black">{usuario.nome}</span>
+              Bem-vindo(a), <span className="text-black">{usuario.nome}</span>
             </h1>
             <p className="text-bold text-[#990000] font-semibold text-lg">
               Encontre pesquisadores e empresas por tags e áreas de interesse

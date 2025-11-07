@@ -63,6 +63,10 @@ export default function ResearcherProfile() {
     const enviarArquivo = async (e: React.FormEvent) => {
     e.preventDefault();
 
+
+    const token = localStorage.getItem("token")
+    console.log(token)
+
     if (!arquivo) {
         setError("Selecione um arquivo XML.");
         return;
@@ -73,19 +77,18 @@ export default function ResearcherProfile() {
 
     try {
         const idSalvo = localStorage.getItem("usuarioId");
+        console.log(idSalvo)
 
         if (idSalvo && idSalvo !== "null" && idSalvo !== "undefined"){
             setUsuarioId(idSalvo);
         }
         const formData = new FormData();
-        const email = localStorage.getItem("emailCadastrado") || ""
+        const email = localStorage.getItem("emailCadastrado") || "email@gmail.com"
+        console.log(email)
         formData.append("xml", arquivo);
-        formData.append("usuarioId", usuarioId);
+        formData.append("usuarioEmail", email);
         // Faz upload do XML
         const respostaUpload = await fetch("http://localhost:8080/api/upload", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }, 
         method: "POST",
         body: formData,
         });

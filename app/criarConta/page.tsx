@@ -64,8 +64,8 @@ export default function Cadastro() {
         const token = data.token;
         localStorage.setItem("token", token.token)
 
-        if(data.usuarioId){
-          localStorage.setItem("usuarioId", data.usuarioId)
+        if(data.login){
+          localStorage.setItem("email", data.login)
         }
         router.push(`/aguardandoVerificacao`);
       } else {
