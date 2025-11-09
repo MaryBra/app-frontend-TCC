@@ -2,15 +2,62 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+// Fallback hook para quando ThemeProvider não estiver disponível
+const useThemeFallback = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedTheme = localStorage.getItem("theme");
+    const systemPrefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const shouldBeDark =
+      savedTheme === "dark" || (!savedTheme && systemPrefersDark);
+    setIsDarkMode(shouldBeDark);
+
+    // Aplicar o tema
+    const html = document.documentElement;
+    if (shouldBeDark) {
+      html.classList.add("dark");
+      html.style.colorScheme = "dark";
+    } else {
+      html.classList.remove("dark");
+      html.style.colorScheme = "light";
+    }
+  }, []);
+
+  return { isDarkMode, toggleTheme: () => {} }; // toggleTheme vazio pois não é usado no login
+};
+
+// Hook seguro que tenta usar o ThemeProvider primeiro
+const useThemeSafe = () => {
+  try {
+    const { useTheme } = require("../contexts/ThemeProvider");
+    return useTheme();
+  } catch (error) {
+    return useThemeFallback();
+  }
+};
 
 export default function Login() {
   const router = useRouter();
+  const { isDarkMode } = useThemeSafe(); // Usando o hook seguro
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const validarEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -44,11 +91,44 @@ export default function Login() {
 
       if (res.ok) {
         const data = await res.json();
+        console.log("Login bem-sucedido:", data);
+
+        // Salvar token e email
         localStorage.setItem("token", data.token);
-        if (data.emailVerificado == false) {
+        localStorage.setItem("email", email);
+        localStorage.setItem("usuarioId", data.usuarioId);
+
+        // Buscar e salvar dados completos do usuário
+        try {
+          const userResponse = await fetch(
+            `http://localhost:8080/api/usuarios/listarUsuario/${encodeURIComponent(
+              email
+            )}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${data.token}`,
+              },
+            }
+          );
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            localStorage.setItem("userData", JSON.stringify(userData));
+
+            // Disparar evento para atualizar outros componentes
+            window.dispatchEvent(new Event("userDataUpdated"));
+          }
+        } catch (userError) {
+          console.error("Erro ao buscar dados do usuário:", userError);
+        }
+
+        // Verificar se o email está verificado
+        if (data.emailVerificado === false) {
           localStorage.setItem("email", email);
           router.push("/aguardandoVerificacao");
         } else {
+          // Redirecionar para home
           router.push("/home");
         }
       } else {
@@ -63,8 +143,18 @@ export default function Login() {
     }
   };
 
+  if (!mounted) {
+    return (
+      <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#990000]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col md:flex-row h-screen">
+    <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
       {/* Lado esquerdo: imagem */}
       <div className="hidden md:flex w-1/3 bg-red-800 items-end justify-start overflow-visible relative">
         <div className="relative h-auto w-[120%] -right-[11.11%]">
@@ -81,7 +171,7 @@ export default function Login() {
       </div>
 
       {/* Lado direito: formulário */}
-      <div className="flex-1 flex items-start justify-center bg-white pt-12 px-4 md:px-0">
+      <div className="flex-1 flex items-start justify-center bg-white dark:bg-gray-900 pt-12 px-4 md:px-0">
         <div className="w-full max-w-md">
           <Image
             src="/images/logo_1.png"
@@ -106,13 +196,13 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
+                className="peer w-full border-0 border-b-2 border-gray-500 dark:border-gray-400 bg-transparent dark:bg-gray-900
                          focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                         text-gray-700 dark:text-white py-2 px-2 transition-colors duration-300"
               />
               <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
+                className="absolute left-2 -top-3.5 text-gray-500 dark:text-gray-400 text-sm transition-all
+                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700 dark:peer-placeholder-shown:text-gray-400
                              peer-placeholder-shown:top-2
                              peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
               >
@@ -127,13 +217,13 @@ export default function Login() {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
+                className="peer w-full border-0 border-b-2 border-gray-500 dark:border-gray-400 bg-transparent dark:bg-gray-900
                          focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                         text-gray-700 dark:text-white py-2 px-2 transition-colors duration-300"
               />
               <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
+                className="absolute left-2 -top-3.5 text-gray-500 dark:text-gray-400 text-sm transition-all
+                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700 dark:peer-placeholder-shown:text-gray-400
                              peer-placeholder-shown:top-2
                              peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
               >
@@ -162,7 +252,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
+              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>

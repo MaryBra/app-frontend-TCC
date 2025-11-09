@@ -60,17 +60,27 @@ export default function Cadastro() {
 
       if (res.ok) {
         const data = await res.json();
-        console.log(data)
+        console.log("Conta criada com sucesso:", data);
 
         const token = data.token;
-        localStorage.setItem("token", token.token)
-        localStorage.setItem("usuarioId", data.usuarioId)
+        localStorage.setItem("token", token.token);
+        localStorage.setItem("usuarioId", data.usuarioId);
 
-        console.log(email)
-
-        if(email){
-          localStorage.setItem("email", email)
+        if (email) {
+          localStorage.setItem("email", email);
         }
+
+        // Salvar dados básicos do usuário no localStorage
+        const userData = {
+          id: data.usuarioId,
+          login: email,
+          tipo: abaAtiva,
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
+
+        // Disparar evento para atualizar componentes
+        window.dispatchEvent(new Event("userDataUpdated"));
+
         router.push(`/aguardandoVerificacao`);
       } else {
         const errorData = await res.json();
@@ -85,7 +95,7 @@ export default function Cadastro() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen">
+    <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
       {/* Lado esquerdo: imagem */}
       <div className="hidden md:flex w-1/3 bg-red-800 items-end justify-center overflow-visible">
         <div className="relative h-screen w-[180%]">
@@ -101,7 +111,7 @@ export default function Cadastro() {
       </div>
 
       {/* Lado direito: formulário */}
-      <div className="flex-1 flex items-start justify-center bg-white pt-12 px-4 md:px-0">
+      <div className="flex-1 flex items-start justify-center bg-white dark:bg-gray-900 pt-12 px-4 md:px-0">
         <div className="w-full max-w-md">
           <Image
             src="/images/logo_1.png"
@@ -113,7 +123,7 @@ export default function Cadastro() {
             className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto"
           />
 
-          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left">
+          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left dark:text-white">
             Criar Conta
           </h2>
 
@@ -123,9 +133,9 @@ export default function Cadastro() {
               type="button"
               className={`pb-2 ${
                 abaAtiva === "pesquisador"
-                  ? "border-b-2 border-[#990000] font-semibold text-[#990000]"
-                  : "text-gray-500"
-              }`}
+                  ? "border-b-2 border-[#990000] font-semibold text-[#990000] dark:text-red-400"
+                  : "text-gray-500 dark:text-gray-400"
+              } cursor-pointer`}
               onClick={() => setAbaAtiva("pesquisador")}
             >
               Pesquisador
@@ -134,9 +144,9 @@ export default function Cadastro() {
               type="button"
               className={`pb-2 ${
                 abaAtiva === "empresa"
-                  ? "border-b-2 border-[#990000] font-semibold text-[#990000]"
-                  : "text-gray-500"
-              }`}
+                  ? "border-b-2 border-[#990000] font-semibold text-[#990000] dark:text-red-400"
+                  : "text-gray-500 dark:text-gray-400"
+              } cursor-pointer`}
               onClick={() => setAbaAtiva("empresa")}
             >
               Empresa
@@ -152,15 +162,15 @@ export default function Cadastro() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="peer w-full border-0 border-b-2 border-gray-500 dark:border-gray-400 bg-transparent dark:bg-gray-900
+                           focus:border-red-700 focus:outline-none focus:ring-0
+                           text-gray-700 dark:text-white py-2 px-2 transition-colors duration-300"
               />
               <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+                className="absolute left-2 -top-3.5 text-gray-500 dark:text-gray-400 text-sm transition-all
+                               peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700 dark:peer-placeholder-shown:text-gray-400
+                               peer-placeholder-shown:top-2
+                               peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
               >
                 Email*
               </label>
@@ -173,15 +183,15 @@ export default function Cadastro() {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="peer w-full border-0 border-b-2 border-gray-500 dark:border-gray-400 bg-transparent dark:bg-gray-900
+                           focus:border-red-700 focus:outline-none focus:ring-0
+                           text-gray-700 dark:text-white py-2 px-2 transition-colors duration-300"
               />
               <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+                className="absolute left-2 -top-3.5 text-gray-500 dark:text-gray-400 text-sm transition-all
+                               peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700 dark:peer-placeholder-shown:text-gray-400
+                               peer-placeholder-shown:top-2
+                               peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
               >
                 Senha*
               </label>
@@ -194,15 +204,15 @@ export default function Cadastro() {
                 value={confirmarSenha}
                 onChange={(e) => setConfirmarSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="peer w-full border-0 border-b-2 border-gray-500 dark:border-gray-400 bg-transparent dark:bg-gray-900
+                           focus:border-red-700 focus:outline-none focus:ring-0
+                           text-gray-700 dark:text-white py-2 px-2 transition-colors duration-300"
               />
               <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
+                className="absolute left-2 -top-3.5 text-gray-500 dark:text-gray-400 text-sm transition-all
+                               peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700 dark:peer-placeholder-shown:text-gray-400
+                               peer-placeholder-shown:top-2
+                               peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
               >
                 Confirmar Senha*
               </label>
@@ -213,15 +223,18 @@ export default function Cadastro() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
+              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Criando conta..." : "Criar conta"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4">
+          <p className="text-sm text-center mt-4 dark:text-gray-400">
             Já tem uma conta?{" "}
-            <a href="/login" className="text-red-700 font-medium">
+            <a
+              href="/login"
+              className="text-red-700 dark:text-red-400 font-medium hover:underline"
+            >
               Entrar
             </a>
           </p>

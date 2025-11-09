@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
-import ProfileScreen from './ProfileScreen';
+import { Suspense } from "react";
+import ProfileScreen from "./ProfileScreen";
 
 export default function TelaPerfil() {
   return (

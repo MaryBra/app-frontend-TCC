@@ -8,9 +8,12 @@ export default function VerificarEmail() {
   const params = useSearchParams();
   const uniqueId = params.get("codigo");
   const router = useRouter();
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
   const [mensagem, setMensagem] = useState("");
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
@@ -48,7 +51,7 @@ export default function VerificarEmail() {
         }
       } catch (err) {
         setStatus("error");
-        setMensagem("Erro ao conectar com o servidor.");''
+        setMensagem("Erro ao conectar com o servidor.");
       }
     };
 
@@ -58,11 +61,11 @@ export default function VerificarEmail() {
   const rotaPorTipo = () => {
     if (tipoUsuario === "PESQUISADOR") return "/perfilPesquisador";
     if (tipoUsuario === "EMPRESA") return "/cadastroEmpresa";
-    return "/login"; 
+    return "/login";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex">
       <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-[#990000] to-red-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-32 translate-x-32"></div>
@@ -87,7 +90,7 @@ export default function VerificarEmail() {
             <div className="text-center">
               <div className="mb-8 flex justify-center">
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-full border-8 border-gray-200 flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full border-8 border-gray-200 dark:border-gray-700 flex items-center justify-center">
                     <svg
                       className="w-16 h-16 animate-spin text-[#990000]"
                       fill="none"
@@ -110,10 +113,12 @@ export default function VerificarEmail() {
                   </div>
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
                 Verificando seu e-mail
               </h1>
-              <p className="text-gray-600 text-lg">Isso não vai demorar...</p>
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
+                Isso não vai demorar...
+              </p>
             </div>
           )}
 
@@ -137,14 +142,16 @@ export default function VerificarEmail() {
                 </div>
               </div>
 
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Tudo certo!
               </h1>
-              <p className="text-gray-600 text-lg mb-8">{mensagem}</p>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">
+                {mensagem}
+              </p>
 
               <button
                 onClick={() => router.push(rotaPorTipo())}
-                className="w-full bg-gradient-to-r from-[#b30000] to-[#660000] text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl hover:scale-105 focus:ring-4 focus:ring-red-300"
+                className="w-full bg-gradient-to-r from-[#b30000] to-[#660000] text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl hover:scale-105 focus:ring-4 focus:ring-red-300 cursor-pointer"
               >
                 Continuar Cadastro
               </button>
@@ -171,12 +178,14 @@ export default function VerificarEmail() {
                 </div>
               </div>
 
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Ops, algo deu errado!
               </h1>
-              <p className="text-gray-600 text-lg mb-8">{mensagem}</p>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">
+                {mensagem}
+              </p>
 
-              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-8">
+              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-lg p-6 mb-8">
                 <div className="flex items-start gap-3">
                   <svg
                     className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
@@ -189,15 +198,16 @@ export default function VerificarEmail() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <p className="text-sm text-red-800 font-medium text-left">
-                    O link pode ter expirado ou já foi utilizado anteriormente. Tente fazer login ou solicite um novo e-mail de verificação.
+                  <p className="text-sm text-red-800 dark:text-red-300 font-medium text-left">
+                    O link pode ter expirado ou já foi utilizado anteriormente.
+                    Tente fazer login ou solicite um novo e-mail de verificação.
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={() => router.push("/login")}
-                className="w-full bg-[#990000] hover:bg-red-900 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl"
+                className="w-full bg-[#990000] hover:bg-red-900 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer"
               >
                 Ir para o Login
               </button>
