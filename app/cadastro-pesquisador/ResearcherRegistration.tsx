@@ -4,8 +4,10 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { TokenPayload } from "../types/auth.types";
+import { jwtDecode } from "jwt-decode";
 
-export default function ResearcherProfile() {
+export default function ResearcherRegistration() {
     const [arquivo, setArquivo] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -102,71 +104,31 @@ export default function ResearcherProfile() {
 
         // Lê o conteúdo de palavras-chave que o backend respondeu
         const resultadoUpload = await respostaUpload.json();
-        const palavrasChave = resultadoUpload.keywords || ["Engenharia Química"];
+        const palavrasChave = resultadoUpload.keywords;
 
-        // Agora lê o conteúdo do arquivo localmente para extrair dados (nome, nacionalidade, etc)
-        const xmlText = await arquivo.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-
-        const nomeNode = xmlDoc.querySelector('DADOS-GERAIS');
-        const nomeCompleto = nomeNode?.getAttribute('NOME-COMPLETO') || '';
-        const nacionalidade = nomeNode?.getAttribute('NACIONALIDADE') || '';
-        const paisNascimento = nomeNode?.getAttribute('PAIS-DE-NASCIMENTO') || '';
-        const dataAtualizacaoRaw = xmlDoc.documentElement.getAttribute('DATA-ATUALIZACAO') || '';
-
-        const partesNome = nomeCompleto.split(' ');
-        const nomePesquisador = partesNome.slice(0, -1).join(' ');
-        const sobrenome = partesNome.slice(-1).join(' ');
-
-        let dataAtualizacao = null;
-        if (dataAtualizacaoRaw.length === 8) {
-        dataAtualizacao = `${dataAtualizacaoRaw.substring(4, 8)}-${dataAtualizacaoRaw.substring(2, 4)}-${dataAtualizacaoRaw.substring(0, 2)}`;
-        }
-
-        const jsonData = {
-        usuario: { id: parseInt(idSalvo) },  // Troque por id do usuário logado se tiver auth
-        nomePesquisador: nomePesquisador,
-        sobrenome: sobrenome,
-        dataNascimento: null,
-        nomeCitacoesBibliograficas: nomeCompleto,
-        dataAtualizacao: dataAtualizacao,
-        horaAtualizacao: "10:00:00",
-        nacionalidade: nacionalidade,
-        paisNascimento: paisNascimento,
-        lattesId: null
-        };
-
-        // Agora envia o pesquisador para o backend
-        const respostaPesquisador = await fetch("http://localhost:8080/api/pesquisadores/salvarPesquisador", {
-        method: "POST",
-        headers: { 
+        const requisicaoTokenAtualizado = await fetch("http://localhost:8080/api/auth/refresh-token", {
+            method: "POST",
+            headers: { 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify(jsonData)
-        });
+        })
 
-        if (!respostaPesquisador.ok) {
-        console.error("### FALHA AO SALVAR PESQUISADOR ###");
-        console.error("STATUS HTTP:", respostaPesquisador.status); // Ex: 400, 401, 500
-        console.error("STATUS TEXT:", respostaPesquisador.statusText); // Ex: Bad Request, Unauthorized
+        if (!requisicaoTokenAtualizado.ok) {
+            throw new Error("Erro ao obter o novo token.");
+        } 
 
-        // Tenta ler a mensagem de erro que o seu backend (Java) enviou
-        const errorText = await respostaPesquisador.text();
-        console.error("RESPOSTA DO BACKEND:", errorText);
+        const data = await requisicaoTokenAtualizado.json();
+        const novoToken = data.token;
+        localStorage.setItem("token", novoToken)
 
-        throw new Error(`Erro ao salvar pesquisador. Status: ${respostaPesquisador.status}`);
-        }
-
-        const resultadoPesquisador = await respostaPesquisador.json();
-        const idPesquisador = resultadoPesquisador.id;
-
-        console.log("ID Pesquisador criado:", idPesquisador);
+        const payload = jwtDecode<TokenPayload>(novoToken)
+        localStorage.setItem("id_usuario", String(payload.id_usuario))
+        localStorage.setItem("tipo_usuario", payload.tipo_usuario)
 
         // Por fim, redireciona para a tela de tags com id + tags
         const tagsQuery = encodeURIComponent(palavrasChave.join(","));
-        router.push(`/selecionandoTags?tags=${tagsQuery}&idPesquisador=${idPesquisador}`);
+        router.push(`/selecionandoTags?tags=${tagsQuery}`);
 
     } catch (error) {
         console.error("Erro no processo:", error);

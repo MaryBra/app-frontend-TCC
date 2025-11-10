@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
-import ResearcherProfile from './ResearcherProfile';
+import ResearcherRegistration from './ResearcherRegistration';
 
 export default function Home() {
   return (
       <div>
         <Suspense fallback={<p>Carregando...</p>}>
-          <ResearcherProfile />
+          <ResearcherRegistration />
         </Suspense>
       </div>
     );

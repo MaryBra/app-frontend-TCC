@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "../types/auth.types";
 
 export default function Login() {
   const router = useRouter();
@@ -43,14 +45,46 @@ export default function Login() {
       });
 
       if (res.ok) {
+
         const data = await res.json();
         localStorage.setItem("token", data.token);
-        if (data.emailVerificado == false) {
+
+        const tokenContent = jwtDecode<TokenPayload>(data.token)
+        
+        // Se a conta não for verificada, mandamos para a tela de verificação
+        if (tokenContent.conta_verificada == false) {
           localStorage.setItem("email", email);
           router.push("/aguardandoVerificacao");
-        } else {
-          router.push("/home");
+        } 
+
+        else {
+
+          switch (tokenContent.tipo_usuario) {
+            // Se tiver cadastro de pesquisador não concluído
+            case "pesquisador_pendente":
+              router.push("/cadastro-pesquisador")
+              break;
+
+            // Se tiver cadastro de empresa não concluído
+            case "empresa_pendente":
+              router.push("/cadastro-empresa")
+              break;
+            
+            // Se tiver cadastro concluído
+            case "empresa":
+            case "pesquisador":
+              localStorage.setItem("tipo_usuario", tokenContent.tipo_usuario)
+              localStorage.setItem("id_usuario", String(tokenContent.id_usuario))
+              router.push("/home");
+              break;
+            
+            // Se não estiver nada definido
+            default:
+              setErro("Conta indefinida. Contate o suporte.")
+
+          }
         }
+      
       } else {
         const errorData = await res.json();
         setErro(errorData.message || "Credenciais inválidas");

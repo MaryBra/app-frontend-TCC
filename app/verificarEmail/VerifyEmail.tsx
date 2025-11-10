@@ -56,8 +56,8 @@ export default function VerificarEmail() {
   }, [uniqueId, token, router]);
 
   const rotaPorTipo = () => {
-    if (tipoUsuario === "PESQUISADOR") return "/perfilPesquisador";
-    if (tipoUsuario === "EMPRESA") return "/cadastroEmpresa";
+    if (tipoUsuario === "PESQUISADOR") return "/cadastro-pesquisador";
+    if (tipoUsuario === "EMPRESA") return "/cadastro-empresa";
     return "/login"; 
   };
 

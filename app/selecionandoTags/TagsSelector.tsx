@@ -4,6 +4,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FiSearch, FiX, FiArrowRight, FiAlertCircle } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "../types/auth.types";
 
 export default function TagsSelector() {
     const router = useRouter();
@@ -52,33 +54,35 @@ export default function TagsSelector() {
     };
 
     const handleContinuar = async () => {
+        const token = localStorage.getItem("token")
+        const id_usuario = localStorage.getItem("id_usuario")
+
         const jsonData = {
-        pesquisador: { id: Number(idPesquisador) },
-        listaTags: tagsSelecionadas,
+            idPesquisador: id_usuario,
+            listaTags: tagsSelecionadas,
         };
-        const token = localStorage.getItem("token");
     
         try {
-        const resposta = await fetch("http://localhost:8080/api/tags/salvarTag", {
-            method: "POST",
-            headers: { "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` },
-            body: JSON.stringify(jsonData),
-        });
-    
-        if (!resposta.ok) {
-            throw new Error("Erro ao salvar as tags");
-        }
 
-        const data = await resposta.json(); // <- Aqui você pega o JSON com o id
-        console.log("Tag salva com sucesso. ID retornado:", data.id);
-        // Se tudo der certo, redireciona
-        const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
-        router.push(`/telaPerfil?tags=${tagsString}&idTag=${data.id}`);
+            const resposta = await fetch("http://localhost:8080/api/tags/salvarTag", {
+                method: "POST",
+                headers: { "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` },
+                body: JSON.stringify(jsonData),
+            });
+        
+            if (!resposta.ok) {
+                throw new Error("Erro ao salvar as tags");
+            }
+
+            // Se tudo der certo, redireciona
+            const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
+            
+            router.push(`/telaPerfil?tags=${tagsString}&idTag=${id_usuario}`);
 
         } catch (error) {
-        console.error("Erro ao salvar tags:", error);
-        setErro("Não foi possível salvar as tags. Tente novamente.");
+            console.error("Erro ao salvar tags:", error);
+            setErro("Não foi possível salvar as tags. Tente novamente.");
         }
     };
 
