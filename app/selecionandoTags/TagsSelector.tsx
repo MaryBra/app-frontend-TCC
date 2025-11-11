@@ -74,11 +74,8 @@ export default function TagsSelector() {
             if (!resposta.ok) {
                 throw new Error("Erro ao salvar as tags");
             }
-
-            // Se tudo der certo, redireciona
-            const tagsString = encodeURIComponent(tagsSelecionadas.join(","));
             
-            router.push(`/telaPerfil?tags=${tagsString}&idTag=${id_usuario}`);
+            router.push(`/meu-perfil`);
 
         } catch (error) {
             console.error("Erro ao salvar tags:", error);
