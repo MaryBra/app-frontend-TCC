@@ -87,6 +87,7 @@ export default function ProfileScreen() {
                 }
 
                 const data = await res.json();
+                console.log(data)
                 setDadosPesquisador(data);
 
             } catch (err) {
@@ -177,11 +178,31 @@ export default function ProfileScreen() {
 
             <div className="flex-1">
               <h1 className="text-4xl font-bold mb-1">{dadosPesquisador.pesquisador.nomePesquisador} {dadosPesquisador.pesquisador.sobrenome}</h1>
-              <h2 className="text-xl mb-4">[Inserir Especialidade]</h2>
+              <h2 className="text-xl mb-4">
+              </h2>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                
+              {dadosPesquisador.tags.listaTags.length > 0 ? (
+                dadosPesquisador.tags.listaTags.map((tag, index) => (
+                  <span
+                  key={index}
+                  className="bg-white text-black px-4 py-2 rounded-full text-sm shadow-sm">
+                    {tag}
+                  </span>
+                ))
+              ): (
+                    <>
+                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
+                        Desenvolvimento de Software
+                        </span>
+                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
+                        Suporte Técnico
+                        </span>
+                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
+                        Redes de Computadores
+                        </span>
+                    </>)}
               </div>
 
               {/* Botões de Contato */}
