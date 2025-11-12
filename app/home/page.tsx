@@ -414,22 +414,14 @@ export default function Home() {
                 alt="user"
                 className="w-8 rounded-full mr-2 cursor-pointer"
                 onClick={() =>
-                  router.push(
-                    usuario.tipoPerfil === "empresa"
-                      ? "/perfilEmpresa"
-                      : "/telaPerfil"
-                  )
+                  router.push("meu-perfil")
                 }
               />
               <span className="mr-2 cursor-default">{usuario.nome}</span>
               <button
                 className="bg-[#990000] text-white px-3 py-1 rounded-md shadow-md hover:bg-red-700 cursor-pointer transition-colors"
                 onClick={() =>
-                  router.push(
-                    usuario.tipoPerfil === "empresa"
-                      ? "/perfilEmpresa"
-                      : "/telaPerfil"
-                  )
+                  router.push("meu-perfil")
                 }
               >
                 Ver Perfil

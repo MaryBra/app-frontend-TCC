@@ -14,11 +14,9 @@ export default function MenuLateral() {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Remove token do localStorage
     localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
-
-    // Redireciona para a página de login
+    localStorage.removeItem("id_usuario");
+    localStorage.removeItem("tipo_usuario");
     router.push("/login");
   };
 

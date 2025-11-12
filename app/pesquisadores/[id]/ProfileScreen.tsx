@@ -5,10 +5,19 @@ import { Home, User, Settings, LogOut, LayoutDashboard, Target, Pencil } from "l
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { CardLista } from "@/app/components/CardLista";
+import MenuLateral from "@/app/components/MenuLateral";
+
 
 interface DadosPesquisador {
     pesquisador: Pesquisador,
-    formacoesAcademicas: FormacoesAcademicas[]
+    formacoesAcademicas: FormacoesAcademicas[],
+    atuacoesProfissionais: AtuacoesProfissionais[],
+    artigos: Artigos[],
+    linhaDoTempo?: LinhaDoTempo[],
+    tags: {
+        listaTags: string[]
+    }
 }
 
 interface Usuario {
@@ -30,9 +39,24 @@ interface Pesquisador {
   imagemPerfil: string | null;
 }
 
+interface AtuacoesProfissionais {
+  id: number;
+  cargo: string;
+  instituicao: string;
+  anoInicio: number;
+  anoConclusao: number;
+}
+
+interface Artigos {
+  id: number;
+  ano: number;
+  periodico: string;
+  doi: string;
+  idioma: string;
+}
+
 interface FormacoesAcademicas {
   id: number;
-  pesquisador: Pesquisador;
   nivel: string;
   sequenciaFormacao: number;
   instituicao: string;
@@ -43,6 +67,12 @@ interface FormacoesAcademicas {
   tituloTrabalho: string;
   orientador: string;
   destaque: boolean;
+}
+
+interface LinhaDoTempo {
+  ano: number;
+  titulo: string;
+  id?: number;
 }
 
 export default function ProfileScreen() {
@@ -122,34 +152,7 @@ export default function ProfileScreen() {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Menu Lateral */}
-      <aside className="w-20 bg-white fixed left-0 top-0 h-screen flex flex-col items-center py-4 shadow-md">
-        <div className="mb-10">
-          <Image
-            src="/images/logo.png"
-            alt="Logo"
-            width={50}
-            height={50}
-            quality={100}
-            priority
-          />
-        </div>
-
-        <nav className="flex flex-col gap-6 mt-auto mb-4">
-          <button className="text-black hover:text-gray-600">
-            <Target size={28} />
-          </button>
-          <button className="text-black hover:text-gray-600">
-            <LayoutDashboard size={28} />
-          </button>
-          <hr className="border-gray-300 w-8 mx-auto" />
-          <button className="text-black hover:text-gray-600">
-            <Settings size={28} />
-          </button>
-          <button className="text-black hover:text-gray-600">
-            <LogOut size={28} />
-          </button>
-        </nav>
-      </aside>
+      <MenuLateral/>
 
       {/* Conteúdo da Tela */}
       <main className="flex-1 flex flex-col ml-20 bg-[#ECECEC]">
@@ -183,26 +186,13 @@ export default function ProfileScreen() {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-              {dadosPesquisador.tags.listaTags.length > 0 ? (
-                dadosPesquisador.tags.listaTags.map((tag, index) => (
+              {dadosPesquisador.tags.listaTags.map((tag, index) => (
                   <span
                   key={index}
                   className="bg-white text-black px-4 py-2 rounded-full text-sm shadow-sm">
                     {tag}
                   </span>
-                ))
-              ): (
-                    <>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Desenvolvimento de Software
-                        </span>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Suporte Técnico
-                        </span>
-                        <span className="bg-white text-black px-3 py-1 rounded-full text-sm shadow-sm">
-                        Redes de Computadores
-                        </span>
-                    </>)}
+                ))}
               </div>
 
               {/* Botões de Contato */}
@@ -233,63 +223,111 @@ export default function ProfileScreen() {
         </div>
 
         {/* Seção de Conteúdo */}
-        <div className="p-8 flex gap-6 bg-[#ECECEC]">
-          {/* Card 1 - Linha do tempo */}
-          <div className="flex-1 bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-sm text-gray-700 mb-2">Linha do tempo - Destaques</h2>
+        <div className="p-8 bg-[#ECECEC] overflow-y-auto">
+          {/* Primeira Linha - Linha do tempo e Formação Acadêmica */}
+          <div className="flex gap-6 mb-6">
+            {/* Card 1 - Linha do tempo */}
+            <div className="flex-1 bg-white rounded-lg shadow-md p-4 h-fit">
+              <h2 className="text-sm text-gray-700 mb-2">Linha do tempo - Destaques</h2>
 
-            <div className="relative border-l-2 border-gray-300 ml-4">
-              {/* {dadosPesquisador.linhaDoTempo.map((item, idx) => (
-                <div key={idx} className="mb-8 flex items-center">
-                  <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
+              {dadosPesquisador.linhaDoTempo && dadosPesquisador.linhaDoTempo.length > 0 ? (
+                <div className="relative border-l-2 border-gray-300 ml-4">
+                  {dadosPesquisador.linhaDoTempo.map((item, idx) => (
+                    <div key={idx} className="mb-8 flex items-center">
+                      <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
 
-                  <div className="ml-6 flex items-center gap-2">
-                    <p className="text-lg font-semibold text-black">{item.ano}</p>
-                    <p className="text-sm text-gray-800">{item.titulo}</p>
-                  </div>
+                      <div className="ml-6 flex items-center gap-2">
+                        <p className="text-lg font-semibold text-black">{item.ano}</p>
+                        <p className="text-sm text-gray-800">{item.titulo}</p>
+                      </div>
 
-                  <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
-                    Acessar
-                  </button>
+                      <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
+                        Acessar
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))} */}
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 px-4">
+                  <div className="text-center mb-4">
+                    <p className="text-gray-500 text-sm mb-1">
+                      Nenhum destaque adicionado ainda
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      {podeEditar 
+                        ? "Destaque suas conquistas e marcos importantes da sua trajetória acadêmica"
+                        : "Este pesquisador ainda não adicionou destaques à linha do tempo"}
+                    </p>
+                  </div>
+                  
+                  {podeEditar && (
+                    <button className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm">
+                      Adicionar Destaques
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Card 2 - Formação Acadêmica */}
+            <CardLista
+              titulo="Formação Acadêmica"
+              items={dadosPesquisador.formacoesAcademicas.map((formacao) => ({
+                id: formacao.id,
+                titulo: `${formacao.nivel} — ${formacao.instituicao}`,
+                subtitulo: `${formacao.curso} (${formacao.anoInicio} - ${formacao.anoConclusao})`
+              }))}
+              textoBotao="Ver mais"
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais formações")}
+            />
           </div>
 
-          {/* Card 2 - Formação Acadêmica */}
-          <div className="flex-1 bg-white rounded-2xl shadow-lg p-6">
-            <div className="relative mb-6">
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-200 h-8 rounded-md"></div>
-                <h2 className="relative z-10 text-center text-2xl font-bold text-black tracking-wide">
-                Formação Acadêmica
-                </h2>
-            </div>
+          <div className="flex gap-6 mb-6">
+            {/* Card 3 - Atuação Profissional */}
+            <CardLista
+              titulo="Atuação Profissional"
+              items={dadosPesquisador.atuacoesProfissionais.map((atuacao) => ({
+                id: atuacao.id,
+                titulo: `${atuacao.cargo}`,
+                subtitulo: `${atuacao.instituicao} (${atuacao.anoInicio} - ${atuacao.anoConclusao})`
+              }))}
+              textoBotao="Ver mais"
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais atuações")}
+            />
 
-            <ul className="space-y-5">
-                {dadosPesquisador?.formacoesAcademicas?.map((formacao) => (
-                <li key={formacao.id} className="flex items-center gap-10 bg-gray-50 rounded-xl p-5">
-                    {/* Bolinha cinza centralizada verticalmente */}
-                    <div className="w-5 h-5 bg-gray-400 rounded-full flex-shrink-0 self-center"></div>
+            {/* Card 4 - Artigos Publicados */}
+            <CardLista
+              titulo="Artigos Publicados"
+              items={dadosPesquisador.artigos.map((artigo) => ({
+                id: artigo.id,
+                titulo: `${artigo.periodico}`,
+                subtitulo: `Idioma: ${artigo.idioma} | DOI: ${artigo.doi}`
+              }))}
+              textoBotao="Ver mais"
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais artigos")}
+            />
+          </div>
 
-                    {/* Conteúdo textual */}
-                    <div className="flex flex-col text-black leading-snug">
-                    <p className="font-bold text-base">
-                        {formacao.nivel} — {formacao.instituicao}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                        {formacao.curso} ({formacao.anoInicio} - {formacao.anoConclusao})
-                    </p>
-                    </div>
-                </li>
-                ))}
-            </ul>
+          {/* Terceira Linha - Projetos e Premiações (exemplo) */}
+          <div className="flex gap-6 mb-6">
+            {/* Card 5 - Projetos de Pesquisa */}
+            <CardLista
+              titulo="Projetos de Pesquisa"
+              items={[ ]}
+              textoBotao="Ver mais"
+              onClickBotao={() => console.log("Ver mais projetos")}
+            />
 
-        <div className="mt-8 flex justify-end">
-            <button className="bg-[#990000] hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow-md transition">
-                Ver mais
-            </button>
-        </div>
-
+            {/* Card 6 - Premiações */}
+            <CardLista
+              titulo="Premiações e Honrarias"
+              items={[ ]}
+              textoBotao="Ver mais"
+              onClickBotao={() => console.log("Ver mais premiações")}
+            />
           </div>
         </div>
 
