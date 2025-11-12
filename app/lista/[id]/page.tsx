@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuLateral from "../../components/MenuLateral";
 import { Heart, Bookmark, Trash2, X } from "lucide-react";
 
@@ -18,10 +18,58 @@ const mockPerfis = {
 export default function ListaPage() {
   const { id } = useParams(); // pega id da lista na rota
   const router = useRouter();
-  const [perfis, setPerfis] = useState(mockPerfis[id as keyof typeof mockPerfis] || []);
+  const [perfis, setPerfis] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [nomeLista, setNomeLista] = useState(`Lista ${id}`);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const id_usuario = localStorage.getItem("id_usuario");
+
+    const handleSeguidores = async () => {
+      if (!token) {
+        console.error("Usuário não logado. Redirecionando...");
+        router.push("/login");
+        return;
+      }
+
+      try{
+        const response = await fetch(
+          `http://localhost:8080/api/seguidores/usuario/${id_usuario}/seguindo`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            }
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error("Falha ao buscar seguidores");
+        }
+
+        const seguidores = await response.json();
+        console.log("Dados da API:", seguidores);
+
+        const perfisFormatados = seguidores
+          .filter(item => item.pesquisador != null)
+          .map(item => ({                      
+            id: item.pesquisador.id,
+            nome: `${item.pesquisador.nomePesquisador} ${item.pesquisador.sobrenome}`,
+            area: "Pesquisador", 
+            tags: []              
+          }));
+
+        setPerfis(perfisFormatados);
+      }catch(err){
+        console.error("Erro ao buscar seguidores:", err);
+      }
+    }
+
+    handleSeguidores();
+  }, [])
 
   // função para remover perfil
   const removerPerfil = (idPerfil: number) => {

@@ -244,6 +244,10 @@ export default function Home() {
             },
           }
         );
+        
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados do usuario");
+        }
         const recomendacao = await response.json();
         console.log("Dados da API:",recomendacao)
 
@@ -258,10 +262,6 @@ export default function Home() {
 
         setRecomendacoes(recomendacoesFormatadas)
 
-        if (!response.ok) {
-          throw new Error("Falha ao buscar dados do usuario");
-        }
-
     } catch(err){
       console.error("Erro ao buscar perfil:", err);
     } finally {
@@ -272,9 +272,44 @@ export default function Home() {
     handleBuscarUsuario();
   }, [router]);
 
-  useEffect(() => {
-    
-  }, [router])
+  const handleSeguir = async (id) => {
+    const token = localStorage.getItem("token");
+
+    if(!token){
+      console.error("Usuário não logado. Redirecionando...");
+      router.push("/login");
+      return;
+    }
+
+    setCarregando(true);
+
+    try{
+      const response = await fetch(
+        `http://localhost:8080/api/seguidores/salvarSeguidor`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            "pesquisadorId": id
+          })
+        }
+      )
+
+      if(!response.ok){
+        throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
+      }
+
+      const novoSeguidor = await response.json();
+      console.log("Seguidor salvo:", novoSeguidor);
+    }catch(err){
+      console.error("Erro ao seguir perfil:", err);
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   const limparBusca = () => {
     setTermoBusca("");
@@ -490,10 +525,10 @@ export default function Home() {
                         <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" />
                       </button>
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" />
+                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleSeguir(item.id)}/>
                       </button>
                     </div>
-
+                
                     <img
                       src="/images/user.png"
                       alt="user"
