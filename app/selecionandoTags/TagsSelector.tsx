@@ -58,7 +58,7 @@ export default function TagsSelector() {
         const id_usuario = localStorage.getItem("id_usuario")
 
         const jsonData = {
-            idPesquisador: id_usuario,
+            pesquisador: {id: id_usuario},
             listaTags: tagsSelecionadas,
         };
     

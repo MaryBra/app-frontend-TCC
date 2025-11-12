@@ -245,6 +245,7 @@ export default function Home() {
           }
         );
         const recomendacao = await response.json();
+        console.log(recomendacao)
 
         setRecomendacoes(recomendacao)
 
@@ -255,7 +256,7 @@ export default function Home() {
     } catch(err){
       console.error("Erro ao buscar perfil:", err);
     } finally {
-        setCarregando(false); // Opcional
+        setCarregando(false);
     }
   }
 
