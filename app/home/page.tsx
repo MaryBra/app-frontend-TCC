@@ -245,9 +245,18 @@ export default function Home() {
           }
         );
         const recomendacao = await response.json();
-        console.log(recomendacao)
+        console.log("Dados da API:",recomendacao)
 
-        setRecomendacoes(recomendacao)
+        const recomendacoesFormatadas = recomendacao.map(item => ({
+          id: item.id,
+          nome: item.nomePesquisador,         // De: nomePesquisador -> Para: nome
+          area: item.sobrenome,             // Usando sobrenome como 'area' (ajuste se necessário)
+          tags: item.tags || []             // CRÍTICO: Garante que 'tags' seja um array vazio
+        }));
+
+        console.log("Dados Formatados para o Componente:", recomendacoesFormatadas);
+
+        setRecomendacoes(recomendacoesFormatadas)
 
         if (!response.ok) {
           throw new Error("Falha ao buscar dados do usuario");
