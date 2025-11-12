@@ -304,6 +304,10 @@ export default function Home() {
 
       const novoSeguidor = await response.json();
       console.log("Seguidor salvo:", novoSeguidor);
+
+      setRecomendacoes(listaAtual => 
+            listaAtual.filter(perfil => perfil.id !== id)
+      );
     }catch(err){
       console.error("Erro ao seguir perfil:", err);
     } finally {
