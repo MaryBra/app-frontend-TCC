@@ -64,25 +64,28 @@ export default function CompanyRegistration() {
 
     // Função para enviar os dados ao backend
     const handleSubmit = async () => {
-        const dados = {
-        nomeComercial,
-        nomeRegistro,
-        cnpj,
-        telefone,
-        email,
-        site,
-        setor,
-        frase,
-        textoEmpresa,
-        logradouro, 
-        numeroEndereco, 
-        cidade, 
-        estado, 
-        cep, 
-        bairro
-        };
 
         const token = localStorage.getItem("token");
+        console.log(token)
+
+        const dados = {
+        nomeRegistro,
+        nomeComercial,
+        cnpj,
+        numeroEndereco,
+        bairro,
+        cidade,
+        estado,
+        cep,
+        telefone,
+        email, 
+        site, 
+        setor, 
+        frase, 
+        textoEmpresa, 
+        logradouro
+        };
+
 
         try {
         const res = await fetch("http://localhost:8080/api/empresas/salvarEmpresa", { 
@@ -106,6 +109,8 @@ export default function CompanyRegistration() {
             
             router.push(`/perfilEmpresa/${empresaCriada.id}`); // vai direto para o perfil certo
         } else {
+            const errorText = await res.text();
+            console.error("Erro do backend:", errorText);
             alert("Erro ao cadastrar a empresa.");
         }
         } catch (error) {
