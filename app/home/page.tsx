@@ -170,8 +170,16 @@ export default function Home() {
         }
 
         const dadosUsuario = await response.json();
+        console.log(dadosUsuario)
 
-        handleDadosPesquisador(dadosUsuario.id);
+        if(dadosUsuario.tipoUsuario.name == "PESQUISADOR"){
+          handleDadosPesquisador(dadosUsuario.id);
+          localStorage.setItem("tipo_usuario", dadosUsuario.tipoUsuario.name.toLowerCase())
+        }else{
+          handleDadosEmpresa(dadosUsuario.id)
+          localStorage.setItem("tipo_usuario", dadosUsuario.tipoUsuario.name.toLowerCase())
+        }
+        
         handleRecomendacao(dadosUsuario.id);
     } catch(err){
       console.error("Erro ao buscar perfil:", err);
@@ -216,6 +224,43 @@ export default function Home() {
       } catch(err){
         console.error("Erro ao buscar perfil:", err);
       } finally {
+          setCarregando(false); // Opcional
+      }
+    }
+
+    const handleDadosEmpresa = async (id) => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Usuário não logado. Redirecionando...");
+        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        return;
+      }
+
+      setCarregando(true);
+
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/empresas/listarEmpresa/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Falha ao buscar dados da empresa");
+        }
+
+        const dadosEmpresa = await response.json();
+        console.log("Dados da API:",dadosEmpresa)
+        setNome(dadosEmpresa.nomeRegistro)
+      } catch(err){
+        console.error("Erro ao buscar perfil:", err);
+      }finally {
           setCarregando(false); // Opcional
       }
     }

@@ -34,6 +34,7 @@ export default function CompanyProfile() {
         });
 
         const data = await res.json();
+        console.log(data)
         setInfoEmpresa(data);
         } catch (error) {
         console.error("Erro ao buscar empresa:", error);
