@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 
 export default function PerfilRedirect() {
   const tipoUsuario = localStorage.getItem("tipo_usuario")
-  const idUsuario = localStorage.getItem("usuarioId")
+  const idUsuario = localStorage.getItem("id_usuario")
   const router = useRouter();
   
   useEffect(() => {
     if (tipoUsuario === 'pesquisador') {
-      router.replace(`/perfilPesquisador/${idUsuario}`);
+      router.replace(`/pesquisadores/${idUsuario}`);
     } else if (tipoUsuario === 'empresa') {
       router.replace(`/perfilEmpresa/${idUsuario}`);
     }
