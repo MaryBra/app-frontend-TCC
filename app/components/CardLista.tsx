@@ -18,24 +18,26 @@ interface CardListaProps {
 export function CardLista({ 
   titulo, 
   items, 
-  textoBotao = "Ver mais", 
+  textoBotao = "Ver tudo", 
   onClickBotao,
   podeEditar = false,
   onClickAdicionar
 }: CardListaProps) {
   
-  // Se a lista estiver vazia, mostra mensagem apropriada
+  // Altura fixa para todos os cards - equivalente a card com 3 itens
+  const alturaCard = "h-[400px]"; // Ajuste este valor conforme necessário
+  
   if (items.length === 0) {
     return (
-      <div className="flex-1 bg-white rounded-2xl shadow-lg p-6 h-fit">
+      <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaCard} flex flex-col`}>
         <div className="relative mb-4">
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-200 h-8 rounded-md"></div>
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-100 h-10 rounded-md"></div>
           <h2 className="relative z-10 text-center text-xl font-bold text-black tracking-wide">
             {titulo}
           </h2>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-8 px-4">
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
           <div className="text-center mb-4">
             <p className="text-gray-500 text-sm mb-1">
               {podeEditar 
@@ -61,27 +63,31 @@ export function CardLista({
     );
   }
 
-  // Lista com itens
+  // Lista com itens - mostra no máximo 3
+  const itemsExibidos = items.slice(0, 3);
+  
   return (
-    <div className="flex-1 bg-white rounded-2xl shadow-lg p-6 h-fit">
+    <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaCard} flex flex-col`}>
       <div className="relative mb-4">
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-200 h-8 rounded-md"></div>
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-100 h-10 rounded-md"></div>
         <h2 className="relative z-10 text-center text-xl font-bold text-black tracking-wide">
           {titulo}
         </h2>
       </div>
 
-      <ul className="space-y-2">
-        {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-6 bg-gray-50 rounded-xl p-3">
-            <div className="w-4 h-4 bg-gray-400 rounded-full flex-shrink-0 self-center"></div>
-            <div className="flex flex-col text-black leading-snug">
-              <p className="font-bold text-sm">{item.titulo}</p>
-              <p className="text-xs text-gray-700">{item.subtitulo}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="flex-1 overflow-hidden">
+        <ul className="space-y-2">
+          {itemsExibidos.map((item) => (
+            <li key={item.id} className="flex items-center gap-6 bg-gray-50 rounded-xl p-3">
+              <div className="w-4 h-4 bg-gray-400 rounded-full flex-shrink-0 self-center"></div>
+              <div className="flex flex-col text-black leading-snug">
+                <p className="font-bold text-sm">{item.titulo}</p>
+                <p className="text-xs text-gray-700">{item.subtitulo}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="mt-4 flex justify-end">
         <button 

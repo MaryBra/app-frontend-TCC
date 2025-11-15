@@ -7,6 +7,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CardLista } from "@/app/components/CardLista";
 import MenuLateral from "@/app/components/MenuLateral";
+import { formatarDataHora, obterAnoOuPadrao, obterNumeroOuPadrao, obterValorOuPadrao } from "@/app/utils/formatadores";
+import { CardLinhaDoTempo } from "@/app/components/CardLinhaTempo";
+import { HeaderPesquisador } from "@/app/components/HeaderPesquisador";
 
 
 interface DadosPesquisador {
@@ -15,6 +18,12 @@ interface DadosPesquisador {
     atuacoesProfissionais: AtuacoesProfissionais[],
     artigos: Artigos[],
     linhaDoTempo?: LinhaDoTempo[],
+    livros: Livros[],
+    capitulos: Capitulos[],
+    trabalhosEvento: TrabalhosEvento[],
+    projetosPesquisa: ProjetosPesquisa[],
+    premiacoes: Premiacoes[],
+    orientacoes: Orientacoes[],
     tags: {
         listaTags: string[]
     }
@@ -27,6 +36,7 @@ interface Usuario {
 interface Pesquisador {
   id: number;
   usuario: Usuario;
+  ocupacao: string;
   nomePesquisador: string;
   sobrenome: string;
   dataNascimento: string;
@@ -44,15 +54,51 @@ interface AtuacoesProfissionais {
   cargo: string;
   instituicao: string;
   anoInicio: number;
-  anoConclusao: number;
+  anoFim: number;
 }
 
 interface Artigos {
   id: number;
   ano: number;
+  titulo: string;
   periodico: string;
   doi: string;
   idioma: string;
+  destaque: boolean;
+}
+
+interface Livros {
+  id: number;
+  isbn: string;
+  editora: string;
+  ano: number;
+  numeroPaginas: number;
+  titulo: string;
+  destaque: boolean;
+}
+
+interface Capitulos {
+  id: number;
+  tituloCapitulo: string;
+  nomeLivro: string;
+  ano: number;
+  destaque: boolean;
+}
+
+interface ProjetosPesquisa {
+  id: number;
+  titulo: string;
+  instituicao: string;
+  ano: number;
+  financiador: string;
+}
+
+interface TrabalhosEvento {
+  id: number;
+  titulo: string;
+  ano: number;
+  nomeEvento: string;
+  cidadeEvento: string;
 }
 
 interface FormacoesAcademicas {
@@ -74,6 +120,26 @@ interface LinhaDoTempo {
   titulo: string;
   id?: number;
 }
+
+interface Premiacoes {
+  id: number;
+  titulo: string;
+  instituicao: string;
+  ano: number;
+}
+
+interface Orientacoes {
+  id: number;
+  nomeOrientado: string;
+  nomeCurso: string;
+  ano: number;
+  instituicao: string;
+  tituloTrabalho: string;
+  tipo: string;
+}
+
+
+
 
 export default function ProfileScreen() {
 
@@ -157,127 +223,46 @@ export default function ProfileScreen() {
       {/* Conteúdo da Tela */}
       <main className="flex-1 flex flex-col ml-20 bg-[#ECECEC]">
         {/* Topo Vermelho */}
-        <div className="bg-[#990000] p-6 text-white relative shadow-md">
-          {/* Botão de Edição - só aparece se pode editar */}
-          {podeEditar && (
-            <Link
-              href={`/telaEdicaoPesquisador/${id}`}
-              className="absolute top-4 right-4 bg-white text-[#990000] p-2 rounded-full shadow hover:bg-gray-100 transition"
-              title="Editar Perfil"
-            >
-              <Pencil size={20} />
-            </Link>
+        <HeaderPesquisador
+        nomePesquisador={obterValorOuPadrao(dadosPesquisador.pesquisador.nomePesquisador)}
+          sobrenome={obterValorOuPadrao(dadosPesquisador.pesquisador.sobrenome)}
+          ocupacao={dadosPesquisador.pesquisador.ocupacao}
+          imagemPerfil={dadosPesquisador.pesquisador.imagemPerfil}
+          tags={dadosPesquisador.tags?.listaTags ?? []}
+          dataAtualizacao={formatarDataHora(
+            dadosPesquisador.pesquisador.dataAtualizacao,
+            dadosPesquisador.pesquisador.horaAtualizacao
           )}
-
-          <div className="flex items-start gap-6">
-            <div className="rounded-md flex items-center justify-center overflow-hidden">
-              <Image
-                src="/images/user.png"
-                alt="Foto do usuário"
-                width={400}
-                height={300}
-              />
-            </div>
-
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-1">{dadosPesquisador.pesquisador.nomePesquisador} {dadosPesquisador.pesquisador.sobrenome}</h1>
-              <h2 className="text-xl mb-4">
-              </h2>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-              {dadosPesquisador.tags.listaTags.map((tag, index) => (
-                  <span
-                  key={index}
-                  className="bg-white text-black px-4 py-2 rounded-full text-sm shadow-sm">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Botões de Contato */}
-              <div className="mt-4 flex gap-4">
-                <button
-                  className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition"
-                  onClick={() => setAberto(true)}
-                >
-                  Contato
-                </button>
-
-                <Link
-                  href="/gerenciarListas"
-                  className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
-                >
-                  Gerenciar Listas
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Info de localização */}
-          <div className="absolute right-6 bottom-4 text-sm">
-            <p className="text-xs">
-              Última atualização em {dadosPesquisador.pesquisador.dataAtualizacao} às {dadosPesquisador.pesquisador.horaAtualizacao}
-            </p>
-          </div>
-        </div>
+          horaAtualizacao=""
+          podeEditar={podeEditar}
+          idPesquisador={dadosPesquisador.pesquisador.id}
+          onClickContato={() => setAberto(true)}
+        />
 
         {/* Seção de Conteúdo */}
         <div className="p-8 bg-[#ECECEC] overflow-y-auto">
           {/* Primeira Linha - Linha do tempo e Formação Acadêmica */}
           <div className="flex gap-6 mb-6">
             {/* Card 1 - Linha do tempo */}
-            <div className="flex-1 bg-white rounded-lg shadow-md p-4 h-fit">
-              <h2 className="text-sm text-gray-700 mb-2">Linha do tempo - Destaques</h2>
-
-              {dadosPesquisador.linhaDoTempo && dadosPesquisador.linhaDoTempo.length > 0 ? (
-                <div className="relative border-l-2 border-gray-300 ml-4">
-                  {dadosPesquisador.linhaDoTempo.map((item, idx) => (
-                    <div key={idx} className="mb-8 flex items-center">
-                      <div className="absolute w-3 h-3 bg-red-700 rounded-full -left-1.5"></div>
-
-                      <div className="ml-6 flex items-center gap-2">
-                        <p className="text-lg font-semibold text-black">{item.ano}</p>
-                        <p className="text-sm text-gray-800">{item.titulo}</p>
-                      </div>
-
-                      <button className="ml-auto bg-red-700 text-white text-sm px-4 py-1 rounded shadow hover:bg-red-800 transition">
-                        Acessar
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 px-4">
-                  <div className="text-center mb-4">
-                    <p className="text-gray-500 text-sm mb-1">
-                      Nenhum destaque adicionado ainda
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      {podeEditar 
-                        ? "Destaque suas conquistas e marcos importantes da sua trajetória acadêmica"
-                        : "Este pesquisador ainda não adicionou destaques à linha do tempo"}
-                    </p>
-                  </div>
-                  
-                  {podeEditar && (
-                    <button className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm">
-                      Adicionar Destaques
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            <CardLinhaDoTempo
+            items={(dadosPesquisador.linhaDoTempo ?? []).map((item) => ({
+                id: item.id,
+                ano: item.ano,
+                titulo: obterValorOuPadrao(item.titulo)
+              }))}
+              podeEditar={podeEditar}
+              onClickAdicionar={() => console.log("Adicionar destaque")}
+              onClickAcessar={(item) => console.log("Acessar item:", item)}
+            />
 
             {/* Card 2 - Formação Acadêmica */}
             <CardLista
               titulo="Formação Acadêmica"
-              items={dadosPesquisador.formacoesAcademicas.map((formacao) => ({
+              items={(dadosPesquisador?.formacoesAcademicas ?? []).map((formacao) => ({
                 id: formacao.id,
-                titulo: `${formacao.nivel} — ${formacao.instituicao}`,
-                subtitulo: `${formacao.curso} (${formacao.anoInicio} - ${formacao.anoConclusao})`
+                titulo: `${obterValorOuPadrao(formacao.nivel)} — ${obterValorOuPadrao(formacao.curso)}`,
+                subtitulo: `${obterValorOuPadrao(formacao.instituicao)} (${obterAnoOuPadrao(formacao.anoInicio)} - ${obterAnoOuPadrao(formacao.anoConclusao)})`
               }))}
-              textoBotao="Ver mais"
               podeEditar={podeEditar}
               onClickBotao={() => console.log("Ver mais formações")}
             />
@@ -287,12 +272,11 @@ export default function ProfileScreen() {
             {/* Card 3 - Atuação Profissional */}
             <CardLista
               titulo="Atuação Profissional"
-              items={dadosPesquisador.atuacoesProfissionais.map((atuacao) => ({
+              items={(dadosPesquisador?.atuacoesProfissionais ?? []).map((atuacao) => ({
                 id: atuacao.id,
-                titulo: `${atuacao.cargo}`,
-                subtitulo: `${atuacao.instituicao} (${atuacao.anoInicio} - ${atuacao.anoConclusao})`
+                titulo: obterValorOuPadrao(atuacao.cargo),
+                subtitulo: `${obterValorOuPadrao(atuacao.instituicao)} (${obterAnoOuPadrao(atuacao.anoInicio)} - ${obterAnoOuPadrao(atuacao.anoFim)})`
               }))}
-              textoBotao="Ver mais"
               podeEditar={podeEditar}
               onClickBotao={() => console.log("Ver mais atuações")}
             />
@@ -300,35 +284,92 @@ export default function ProfileScreen() {
             {/* Card 4 - Artigos Publicados */}
             <CardLista
               titulo="Artigos Publicados"
-              items={dadosPesquisador.artigos.map((artigo) => ({
+              items={(dadosPesquisador?.artigos ?? []).map((artigo) => ({
                 id: artigo.id,
-                titulo: `${artigo.periodico}`,
-                subtitulo: `Idioma: ${artigo.idioma} | DOI: ${artigo.doi}`
+                titulo: obterValorOuPadrao(artigo.titulo),
+                subtitulo: `Periódico: ${obterValorOuPadrao(artigo.periodico)} (${obterNumeroOuPadrao(artigo.ano)})`
               }))}
-              textoBotao="Ver mais"
               podeEditar={podeEditar}
               onClickBotao={() => console.log("Ver mais artigos")}
             />
           </div>
 
-          {/* Terceira Linha - Projetos e Premiações (exemplo) */}
           <div className="flex gap-6 mb-6">
-            {/* Card 5 - Projetos de Pesquisa */}
+            {/* Card 5 - Livros Publicados */}
             <CardLista
-              titulo="Projetos de Pesquisa"
-              items={[ ]}
-              textoBotao="Ver mais"
-              onClickBotao={() => console.log("Ver mais projetos")}
+              titulo="Livros Publicados"
+              items={(dadosPesquisador?.livros ?? []).map((livro) => ({
+                id: livro.id,
+                titulo: obterValorOuPadrao(livro.titulo),
+                subtitulo: `Editora: ${obterValorOuPadrao(livro.editora)} (${obterNumeroOuPadrao(livro.ano)})`
+              }))}
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais livros")}
             />
 
-            {/* Card 6 - Premiações */}
+            {/* Card 6 - Capítulos Publicados */}
             <CardLista
-              titulo="Premiações e Honrarias"
-              items={[ ]}
-              textoBotao="Ver mais"
-              onClickBotao={() => console.log("Ver mais premiações")}
+              titulo="Capítulos Publicados"
+              items={(dadosPesquisador?.capitulos ?? []).map((capitulo) => ({
+                id: capitulo.id,
+                titulo: obterValorOuPadrao(capitulo.tituloCapitulo),
+                subtitulo: `Livro: ${obterValorOuPadrao(capitulo.nomeLivro)} (${obterNumeroOuPadrao(capitulo.ano)})`
+              }))}
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais capítulos")}
             />
           </div>
+
+          <div className="flex gap-6 mb-6">
+            {/* Card 7 - Trabalhos em Eventos */}
+            <CardLista
+              titulo="Trabalhos em Eventos"
+              items={(dadosPesquisador?.trabalhosEvento ?? []).map((evento) => ({
+                id: evento.id,
+                titulo: obterValorOuPadrao(evento.titulo),
+                subtitulo: `${obterValorOuPadrao(evento.nomeEvento)} (${obterNumeroOuPadrao(evento.ano)})`
+              }))}
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais trabalhos")}
+            />
+
+            {/* Card 8 - Projetos de Pesquisa */}
+            <CardLista
+              titulo="Projetos de Pesquisa"
+              items={(dadosPesquisador?.projetosPesquisa ?? []).map((projeto) => ({
+                id: projeto.id,
+                titulo: obterValorOuPadrao(projeto.titulo),
+                subtitulo: `${obterValorOuPadrao(projeto.instituicao)} (${obterNumeroOuPadrao(projeto.ano)})`
+              }))}
+              onClickBotao={() => console.log("Ver mais projetos")}
+            />
+          </div>
+
+          <div className="flex gap-6 mb-6">
+            {/* Card 9 - Premiações */}
+            <CardLista
+              titulo="Premiações"
+              items={(dadosPesquisador?.premiacoes ?? []).map((preamiacao) => ({
+                id: preamiacao.id,
+                titulo: obterValorOuPadrao(preamiacao.titulo),
+                subtitulo: `${obterValorOuPadrao(preamiacao.instituicao)} (${obterNumeroOuPadrao(preamiacao.ano)})`
+              }))}
+              podeEditar={podeEditar}
+              onClickBotao={() => console.log("Ver mais trabalhos")}
+            />
+
+            {/* Card 10 - Orientações */}
+            <CardLista
+              titulo="Orientações"
+              items={(dadosPesquisador?.orientacoes ?? []).map((orientacao) => ({
+                id: orientacao.id,
+                titulo: obterValorOuPadrao(orientacao.tituloTrabalho),
+                subtitulo: `${obterValorOuPadrao(orientacao.tipo)} (${obterNumeroOuPadrao(orientacao.ano)})`
+              }))}
+              onClickBotao={() => console.log("Ver mais projetos")}
+            />
+          </div>
+
         </div>
 
         {/* Modal Contato */}
@@ -342,11 +383,8 @@ export default function ProfileScreen() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-xl font-semibold mb-4 text-black">Contato</h3>
-              <p className="mb-2">
-                {/* <strong className="text-black">Telefone:</strong> {dadosPesquisador.telefone} */}
-              </p>
               <p className="mb-4">
-                <strong className="text-black">Email:</strong> {dadosPesquisador.pesquisador.usuario.login}
+                <strong className="text-black">Email:</strong> {obterValorOuPadrao(dadosPesquisador.pesquisador.usuario.login)}
               </p>
               <button
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
