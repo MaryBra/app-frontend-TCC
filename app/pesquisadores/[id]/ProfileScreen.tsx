@@ -264,7 +264,7 @@ export default function ProfileScreen() {
                 subtitulo: `${obterValorOuPadrao(formacao.instituicao)} (${obterAnoOuPadrao(formacao.anoInicio)} - ${obterAnoOuPadrao(formacao.anoConclusao)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais formações")}
+              // onClickBotao={() => console.log("Ver mais formações")}
             />
           </div>
 
@@ -278,7 +278,7 @@ export default function ProfileScreen() {
                 subtitulo: `${obterValorOuPadrao(atuacao.instituicao)} (${obterAnoOuPadrao(atuacao.anoInicio)} - ${obterAnoOuPadrao(atuacao.anoFim)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais atuações")}
+              // onClickBotao={() => console.log("Ver mais atuações")}
             />
 
             {/* Card 4 - Artigos Publicados */}
@@ -290,7 +290,7 @@ export default function ProfileScreen() {
                 subtitulo: `Periódico: ${obterValorOuPadrao(artigo.periodico)} (${obterNumeroOuPadrao(artigo.ano)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais artigos")}
+              // onClickBotao={() => console.log("Ver mais artigos")}
             />
           </div>
 
@@ -304,7 +304,7 @@ export default function ProfileScreen() {
                 subtitulo: `Editora: ${obterValorOuPadrao(livro.editora)} (${obterNumeroOuPadrao(livro.ano)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais livros")}
+              // onClickBotao={() => console.log("Ver mais livros")}
             />
 
             {/* Card 6 - Capítulos Publicados */}
@@ -316,7 +316,7 @@ export default function ProfileScreen() {
                 subtitulo: `Livro: ${obterValorOuPadrao(capitulo.nomeLivro)} (${obterNumeroOuPadrao(capitulo.ano)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais capítulos")}
+              // onClickBotao={() => console.log("Ver mais capítulos")}
             />
           </div>
 
@@ -330,7 +330,7 @@ export default function ProfileScreen() {
                 subtitulo: `${obterValorOuPadrao(evento.nomeEvento)} (${obterNumeroOuPadrao(evento.ano)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais trabalhos")}
+              // onClickBotao={() => console.log("Ver mais trabalhos")}
             />
 
             {/* Card 8 - Projetos de Pesquisa */}
@@ -341,7 +341,7 @@ export default function ProfileScreen() {
                 titulo: obterValorOuPadrao(projeto.titulo),
                 subtitulo: `${obterValorOuPadrao(projeto.instituicao)} (${obterNumeroOuPadrao(projeto.ano)})`
               }))}
-              onClickBotao={() => console.log("Ver mais projetos")}
+              // onClickBotao={() => console.log("Ver mais projetos")}
             />
           </div>
 
@@ -355,7 +355,7 @@ export default function ProfileScreen() {
                 subtitulo: `${obterValorOuPadrao(preamiacao.instituicao)} (${obterNumeroOuPadrao(preamiacao.ano)})`
               }))}
               podeEditar={podeEditar}
-              onClickBotao={() => console.log("Ver mais trabalhos")}
+              // onClickBotao={() => console.log("Ver mais trabalhos")}
             />
 
             {/* Card 10 - Orientações */}
@@ -366,7 +366,7 @@ export default function ProfileScreen() {
                 titulo: obterValorOuPadrao(orientacao.tituloTrabalho),
                 subtitulo: `${obterValorOuPadrao(orientacao.tipo)} (${obterNumeroOuPadrao(orientacao.ano)})`
               }))}
-              onClickBotao={() => console.log("Ver mais projetos")}
+              // onClickBotao={() => console.log("Ver mais projetos")}
             />
           </div>
 

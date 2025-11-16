@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 
 interface ItemLista {
   id: number;
@@ -10,7 +12,7 @@ interface CardListaProps {
   titulo: string;
   items: ItemLista[];
   textoBotao?: string;
-  onClickBotao?: () => void;
+  // onClickBotao?: () => void;
   podeEditar?: boolean;
   onClickAdicionar?: () => void;
 }
@@ -19,13 +21,17 @@ export function CardLista({
   titulo, 
   items, 
   textoBotao = "Ver tudo", 
-  onClickBotao,
+  // onClickBotao,
   podeEditar = false,
   onClickAdicionar
 }: CardListaProps) {
+
+  const [mostrarTodos, setMostrarTodos] = useState(false);
   
   // Altura fixa para todos os cards - equivalente a card com 3 itens
-  const alturaCard = "h-[400px]"; // Ajuste este valor conforme necessário
+  const alturaFixa = "h-[400px]"; // Ajuste este valor conforme necessário
+
+  const alturaDinamica = (items.length > 0 && mostrarTodos) ? "h-auto" : alturaFixa;
   
   if (items.length === 0) {
     return (
@@ -63,11 +69,11 @@ export function CardLista({
     );
   }
 
-  // Lista com itens - mostra no máximo 3
-  const itemsExibidos = items.slice(0, 3);
+  const itemsExibidos = mostrarTodos ? items : items.slice(0, 3);
+  const mostrarBotaoVerTudo = items.length > 3 && !mostrarTodos;
   
   return (
-    <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaCard} flex flex-col`}>
+    <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaDinamica} flex flex-col`}>
       <div className="relative mb-4">
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-100 h-10 rounded-md"></div>
         <h2 className="relative z-10 text-center text-xl font-bold text-black tracking-wide">
@@ -89,14 +95,16 @@ export function CardLista({
         </ul>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <button 
-          onClick={onClickBotao}
-          className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm"
-        >
-          {textoBotao}
-        </button>
-      </div>
+      {mostrarBotaoVerTudo && (
+        <div className="mt-4 flex justify-end">
+          <button 
+            onClick={() => setMostrarTodos(true)}
+            className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm"
+          >
+            {textoBotao}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
