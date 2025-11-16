@@ -80,7 +80,12 @@ export default function EditProfileForm() {
           body: JSON.stringify({
             listaTags: tags
           })
-        })
+        }).then(res => {
+            if (!res.ok) {
+                throw new Error('Falha ao atualizar as tags');
+            }
+            return res;
+        });
     }
 
     const atualizarPesquisador = (id: number) => {
