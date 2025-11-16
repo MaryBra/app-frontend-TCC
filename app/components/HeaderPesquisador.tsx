@@ -126,20 +126,12 @@ export function HeaderPesquisador({
               Contato
             </button>
 
-            <Link
-              href="/projetos"
-              className="
-                px-6 py-2 rounded shadow 
-                border border-white 
-                text-white 
-                bg-transparent
-                hover:bg-white 
-                hover:text-[#990000] 
-                transition
-              "
-            >
-              Projetos
-            </Link>
+              <Link
+                href="/gerenciarListas"
+                className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
+              >
+                Gerenciar Listas
+              </Link>
 
           </div>
         </div>
