@@ -15,7 +15,7 @@ export default function MenuLateral() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("id_usuario");
+    localStorage.removeItem("usuarioId");
     localStorage.removeItem("tipo_usuario");
     router.push("/login");
   };

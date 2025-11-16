@@ -123,7 +123,7 @@ export default function ResearcherRegistration() {
         localStorage.setItem("token", novoToken)
 
         const payload = jwtDecode<TokenPayload>(novoToken)
-        localStorage.setItem("id_usuario", String(payload.id_usuario))
+        localStorage.setItem("usuarioId", String(payload.id_usuario))
         localStorage.setItem("tipo_usuario", payload.tipo_usuario)
 
         // Por fim, redireciona para a tela de tags com id + tags

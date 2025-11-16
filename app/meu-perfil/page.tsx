@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 export default function PerfilRedirect() {
   const tipoUsuario = localStorage.getItem("tipo_usuario")
-  const idUsuario = localStorage.getItem("id_usuario")
+  const idUsuario = localStorage.getItem("usuarioId")
   const router = useRouter();
   
   useEffect(() => {

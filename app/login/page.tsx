@@ -74,7 +74,7 @@ export default function Login() {
             case "empresa":
             case "pesquisador":
               localStorage.setItem("tipo_usuario", tokenContent.tipo_usuario)
-              localStorage.setItem("id_usuario", String(tokenContent.id_usuario))
+              localStorage.setItem("usuarioId", String(tokenContent.id_usuario))
               router.push("/home");
               break;
             

@@ -55,7 +55,7 @@ export default function TagsSelector() {
 
     const handleContinuar = async () => {
         const token = localStorage.getItem("token")
-        const id_usuario = localStorage.getItem("id_usuario")
+        const id_usuario = localStorage.getItem("usuarioId")
 
         const jsonData = {
             pesquisador: {id: id_usuario},

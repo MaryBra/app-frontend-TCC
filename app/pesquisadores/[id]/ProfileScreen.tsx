@@ -155,7 +155,7 @@ export default function ProfileScreen() {
 
     useEffect(() => {
 
-        const idUsuarioLogado = localStorage.getItem("id_usuario");
+        const idUsuarioLogado = localStorage.getItem("usuarioId");
         const tipoUsuarioLogado = localStorage.getItem("tipo_usuario");
         const editor = id === idUsuarioLogado && tipoUsuarioLogado === "pesquisador";
         

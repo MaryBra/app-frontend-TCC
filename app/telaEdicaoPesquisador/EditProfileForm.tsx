@@ -34,6 +34,7 @@ export default function EditProfileForm() {
     const [especialidade, setEspecialidade] = useState("Especialidade");
     const [telefone, setTelefone] = useState("(41) 99999‑9999");
     const [email, setEmail] = useState("projetolaverse@gmail.com");
+    const [originalLogin, setOriginalLogin] = useState("");
     const [nacionalidade, setNacionalidade] = useState("Brasileiro");
 
     const addTag = () => {
@@ -47,6 +48,7 @@ export default function EditProfileForm() {
     const token = localStorage.getItem("token");
     const usuarioId = localStorage.getItem("usuarioId");
     const pesquisadorId = localStorage.getItem("idPesquisador");
+    const emailAtual = localStorage.getItem("email");
 
     const atualizarTags = (id: number) => {
         return fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
@@ -59,14 +61,7 @@ export default function EditProfileForm() {
             listaTags: tags
           })
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log("Tag atualizada com sucesso:", data);
-        })
-        .catch(err => {
-          console.error("Erro ao atualizar tag:", err);
-        });
-    };
+    }
 
     const atualizarPesquisador = (id: number) => {
         const dadosAtualizados = {
@@ -83,6 +78,12 @@ export default function EditProfileForm() {
             },
             body: JSON.stringify(dadosAtualizados)
         })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Falha ao atualizar pesquisador');
+            }
+            return res;
+        })
     }
 
     const atualizarLogin = () => {
@@ -95,18 +96,47 @@ export default function EditProfileForm() {
             body: JSON.stringify({
                 novoLogin: email
             })
+        }).then(res => {
+                if(!res.ok){
+                    throw new Error('Falha ao atualizar login');
+                }
+                return res;
         })
     }
 
     const handleSubmit = async () => {
-        await Promise.all([
-                atualizarTags(Number(idTag)),
-                atualizarPesquisador(Number(pesquisadorId)),
-                atualizarLogin()
-        ]);
+        const loginFoiAlterado = (email !== originalLogin);
 
-        console.log("Todas as atualizações foram salvas!");
-        router.push(`/pesquisadores/${pesquisadorId}`);
+        try{
+
+            const promessasDeAtualizacao = [
+                atualizarTags(Number(idTag)),
+                atualizarPesquisador(Number(pesquisadorId))
+            ];
+            if (loginFoiAlterado) {
+                promessasDeAtualizacao.push(atualizarLogin());
+            }
+
+            await Promise.all(promessasDeAtualizacao);
+            
+            if (loginFoiAlterado) {
+
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuarioId");
+                localStorage.removeItem("tipo_usuario");
+
+                localStorage.setItem("email", email)
+                
+                alert("Informações salvas! Como seu login foi alterado, por favor, faça login novamente.");
+                router.push(`/login`);
+            } else {
+                alert("Informações salvas com sucesso!");
+                router.push(`/pesquisadores/${pesquisadorId}`);
+            }
+        }catch(err){
+            console.error("Falha ao salvar as atualizações:", err);
+            alert("Erro ao salvar. Por favor, tente novamente.");
+        }
     }
 
     useEffect(() => {
@@ -142,7 +172,8 @@ export default function EditProfileForm() {
                 setNome(dadosPesquisador.pesquisador.nomePesquisador);
                 setSobrenome(dadosPesquisador.pesquisador.sobrenome)
                 setTags(dadosPesquisador.tags.listaTags);
-                setEmail(dadosPesquisador.pesquisador.usuario.login);
+                setEmail(emailAtual);
+                setOriginalLogin(emailAtual);
                 setNacionalidade(dadosPesquisador.pesquisador.nacionalidade);
                 if(dadosPesquisador.pesquisador.ocupacao != null){
                     setEspecialidade(dadosPesquisador.pesquisador.ocupacao);

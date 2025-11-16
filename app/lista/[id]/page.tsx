@@ -25,7 +25,7 @@ export default function ListaPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const id_usuario = localStorage.getItem("id_usuario");
+    const id_usuario = localStorage.getItem("usuarioId");
 
     const handleSeguidores = async () => {
       if (!token) {
