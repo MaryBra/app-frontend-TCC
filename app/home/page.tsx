@@ -41,6 +41,12 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const handleBuscaCompleta = () => {
+    if (termoBusca.trim()) {
+      router.push(`/pesquisa?q=${encodeURIComponent(termoBusca.trim())}`);
+    }
+  };
+
   useEffect(() => {
     
   }, []);
@@ -378,7 +384,7 @@ export default function Home() {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      handleBuscar();
+      handleBuscaCompleta();
     }
   };
 
@@ -434,7 +440,7 @@ export default function Home() {
               )}
               <button
                 type="button"
-                onClick={handleBuscar}
+                onClick={handleBuscaCompleta}
                 disabled={carregando}
                 className="ml-2 bg-[#990000] text-white px-4 py-1 rounded-md hover:bg-red-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors"
               >
