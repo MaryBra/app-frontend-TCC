@@ -23,9 +23,29 @@ export default function EditProfileForm() {
     const initialTags = tagsParam ? tagsParam.split(",") : [];
     const [tags, setTags] = useState<string[]>(initialTags);
     const [newTag, setNewTag] = useState("");
-    const [academics, setAcademics] = useState([
-        { id: 1, titulo: "Formação", ano: "Ano", descricao: "Descrição" },
-    ]);
+
+
+    interface FormacaoAcademica {
+        id: number;
+        nivel: string;
+        instituicao: string;
+        curso: string;
+        anoInicio: number;
+        anoConclusao: number;
+        destaque: boolean;
+    }
+
+    const [academics, setAcademics] = useState<FormacaoAcademica[]>([]);
+
+    const [novaFormacaoNivel, setNovaFormacaoNivel] = useState("");
+    const [novaFormacaoInstituicao, setNovaFormacaoInstituicao] = useState("");
+    const [novaFormacaoCurso, setNovaFormacaoCurso] = useState("");
+    const [novaFormacaoStatus, setNovaFormacaoStatus] = useState("Concluído");
+    const [novaFormacaoAnoInicio, setNovaFormacaoAnoInicio] = useState("");
+    const [novaFormacaoAnoConclusao, setNovaFormacaoAnoConclusao] = useState("");
+    const [novaFormacaoTituloTrabalho, setNovaFormacaoTituloTrabalho] = useState("");
+    const [novaFormacaoOrientador, setNovaFormacaoOrientador] = useState("");
+    const [novaFormacaoDestaque, setNovaFormacaoDestaque] = useState(false);
 
     const router = useRouter();
 
@@ -104,6 +124,57 @@ export default function EditProfileForm() {
         })
     }
 
+    const adicionarFormacao = async (e) => {
+        e.preventDefault(); // Impede o recarregamento da página se for um <form>
+
+        const novaFormacao = {
+            nivel: novaFormacaoNivel,
+            instituicao: novaFormacaoInstituicao,
+            curso: novaFormacaoCurso,
+            status: novaFormacaoStatus,
+            anoInicio: parseInt(novaFormacaoAnoInicio) || null,
+            anoConclusao: parseInt(novaFormacaoAnoConclusao) || null,
+            tituloTrabalho: novaFormacaoTituloTrabalho,
+            orientador: novaFormacaoOrientador,
+            destaque: novaFormacaoDestaque
+        };
+
+        try {
+            const res = await fetch(`http://localhost:8080/api/formacoes/salvarFormacao`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(novaFormacao)
+            });
+
+            if (!res.ok) {
+                throw new Error('Falha ao salvar formação acadêmica');
+            }
+
+            const formacaoSalva = await res.json();
+
+            setAcademics(listaAnterior => [...listaAnterior, formacaoSalva]);
+
+            alert("Formação salva com sucesso!");
+
+            setNovaFormacaoNivel("");
+            setNovaFormacaoInstituicao("");
+            setNovaFormacaoCurso("");
+            setNovaFormacaoStatus("Concluído");
+            setNovaFormacaoAnoInicio("");
+            setNovaFormacaoAnoConclusao("");
+            setNovaFormacaoTituloTrabalho("");
+            setNovaFormacaoOrientador("");
+            setNovaFormacaoDestaque(false);
+
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao salvar formação.");
+        }
+    }
+
     const handleSubmit = async () => {
         const loginFoiAlterado = (email !== originalLogin);
 
@@ -178,7 +249,9 @@ export default function EditProfileForm() {
                 if(dadosPesquisador.pesquisador.ocupacao != null){
                     setEspecialidade(dadosPesquisador.pesquisador.ocupacao);
                 }
-                setIdTag(dadosPesquisador.tags.id)
+                setIdTag(dadosPesquisador.tags.id);
+
+                setAcademics(dadosPesquisador.formacoesAcademicas);
             } catch(err){
                 console.error("Erro ao buscar perfil:", err);
             } 
@@ -342,9 +415,60 @@ export default function EditProfileForm() {
                         </div>
                     </section>
 
-                    {/* Formação Acadêmica */}
                     <section className="space-y-4">
                         <h2 className="text-lg font-medium text-gray-700">Formação Acadêmica</h2>
+                        
+                        {/* --- NOVO FORMULÁRIO DE ADIÇÃO --- */}
+                        <form onSubmit={adicionarFormacao} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+                            <h3 className="font-semibold text-gray-800">Adicionar Nova Formação</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm text-gray-600">Nível (ex: Graduação)</label>
+                                    <input type="text" value={novaFormacaoNivel} onChange={(e) => setNovaFormacaoNivel(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-600">Instituição</label>
+                                    <input type="text" value={novaFormacaoInstituicao} onChange={(e) => setNovaFormacaoInstituicao(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-600">Curso</label>
+                                    <input type="text" value={novaFormacaoCurso} onChange={(e) => setNovaFormacaoCurso(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-600">Status</label>
+                                    <select value={novaFormacaoStatus} onChange={(e) => setNovaFormacaoStatus(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white">
+                                        <option value="Concluído">Concluído</option>
+                                        <option value="Em andamento">Em andamento</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-600">Ano Início</label>
+                                    <input type="number" value={novaFormacaoAnoInicio} onChange={(e) => setNovaFormacaoAnoInicio(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-600">Ano Conclusão</label>
+                                    <input type="number" value={novaFormacaoAnoConclusao} onChange={(e) => setNovaFormacaoAnoConclusao(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm text-gray-600">Título do Trabalho (TCC, Tese, etc.)</label>
+                                    <input type="text" value={novaFormacaoTituloTrabalho} onChange={(e) => setNovaFormacaoTituloTrabalho(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm text-gray-600">Orientador</label>
+                                    <input type="text" value={novaFormacaoOrientador} onChange={(e) => setNovaFormacaoOrientador(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white" />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" checked={novaFormacaoDestaque} onChange={(e) => setNovaFormacaoDestaque(e.target.checked)} id="destaque" className="h-4 w-4 text-red-700 border-gray-300 rounded" />
+                                    <label htmlFor="destaque" className="text-sm text-gray-600">Marcar como destaque</label>
+                                </div>
+                            </div>
+                            <div className="flex justify-end">
+                                <button type="submit" className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800">
+                                    Adicionar Formação
+                                </button>
+                            </div>
+                        </form>
+
                         <div className="space-y-4">
                             {academics.map((acad) => (
                                 <div
@@ -352,21 +476,23 @@ export default function EditProfileForm() {
                                     className="bg-gray-50 border border-gray-200 rounded-lg p-4"
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-start">
-                                        <div className="md:col-span-5">
-                                            <label className="block text-sm text-gray-600">Título</label>
+                                        <div className="md:col-span-3">
+                                            <label className="block text-sm text-gray-600">Nível</label>
                                             <input
                                                 type="text"
-                                                defaultValue={acad.titulo}
+                                                defaultValue={acad.nivel}
                                                 className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                                                readOnly
                                             />
                                         </div>
 
-                                        <div className="md:col-span-1">
-                                            <label className="block text-sm text-gray-600">Ano</label>
+                                        <div className="md:col-span-3">
+                                            <label className="block text-sm text-gray-600">Curso</label>
                                             <input
                                                 type="text"
-                                                defaultValue={acad.ano}
+                                                defaultValue={acad.curso}
                                                 className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                                                readOnly
                                             />
                                         </div>
 
@@ -382,12 +508,30 @@ export default function EditProfileForm() {
                                             </button>
                                         </div>
 
-                                        <div className="md:col-span-6">
-                                            <label className="block text-sm text-gray-600">Descrição</label>
-                                            <textarea
-                                                defaultValue={acad.descricao}
+                                        <div className="md:col-span-4">
+                                            <label className="block text-sm text-gray-600">Instituição</label>
+                                            <input
+                                                defaultValue={acad.instituicao}
                                                 className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
-                                                rows={3}
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm text-gray-600">Início</label>
+                                            <input
+                                                defaultValue={acad.anoInicio}
+                                                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm text-gray-600">Conclusão</label>
+                                            <input
+                                                defaultValue={acad.anoConclusao}
+                                                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                                                readOnly
                                             />
                                         </div>
                                     </div>
