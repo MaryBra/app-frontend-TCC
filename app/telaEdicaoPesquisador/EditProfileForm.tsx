@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Trash2,
     Star,
@@ -19,20 +19,22 @@ export default function EditProfileForm() {
 // estado de exemplo
     const searchParams = useSearchParams();
     const tagsParam = searchParams.get("tags");
-    const idTag = searchParams.get("idTag")
+    const [idTag, setIdTag] = useState(""); 
     const initialTags = tagsParam ? tagsParam.split(",") : [];
     const [tags, setTags] = useState<string[]>(initialTags);
     const [newTag, setNewTag] = useState("");
     const [academics, setAcademics] = useState([
-        { id: 1, titulo: "Ensino Médio Regular", ano: "2010", descricao: "Lorem ipsum dolor sit amet…" },
+        { id: 1, titulo: "Formação", ano: "Ano", descricao: "Descrição" },
     ]);
 
     const router = useRouter();
 
-    const [nome, setNome] = useState("Nome Completo");
+    const [nome, setNome] = useState("Nome");
+    const [sobrenome, setSobrenome] = useState("Sobrenome");
     const [especialidade, setEspecialidade] = useState("Especialidade");
     const [telefone, setTelefone] = useState("(41) 99999‑9999");
     const [email, setEmail] = useState("projetolaverse@gmail.com");
+    const [nacionalidade, setNacionalidade] = useState("Brasileiro");
 
     const addTag = () => {
         if (newTag.trim()) {
@@ -43,9 +45,11 @@ export default function EditProfileForm() {
     const removeTag = (i: number) => setTags((t) => t.filter((_, idx) => idx !== i));
     const removeAcad = (id: number) => setAcademics((a) => a.filter((x) => x.id !== id));
     const token = localStorage.getItem("token");
+    const usuarioId = localStorage.getItem("usuarioId");
+    const pesquisadorId = localStorage.getItem("idPesquisador");
 
     const atualizarTags = (id: number) => {
-        fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
+        return fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -53,7 +57,6 @@ export default function EditProfileForm() {
           },
           body: JSON.stringify({
             listaTags: tags
-            // inclua outros campos, se necessário
           })
         })
         .then(res => res.json())
@@ -64,6 +67,94 @@ export default function EditProfileForm() {
           console.error("Erro ao atualizar tag:", err);
         });
     };
+
+    const atualizarPesquisador = (id: number) => {
+        const dadosAtualizados = {
+            nomePesquisador: nome,
+            sobrenome: sobrenome,
+            nacionalidade: nacionalidade,
+            ocupacao: especialidade
+        };
+        return fetch(`http://localhost:8080/api/pesquisadores/alterarPesquisador/${id}`,{
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(dadosAtualizados)
+        })
+    }
+
+    const atualizarLogin = () => {
+        return fetch(`http://localhost:8080/api/usuarios/alterarLogin`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                novoLogin: email
+            })
+        })
+    }
+
+    const handleSubmit = async () => {
+        await Promise.all([
+                atualizarTags(Number(idTag)),
+                atualizarPesquisador(Number(pesquisadorId)),
+                atualizarLogin()
+        ]);
+
+        console.log("Todas as atualizações foram salvas!");
+        router.push(`/pesquisadores/${pesquisadorId}`);
+    }
+
+    useEffect(() => {
+        const handleDadosPesquisador = async () => {
+
+            if (!token) {
+                console.error("Usuário não logado. Redirecionando...");
+                router.push("/login");
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                // FIX: Use a variável 'email' direto na URL
+                `http://localhost:8080/api/dadosPesquisador/${usuarioId}`,
+                {
+                    method: "GET",
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+                );
+
+                if (!response.ok) {
+                throw new Error("Falha ao buscar dados do pesquisador");
+                }
+
+                const dadosPesquisador = await response.json();
+
+                localStorage.setItem("idPesquisador", dadosPesquisador.pesquisador.id)
+                console.log(dadosPesquisador)
+                setNome(dadosPesquisador.pesquisador.nomePesquisador);
+                setSobrenome(dadosPesquisador.pesquisador.sobrenome)
+                setTags(dadosPesquisador.tags.listaTags);
+                setEmail(dadosPesquisador.pesquisador.usuario.login);
+                setNacionalidade(dadosPesquisador.pesquisador.nacionalidade);
+                if(dadosPesquisador.pesquisador.ocupacao != null){
+                    setEspecialidade(dadosPesquisador.pesquisador.ocupacao);
+                }
+                setIdTag(dadosPesquisador.tags.id)
+            } catch(err){
+                console.error("Erro ao buscar perfil:", err);
+            } 
+        }
+
+        handleDadosPesquisador();
+    }, [router])
       
 
     return (
@@ -123,6 +214,13 @@ export default function EditProfileForm() {
                                     type="text"
                                     value={nome}
                                     onChange={(e) => setNome(e.target.value)}
+                                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                                />
+                                <label className="block text-sm font-medium text-gray-600">Sobrenome</label>
+                                <input
+                                    type="text"
+                                    value={sobrenome}
+                                    onChange={(e) => setSobrenome(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -205,7 +303,8 @@ export default function EditProfileForm() {
                                 <label className="block text-sm text-gray-600">Nacionalidade</label>
                                 <input
                                     type="text"
-                                    defaultValue="Curitiba, PR"
+                                    value={nacionalidade}
+                                    onChange={(e) => setNacionalidade(e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
                                 />
                             </div>
@@ -268,15 +367,16 @@ export default function EditProfileForm() {
 
                     {/* Botões de Ação */}
                     <div className="flex justify-end space-x-4 mt-4">
-                        <button className="px-6 py-2 border border-gray-400 rounded text-gray-700 hover:bg-gray-50">
+                        <button className="px-6 py-2 border border-gray-400 rounded text-gray-700 hover:bg-gray-50"
+                        onClick={() => {
+                            router.push(`/pesquisadores/${pesquisadorId}`)
+                        }}>
                             Cancelar
                         </button>
                         <button 
                             className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
                             onClick={() => {
-                                atualizarTags(Number(idTag));
-                                const url = `/telaPerfil?nome=${encodeURIComponent(nome)}&especialidade=${encodeURIComponent(especialidade)}&tags=${encodeURIComponent(tags.join(","))}&email=${encodeURIComponent(email)}&telefone=${encodeURIComponent(telefone)}&idTag=${idTag}`;
-                                router.push(url);
+                                handleSubmit();
                             }}
                         >
                             Gravar

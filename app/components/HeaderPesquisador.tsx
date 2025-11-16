@@ -35,7 +35,7 @@ export function HeaderPesquisador({
       {podeEditar
        ? 
        <Link
-          href={`/telaEdicaoPesquisador/${idPesquisador}`}
+          href={`/telaEdicaoPesquisador`}
           className="absolute top-8 right-8 bg-white text-[#990000] p-2 rounded-full shadow hover:bg-gray-100 transition"
         >
           <Pencil size={30} />
