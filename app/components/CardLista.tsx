@@ -83,8 +83,8 @@ export function CardLista({
 
       <div className="flex-1 overflow-hidden">
         <ul className="space-y-2">
-          {itemsExibidos.map((item) => (
-            <li key={item.id} className="flex items-center gap-6 bg-gray-50 rounded-xl p-3">
+          {itemsExibidos.map((item, index) => (
+            <li key={item.id ?? index} className="flex items-center gap-6 bg-gray-50 rounded-xl p-3">
               <div className="w-4 h-4 bg-gray-400 rounded-full flex-shrink-0 self-center"></div>
               <div className="flex flex-col text-black leading-snug">
                 <p className="font-bold text-sm">{item.titulo}</p>
