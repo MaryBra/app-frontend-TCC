@@ -374,7 +374,7 @@ export default function Home() {
 
   const handleSelecionarResultado = (resultado) => {
     if (resultado.tipo === "pesquisador") {
-      router.push(`/perfilPesquisador/${resultado.id}`);
+      router.push(`/pesquisadores/${resultado.id}`);
     } else if (resultado.tipo === "empresa") {
       router.push(`/perfilEmpresa/${resultado.id}`);
     }
