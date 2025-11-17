@@ -141,7 +141,10 @@ export default function CompanyEditForm() {
         try {
         const res = await fetch(`http://localhost:8080/api/empresas/alterarEmpresa/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+             },
             body: JSON.stringify(formData),
         });
 

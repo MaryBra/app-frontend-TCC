@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import MenuLateral from "../../components/MenuLateral";
 
 interface Empresa {
@@ -75,31 +76,35 @@ export default function CompanyProfile() {
             {/* Infos da empresa */}
             <div className="flex-1 flex flex-col justify-between">
                 <div>
-                {infoEmpresa && <h1 className="text-5xl font-bold text-gray-700 mb-2">{infoEmpresa.nomeComercial}</h1>}
-                {infoEmpresa && <h2 className="text-2xl text-gray-700">{infoEmpresa.frase}</h2>}
+                    {infoEmpresa && <h1 className="text-5xl font-bold text-gray-700 mb-2">{infoEmpresa.nomeComercial}</h1>}
+                    {infoEmpresa && <h2 className="text-2xl text-gray-700">{infoEmpresa.frase}</h2>}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm text-white">
-                    <div>
-                    <p><span className="font-bold text-gray-700">Sede</span></p>
-                    {infoEmpresa && <p className="text-gray-700 mb-2">📍{infoEmpresa.cidade}, {infoEmpresa.estado}</p>}
-                    <p><span className="font-bold text-gray-700">Site</span></p>
-                    {infoEmpresa && <p className="text-gray-700 mb-2">{infoEmpresa.site}</p>}
-                    <p><span className="font-bold text-gray-700">Setor</span></p>
-                    {infoEmpresa && <p className="text-gray-700">{infoEmpresa.setor}</p>}
-                    </div>
-                    <div>
-                    <p><span className="font-bold text-gray-700">Telefone</span></p>
-                    {infoEmpresa && <p className="text-gray-700 mb-2">{infoEmpresa.telefone}</p>}
-                    <p><span className="font-bold text-gray-700">Email</span></p>
-                    {infoEmpresa && <p className="text-gray-700">{infoEmpresa.email}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm text-white">
+                        <div>
+                            <p><span className="font-bold text-gray-700">Sede</span></p>
+                            {infoEmpresa && <p className="text-gray-700 mb-2">📍{infoEmpresa.cidade}, {infoEmpresa.estado}</p>}
+                            <p><span className="font-bold text-gray-700">Site</span></p>
+                            {infoEmpresa && <p className="text-gray-700 mb-2">{infoEmpresa.site}</p>}
+                            <p><span className="font-bold text-gray-700">Setor</span></p>
+                            {infoEmpresa && <p className="text-gray-700">{infoEmpresa.setor}</p>}
+                        </div>
+                        <div>
+                            <p><span className="font-bold text-gray-700">Telefone</span></p>
+                            {infoEmpresa && <p className="text-gray-700 mb-2">{infoEmpresa.telefone}</p>}
+                            <p><span className="font-bold text-gray-700">Email</span></p>
+                            {infoEmpresa && <p className="text-gray-700">{infoEmpresa.email}</p>}
+                        </div>
                     </div>
                 </div>
+                <div className="mt-auto flex gap-3 pt-4 justify-center lg:justify-start">
+                    <Link
+                        href="/gerenciarListas"
+                        className="bg-[#990000] border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
+                    >
+                        Gerenciar Listas
+                    </Link>
                 </div>
-
-                {/* Botão */}
-                <button className="bg-red-700 text-white px-4 py-2 mt-6 rounded-lg hover:bg-red-800 w-fit">
-                Gerenciar Listas
-                </button>
+                
             </div>
 
             {/* Botão editar */}
