@@ -18,6 +18,12 @@ interface UsuarioDTO {
   sobrenome: string;
 }
 
+interface PerfilSalvoDTO {
+  id: number;
+  nome: string; 
+  sobrenome: string;
+}
+
 export default function ListaPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -83,9 +89,9 @@ export default function ListaPage() {
 
         const listaData = await response.json();
         
-        const perfisFormatados = (listaData.perfisSalvos || []).map((item: UsuarioDTO) => ({
-          id: item.id,
-          nome: item.nomePesquisador || `Usuário ${item.id}`, 
+        const perfisFormatados = (listaData.perfisSalvos || []).map((item: PerfilSalvoDTO) => ({
+          id: item.id, // ID do Pesquisador
+          nome: `${item.nome} ${item.sobrenome || ''}`,
           area: "Pesquisador",
           tags: []
         }));
