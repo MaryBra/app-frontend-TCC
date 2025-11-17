@@ -5,133 +5,240 @@ import { useState, useEffect } from "react";
 import MenuLateral from "../../components/MenuLateral";
 import { Heart, Bookmark, Trash2, X } from "lucide-react";
 
-// mock inicial de perfis
-const mockPerfis = {
-  1: [
-    { id: 101, nome: "Maria Silva", area: "Análise de Sistemas", tags: ["Análise de Sistemas", "Suporte Técnico"] },
-    { id: 102, nome: "João Pereira", area: "Banco de Dados", tags: ["DBA", "SQL"] },
-  ],
-  2: [{ id: 201, nome: "Carla Souza", area: "Redes de Computadores", tags: ["Redes", "Infraestrutura"] }],
-  3: [],
-};
+// Interface para os perfis
+interface Perfil {
+  id: number;
+  nome: string;
+  area: string;
+  tags: string[];
+}
+
+// Interface para o DTO do Usuário (para perfisSalvos)
+interface UsuarioDTO {
+  id: number;
+  nomePesquisador: string; // Ajuste se os nomes dos campos forem outros
+  sobrenome: string;
+  // Adicione outros campos se necessário
+}
 
 export default function ListaPage() {
-  const { id } = useParams(); // pega id da lista na rota
+  const { id } = useParams(); // id da lista (ex: "1" ou "favoritos")
   const router = useRouter();
-  const [perfis, setPerfis] = useState([]);
 
+  // --- 1. LÓGICA DE CONTROLE ---
+  const isFavoritesList = id === 'favoritos';
+  const listaId = isFavoritesList ? null : Number(id); 
+
+  const [perfis, setPerfis] = useState<Perfil[]>([]);
+  const [nomeLista, setNomeLista] = useState("Carregando...");
   const [showModal, setShowModal] = useState(false);
-  const [nomeLista, setNomeLista] = useState(`Favoritos`);
+  const [loading, setLoading] = useState(true);
 
+
+  // --- 2. BUSCA DE DADOS (DINÂMICA) ---
   useEffect(() => {
+
     const token = localStorage.getItem("token");
-    const id_usuario = localStorage.getItem("usuarioId");
+    const id_usuario_logado = localStorage.getItem("usuarioId");
 
-    const handleSeguidores = async () => {
-      if (!token) {
-        console.error("Usuário não logado. Redirecionando...");
-        router.push("/login");
-        return;
-      }
-
-      try{
-        const response = await fetch(
-          `http://localhost:8080/api/favoritos/usuario/${id_usuario}/favorito`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            }
-          }
-        )
-
-        if (!response.ok) {
-          throw new Error("Falha ao buscar seguidores");
-        }
-
-        const seguidores = await response.json();
-        console.log("Dados da API:", seguidores);
-
-        const perfisFormatados = seguidores
-          .filter(item => item.pesquisador != null)
-          .map(item => ({                      
-            id: item.pesquisador.id,
-            nome: `${item.pesquisador.nomePesquisador} ${item.pesquisador.sobrenome}`,
-            area: "Pesquisador", 
-            tags: []              
-          }));
-
-        setPerfis(perfisFormatados);
-      }catch(err){
-        console.error("Erro ao buscar seguidores:", err);
-      }
-    }
-
-    handleSeguidores();
-  }, [])
-
-  // função para remover perfil
-  const removerPerfil = async (idPerfil: number) => {
-    const token = localStorage.getItem("token");
-    const id_usuario = localStorage.getItem("usuarioId");
-
-    if (!token || !id_usuario) {
-      console.error("Usuário não logado.");
+    if (!token || !id_usuario_logado) {
+      console.error("Usuário não logado. Redirecionando...");
       router.push("/login");
       return;
     }
 
-    try{
-      const response = await fetch(
-        `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario}&pesquisadorId=${idPerfil}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          }
-        }
-      );
+    const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${token}` };
+
+    const fetchFavoritos = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/favoritos/usuario/${id_usuario_logado}/favorito`,
+          { method: "GET", headers }
+        );
+        if (!response.ok) throw new Error("Falha ao buscar favoritos");
+        
+        const seguidores = await response.json(); // Array de Favorito (com obj Pesquisador)
+        const perfisFormatados = seguidores
+          .filter(item => item.pesquisador != null)
+          .map(item => ({                      
+            id: item.pesquisador.id,
+            nome: `${item.pesquisador.nomePesquisador} ${item.pesquisador.sobrenome || ''}`,
+            area: "Pesquisador", 
+            tags: [] 
+          }));
+        
+        setPerfis(perfisFormatados);
+        setNomeLista("Favoritos");
+      } catch (err) {
+        console.error("Erro ao buscar favoritos:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchListaCustomizada = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/listas/listarLista/${listaId}`,
+          { method: "GET", headers }
+        );
+        if (!response.ok) throw new Error("Falha ao buscar lista");
+
+        const listaData = await response.json(); // ListaDTO
+        
+        // Corrigido para usar listaData.perfisSalvos
+        const perfisFormatados = (listaData.perfisSalvos || []).map((item: UsuarioDTO) => ({
+          id: item.id,
+          // Ajuste aqui: O obj Usuario não tem nomePesquisador,
+          // Você talvez precise de um DTO melhor ou buscar o nome de outra forma.
+          // Por enquanto, usarei um placeholder:
+          nome: item.nomePesquisador || `Usuário ${item.id}`, 
+          area: "Pesquisador",
+          tags: []
+        }));
+
+        setPerfis(perfisFormatados);
+        setNomeLista(listaData.nomeLista); // Corrigido para usar nomeLista
+      } catch (err) {
+        console.error("Erro ao buscar lista customizada:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isFavoritesList) {
+      fetchFavoritos();
+    } else {
+      fetchListaCustomizada();
+    }
+
+  }, [id, isFavoritesList, listaId, router]);
+
+
+  // --- 3. REMOÇÃO DE PERFIL (DINÂMICA) ---
+  const removerPerfil = async (idPerfil: number) => {
+    const token = localStorage.getItem("token");
+    const id_usuario_logado = localStorage.getItem("usuarioId");
+    if (!token || !id_usuario_logado) {
+      router.push("/login");
+      return;
+    }
+
+    let url: string;
+    let method: string = "DELETE";
+
+    if (isFavoritesList) {
+      url = `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario_logado}&pesquisadorId=${idPerfil}`;
+    } else {
+      // Endpoint de Listas Customizadas
+      url = `http://localhost:8080/api/listas/alterarLista/${listaId}/perfil/${idPerfil}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { "Authorization": `Bearer ${token}` }
+      });
 
       if (!response.ok) {
-        throw new Error("Falha ao remover favorito");
+        throw new Error("Falha ao remover perfil da lista");
       }
       
       setPerfis((prev) => prev.filter((p) => p.id !== idPerfil));
-      console.log("Perfil removido com sucesso!");
     } catch (err) {
       console.error("Erro ao remover perfil:", err);
       alert("Erro ao remover perfil.");
     }
   };
 
-  // excluir lista (simulação: volta pra tela de gerenciar listas)
-  const excluirLista = () => {
-    alert(`Lista "${nomeLista}" excluída!`);
-    router.push("/gerenciarListas");
+
+  // --- 4. FUNÇÕES DO MODAL ---
+  const handleSalvarNome = async () => {
+    if (isFavoritesList) return; 
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/listas/alterarLista/${listaId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: JSON.stringify({ nomeLista: nomeLista }) // Enviando o DTO com a chave correta
+        }
+      );
+      if (!res.ok) throw new Error("Falha ao renomear a lista");
+      
+      setShowModal(false); 
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar nome da lista.");
+    }
   };
+
+  const excluirLista = async () => {
+    if (isFavoritesList) return; 
+
+    if (confirm(`Tem certeza que deseja excluir a lista "${nomeLista}"?`)) {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/listas/excluirLista/${listaId}`,
+          {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+          }
+        );
+        if (!response.ok) throw new Error("Falha ao excluir a lista");
+        
+        alert(`Lista "${nomeLista}" excluída!`);
+        router.push("/gerenciarListas"); 
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao excluir a lista.");
+      }
+    }
+  };
+
+
+  // --- 5. JSX (COM LÓGICA CONDICIONAL) ---
+
+  if (loading) {
+     return (
+        <div className="flex flex-col md:flex-row h-screen">
+          <MenuLateral />
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-xl">Carregando lista...</p>
+          </div>
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <MenuLateral />
-
-      <div className="flex-1 bg-gray-100 pr-36 pl-36 p-6">
-        {/* Cabeçalho */}
+      <div className="flex-1 bg-gray-100 pr-36 pl-36 p-6 overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[#990000]">{nomeLista}</h1>
           <div className="flex gap-2">
-            
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+              title="Editar lista"
+            >
+              {isFavoritesList ? (
+                <Heart className="text-red-600" />
+              ) : (
+                <Bookmark className="text-[#990000]" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Cards */}
+        {/* Grid de Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {perfis.map((pessoa) => (
             <div
               key={pessoa.id}
               className="relative bg-white rounded-lg shadow p-4 flex flex-col items-center text-center"
             >
-              {/* Botão remover */}
               <button
                 onClick={() => removerPerfil(pessoa.id)}
                 className="absolute top-2 right-2 p-1 rounded-full bg-gray-100 hover:bg-red-100 transition"
@@ -139,13 +246,9 @@ export default function ListaPage() {
               >
                 <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
               </button>
-
-              {/* Avatar */}
               <div className="w-20 h-20 bg-gray-200 rounded-full mb-3"></div>
-              {/* Nome e área */}
               <h2 className="font-semibold">{pessoa.nome}</h2>
               <p className="text-sm text-gray-600">{pessoa.area}</p>
-              {/* Tags */}
               <div className="flex flex-wrap gap-2 justify-center my-2">
                 {pessoa.tags.map((tag, idx) => (
                   <span
@@ -156,49 +259,46 @@ export default function ListaPage() {
                   </span>
                 ))}
               </div>
-              {/* Botão contato */}
               <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition">
                 Contato
               </button>
             </div>
           ))}
-
           {perfis.length === 0 && (
             <p className="text-gray-500 col-span-full">Nenhum perfil salvo nesta lista.</p>
           )}
         </div>
       </div>
 
-      {/* Modal Editar Lista */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg w-96">
-            {/* Cabeçalho modal */}
             <div className="flex justify-between items-center border-b px-4 py-3">
               <h2 className="text-lg font-bold text-[#990000]">Editar lista</h2>
               <button onClick={() => setShowModal(false)}>
                 <X className="w-5 h-5 text-gray-500 hover:text-black" />
               </button>
             </div>
-
-            {/* Conteúdo */}
             <div className="p-6">
               <label className="block text-sm font-medium mb-2">Nome lista</label>
               <input
                 type="text"
                 value={nomeLista}
                 onChange={(e) => setNomeLista(e.target.value)}
-                className="w-full border px-3 py-2 rounded mb-4"
+                readOnly={isFavoritesList}
+                className={`w-full border px-3 py-2 rounded mb-4 ${isFavoritesList ? 'bg-gray-100 cursor-not-allowed' : ''}`}
               />
-
               <button
                 onClick={excluirLista}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded bg-red-100 text-red-600 border border-red-300 hover:bg-red-200 transition mb-6"
+                disabled={isFavoritesList}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded transition mb-6 ${isFavoritesList 
+                  ? 'bg-red-50 text-red-300 border border-red-100 cursor-not-allowed' 
+                  : 'bg-red-100 text-red-600 border border-red-300 hover:bg-red-200'}`}
               >
                 <Trash2 className="w-4 h-4" />
                 Excluir Lista
               </button>
-
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowModal(false)}
@@ -207,8 +307,11 @@ export default function ListaPage() {
                   Cancelar
                 </button>
                 <button
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded bg-[#990000] text-white hover:bg-red-800"
+                  onClick={handleSalvarNome}
+                  disabled={isFavoritesList}
+                  className={`px-4 py-2 rounded text-white ${isFavoritesList 
+                    ? 'bg-gray-300 cursor-not-allowed' 
+                    : 'bg-[#990000] hover:bg-red-800'}`}
                 >
                   Gravar
                 </button>

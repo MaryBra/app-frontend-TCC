@@ -69,8 +69,8 @@ export default function GerenciarListas() {
         // (Assumindo que sua API /listarListas retorna um array de {id, nome, count})
         const listasCustomizadas: ListaDisplay[] = listasData.map(lista => ({
           id: lista.id,
-          nome: lista.nome,
-          count: lista.count || 0, // Ajuste 'count' se o nome da propriedade for outro
+          nome: lista.nomeLista,
+          count: lista.perfisSalvos ? lista.perfisSalvos.length : 0, // Ajuste 'count' se o nome da propriedade for outro
           icone: <List />
         }));
 
