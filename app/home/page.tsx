@@ -16,6 +16,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ListPlus
 } from "lucide-react";
 
 export default function Home() {
@@ -39,6 +40,10 @@ export default function Home() {
   // Mock - Recomendações
   const [recomendacoes, setRecomendacoes] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+  const [minhasListas, setMinhasListas] = useState([]);
+  const [novoNomeLista, setNovoNomeLista] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
   const handleBuscaCompleta = () => {
@@ -366,6 +371,71 @@ export default function Home() {
     }
   }
 
+  const handleBookmarkClick = async (profileId: number) => {
+      setSelectedProfileId(profileId);
+      setLoadingModal(true);
+      setModalOpen(true); // Garanta que este é o modal correto
+      setSelectedUser(null); // Fecha o modal de contato se estiver aberto
+      setNovoNomeLista(""); 
+
+      const token = localStorage.getItem("token");
+      if (!token) { router.push("/login"); return; }
+
+      try {
+          const res = await fetch("http://localhost:8080/api/listas/listarListas", {
+              headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error("Falha ao buscar listas");
+          const data = await res.json();
+          setMinhasListas(data);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoadingModal(false);
+      }
+  };
+
+  const handleAddToList = async (listaId: number) => {
+      const token = localStorage.getItem("token");
+      try {
+          // A API espera o ID do Pesquisador, que está no selectedProfileId
+          const res = await fetch(
+              `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`, 
+              {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${token}` }
+              }
+          );
+          if (!res.ok) throw new Error("Falha ao adicionar perfil");
+          alert("Perfil salvo na lista!");
+          setModalOpen(false); 
+      } catch (err) {
+          console.error(err);
+          alert("Erro ao salvar perfil.");
+      }
+  };
+
+  const handleCreateAndAddToList = async () => {
+      if (!novoNomeLista.trim()) return;
+      
+      const token = localStorage.getItem("token");
+      try {
+          const resCreate = await fetch("http://localhost:8080/api/listas/salvarLista", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+              body: JSON.stringify({ nomeLista: novoNomeLista })
+          });
+          if (!resCreate.ok) throw new Error("Falha ao criar lista");
+          
+          const novaLista = await resCreate.json();
+          await handleAddToList(novaLista.id);
+          setNovoNomeLista("");
+      } catch (err) {
+          console.error(err);
+          alert("Erro ao criar nova lista.");
+      }
+  };
+
   const limparBusca = () => {
     setTermoBusca("");
     setMostrarResultados(false);
@@ -577,7 +647,8 @@ export default function Home() {
                     {/* Botões de ação */}
                     <div className="absolute top-3 right-3 flex gap-2">
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
-                        <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" />
+                        <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" 
+                        onClick={() => handleBookmarkClick(item.id)}/>
                       </button>
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
                         <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleFavorito(item.id)}/>
@@ -704,6 +775,65 @@ export default function Home() {
                 Enviar Mensagem
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {modalOpen && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+          onClick={() => setModalOpen(false)} // Fecha este modal
+        >
+          <div 
+            className="bg-white p-6 rounded-lg shadow-lg w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-[#990000]">Salvar em...</h2>
+              <button onClick={() => setModalOpen(false)}>
+                <X className="w-5 h-5 text-gray-500 hover:text-black" />
+              </button>
+            </div>
+            
+            {loadingModal ? (
+              <p>Carregando listas...</p>
+            ) : (
+              <>
+                {/* Lista de Listas Existentes */}
+                <div className="flex flex-col gap-2 max-h-40 overflow-y-auto mb-4">
+                  {minhasListas.map((lista) => (
+                    <button
+                      key={lista.id}
+                      onClick={() => handleAddToList(lista.id)}
+                      className="w-full text-left p-2 rounded hover:bg-gray-100"
+                    >
+                      {lista.nomeLista}
+                    </button>
+                  ))}
+                  {minhasListas.length === 0 && (
+                    <p className="text-sm text-gray-500">Nenhuma lista customizada encontrada.</p>
+                  )}
+                </div>
+
+                {/* Criar Nova Lista */}
+                <div className="border-t pt-4 flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Criar nova lista..."
+                    value={novoNomeLista}
+                    onChange={(e) => setNovoNomeLista(e.target.value)}
+                    className="flex-1 w-full border px-3 py-2 rounded"
+                  />
+                  <button
+                    onClick={handleCreateAndAddToList}
+                    className="p-2 rounded bg-[#990000] text-white hover:bg-red-800"
+                    title="Criar e adicionar"
+                  >
+                    <ListPlus size={20} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

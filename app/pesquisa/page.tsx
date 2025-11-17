@@ -252,7 +252,14 @@ export default function PaginaDeBusca() {
                     headers: { "Authorization": `Bearer ${token}` }
                 }
             );
-            if (!res.ok) throw new Error("Falha ao adicionar perfil");
+            if (res.ok) {
+                alert("Perfil salvo na lista!");
+                setModalOpen(false);
+            } else if (res.status === 409) {
+                alert("Este perfil já está salvo nesta lista.");
+            } else {
+                throw new Error("Falha ao adicionar perfil");
+            }
             alert("Perfil salvo na lista!");
             setModalOpen(false); // Fecha o modal
         } catch (err) {
