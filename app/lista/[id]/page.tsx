@@ -21,7 +21,7 @@ export default function ListaPage() {
   const [perfis, setPerfis] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
-  const [nomeLista, setNomeLista] = useState(`Lista ${id}`);
+  const [nomeLista, setNomeLista] = useState(`Favoritos`);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -36,7 +36,7 @@ export default function ListaPage() {
 
       try{
         const response = await fetch(
-          `http://localhost:8080/api/seguidores/usuario/${id_usuario}/seguindo`,
+          `http://localhost:8080/api/favoritos/usuario/${id_usuario}/favorito`,
           {
             method: "GET",
             headers: {
@@ -72,8 +72,37 @@ export default function ListaPage() {
   }, [])
 
   // função para remover perfil
-  const removerPerfil = (idPerfil: number) => {
-    setPerfis((prev) => prev.filter((p) => p.id !== idPerfil));
+  const removerPerfil = async (idPerfil: number) => {
+    const token = localStorage.getItem("token");
+    const id_usuario = localStorage.getItem("usuarioId");
+
+    if (!token || !id_usuario) {
+      console.error("Usuário não logado.");
+      router.push("/login");
+      return;
+    }
+
+    try{
+      const response = await fetch(
+        `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario}&pesquisadorId=${idPerfil}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha ao remover favorito");
+      }
+      
+      setPerfis((prev) => prev.filter((p) => p.id !== idPerfil));
+      console.log("Perfil removido com sucesso!");
+    } catch (err) {
+      console.error("Erro ao remover perfil:", err);
+      alert("Erro ao remover perfil.");
+    }
   };
 
   // excluir lista (simulação: volta pra tela de gerenciar listas)
@@ -91,16 +120,7 @@ export default function ListaPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[#990000]">{nomeLista}</h1>
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
-              title="Editar lista"
-            >
-              <Bookmark className="text-[#990000]" />
-            </button>
-            <button className="bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
-              <Heart className="text-red-600" />
-            </button>
+            
           </div>
         </div>
 
