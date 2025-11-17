@@ -323,7 +323,7 @@ export default function Home() {
     handleBuscarUsuario();
   }, [router]);
 
-  const handleSeguir = async (id) => {
+  const handleFavorito = async (id) => {
     const token = localStorage.getItem("token");
 
     if(!token){
@@ -580,7 +580,7 @@ export default function Home() {
                         <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" />
                       </button>
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleSeguir(item.id)}/>
+                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleFavorito(item.id)}/>
                       </button>
                     </div>
                 

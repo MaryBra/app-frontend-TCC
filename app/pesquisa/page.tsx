@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import MenuLateral from "@/app/components/MenuLateral";
-import { Search, User, Bookmark, Heart, X } from "lucide-react";
+import { Search, User, Bookmark, Heart, X, ListPlus } from "lucide-react";
 
 // --- 1. Define as Interfaces ---
 interface Resultado {
@@ -15,7 +15,7 @@ interface Resultado {
 }
 
 // --- 2. Define o Componente do Card de Resultado ---
-const ResultadoCard = ({ resultado }: { resultado: Resultado }) => {
+const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, onBookmarkClick: () => void }) => {
     const router = useRouter();
 
     const nomeParts = resultado.nome.split(' ');
@@ -29,15 +29,52 @@ const ResultadoCard = ({ resultado }: { resultado: Resultado }) => {
         router.push(path);
     };
 
+    const handleFavorito = async (id) => {
+        const token = localStorage.getItem("token");
+
+        if(!token){
+            console.error("Usuário não logado. Redirecionando...");
+            router.push("/login");
+            return;
+        }
+
+        try{
+            const response = await fetch(
+                `http://localhost:8080/api/favoritos/salvarFavorito`,
+                {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    "pesquisadorId": id
+                })
+                }
+            )
+
+            if(!response.ok){
+                throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
+            }
+
+            const novoSeguidor = await response.json();
+            console.log("Seguidor salvo:", novoSeguidor);
+        }catch(err){
+            console.error("Erro ao seguir perfil:", err);
+        }
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center relative hover:shadow-lg transition-shadow">
             {/* Botões de ação */}
             <div className="absolute top-3 right-3 flex gap-2">
                 <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
-                    <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" />
+                    <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600"
+                    onClick={onBookmarkClick} />
                 </button>
                 <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                    <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" />
+                    <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" 
+                    onClick={() => handleFavorito(resultado.id)}/>
                 </button>
             </div>
 
@@ -81,7 +118,13 @@ export default function PaginaDeBusca() {
 
     const [filtroAtivo, setFiltroAtivo] = useState<'todos' | 'pesquisador' | 'empresa'>('todos');
 
-    // Efeito para buscar o NOME DO USUÁRIO (para o cabeçalho)
+    const [modalOpen, setModalOpen] = useState(false);
+    const [loadingModal, setLoadingModal] = useState(false);
+    const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+    const [minhasListas, setMinhasListas] = useState([]);
+    const [novoNomeLista, setNovoNomeLista] = useState("");
+
+
     useEffect(() => {
         const handleBuscarUsuario = async () =>{
             const token = localStorage.getItem("token");
@@ -173,7 +216,75 @@ export default function PaginaDeBusca() {
         };
 
         fetchResultados();
-    }, [query, router]); // Re-busca se a query ou o router mudarem
+    }, [query, router]);
+
+    const handleBookmarkClick = async (profileId: number) => {
+        setSelectedProfileId(profileId); // Guarda qual perfil estamos adicionando
+        setLoadingModal(true);
+        setModalOpen(true);
+        setNovoNomeLista(""); // Limpa o input
+
+        const token = localStorage.getItem("token");
+        if (!token) { router.push("/login"); return; }
+
+        try {
+            // Busca as listas customizadas do usuário
+            const res = await fetch("http://localhost:8080/api/listas/listarListas", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Falha ao buscar listas");
+            const data = await res.json();
+            setMinhasListas(data); // Salva as listas no estado (ex: [{id: 1, nomeLista: "..."}])
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingModal(false);
+        }
+    };
+
+    const handleAddToList = async (listaId: number) => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(
+                `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`, 
+                {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                }
+            );
+            if (!res.ok) throw new Error("Falha ao adicionar perfil");
+            alert("Perfil salvo na lista!");
+            setModalOpen(false); // Fecha o modal
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao salvar perfil.");
+        }
+    };
+
+    const handleCreateAndAddToList = async () => {
+        if (!novoNomeLista.trim()) return;
+        
+        const token = localStorage.getItem("token");
+        try {
+            // 1. Cria a nova lista
+            const resCreate = await fetch("http://localhost:8080/api/listas/salvarLista", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ nomeLista: novoNomeLista })
+            });
+            if (!resCreate.ok) throw new Error("Falha ao criar lista");
+            
+            const novaLista = await resCreate.json(); // { id, nomeLista, ... }
+            
+            // 2. Adiciona o perfil à lista recém-criada
+            await handleAddToList(novaLista.id);
+            
+            setNovoNomeLista(""); // Limpa o input
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao criar nova lista.");
+        }
+    };
 
     // Funções para o cabeçalho
     const handleNovaBusca = () => {
@@ -202,9 +313,7 @@ export default function PaginaDeBusca() {
 
             <main className="flex-1 ml-20 p-8 overflow-y-auto">
 
-                {/* --- O CABEÇALHO QUE VOCÊ QUERIA --- */}
                 <header className="flex justify-between items-center mb-6">
-                    {/* Barra de Pesquisa */}
                     <div className="relative w-1/2">
                         <div className="flex items-center bg-white px-3 py-2 rounded-lg shadow-md w-full">
                             <Search className="text-gray-500 mr-2" />
@@ -293,21 +402,74 @@ export default function PaginaDeBusca() {
 
                 {/* O GRID DE RESULTADOS */}
                 <div className="max-w-full">
-                    {carregandoResultados && <p>Carregando...</p>}
-                    
-                    {!carregandoResultados && resultados.length === 0 && (
-                        <p>Nenhum resultado encontrado para este filtro.</p>
-                    )}
-
-                    {!carregandoResultados && resultados.length > 0 && (
+                    {/* ... (loading e "nenhum resultado") ... */}
+                    {!carregandoResultados && resultadosFiltrados.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {resultadosFiltrados.map(resultado => (
-                                <ResultadoCard key={`${resultado.tipo}-${resultado.id}`} resultado={resultado} />
+                                <ResultadoCard 
+                                    key={`${resultado.tipo}-${resultado.id}`} 
+                                    resultado={resultado}
+                                    // 👇 PASSE A FUNÇÃO PARA O CARD
+                                    onBookmarkClick={() => handleBookmarkClick(resultado.id)}
+                                />
                             ))}
                         </div>
                     )}
                 </div>
             </main>
+
+            {modalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-bold text-[#990000]">Salvar em...</h2>
+                            <button onClick={() => setModalOpen(false)}>
+                                <X className="w-5 h-5 text-gray-500 hover:text-black" />
+                            </button>
+                        </div>
+                        
+                        {loadingModal ? (
+                            <p>Carregando listas...</p>
+                        ) : (
+                            <>
+                                {/* Lista de Listas Existentes */}
+                                <div className="flex flex-col gap-2 max-h-40 overflow-y-auto mb-4">
+                                    {minhasListas.map((lista) => (
+                                        <button
+                                            key={lista.id}
+                                            onClick={() => handleAddToList(lista.id)}
+                                            className="w-full text-left p-2 rounded hover:bg-gray-100"
+                                        >
+                                            {lista.nomeLista}
+                                        </button>
+                                    ))}
+                                    {minhasListas.length === 0 && (
+                                        <p className="text-sm text-gray-500">Nenhuma lista customizada encontrada.</p>
+                                    )}
+                                </div>
+
+                                {/* Criar Nova Lista */}
+                                <div className="border-t pt-4 flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Criar nova lista..."
+                                        value={novoNomeLista}
+                                        onChange={(e) => setNovoNomeLista(e.target.value)}
+                                        className="flex-1 w-full border px-3 py-2 rounded"
+                                    />
+                                    <button
+                                        onClick={handleCreateAndAddToList}
+                                        className="p-2 rounded bg-[#990000] text-white hover:bg-red-800"
+                                        title="Criar e adicionar"
+                                    >
+                                        <ListPlus size={20} />
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
