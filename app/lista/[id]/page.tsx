@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import MenuLateral from "../../components/MenuLateral";
 import { Heart, Bookmark, Trash2, X } from "lucide-react";
 
-// Interface para os perfis
 interface Perfil {
   id: number;
   nome: string;
@@ -13,19 +12,16 @@ interface Perfil {
   tags: string[];
 }
 
-// Interface para o DTO do Usuário (para perfisSalvos)
 interface UsuarioDTO {
   id: number;
-  nomePesquisador: string; // Ajuste se os nomes dos campos forem outros
+  nomePesquisador: string;
   sobrenome: string;
-  // Adicione outros campos se necessário
 }
 
 export default function ListaPage() {
-  const { id } = useParams(); // id da lista (ex: "1" ou "favoritos")
+  const { id } = useParams();
   const router = useRouter();
 
-  // --- 1. LÓGICA DE CONTROLE ---
   const isFavoritesList = id === 'favoritos';
   const listaId = isFavoritesList ? null : Number(id); 
 
@@ -35,11 +31,12 @@ export default function ListaPage() {
   const [loading, setLoading] = useState(true);
 
 
-  // --- 2. BUSCA DE DADOS (DINÂMICA) ---
   useEffect(() => {
 
     const token = localStorage.getItem("token");
+    console.log(token);
     const id_usuario_logado = localStorage.getItem("usuarioId");
+    console.log(id_usuario_logado)
 
     if (!token || !id_usuario_logado) {
       console.error("Usuário não logado. Redirecionando...");
@@ -57,7 +54,7 @@ export default function ListaPage() {
         );
         if (!response.ok) throw new Error("Falha ao buscar favoritos");
         
-        const seguidores = await response.json(); // Array de Favorito (com obj Pesquisador)
+        const seguidores = await response.json();
         const perfisFormatados = seguidores
           .filter(item => item.pesquisador != null)
           .map(item => ({                      
@@ -84,21 +81,17 @@ export default function ListaPage() {
         );
         if (!response.ok) throw new Error("Falha ao buscar lista");
 
-        const listaData = await response.json(); // ListaDTO
+        const listaData = await response.json();
         
-        // Corrigido para usar listaData.perfisSalvos
         const perfisFormatados = (listaData.perfisSalvos || []).map((item: UsuarioDTO) => ({
           id: item.id,
-          // Ajuste aqui: O obj Usuario não tem nomePesquisador,
-          // Você talvez precise de um DTO melhor ou buscar o nome de outra forma.
-          // Por enquanto, usarei um placeholder:
           nome: item.nomePesquisador || `Usuário ${item.id}`, 
           area: "Pesquisador",
           tags: []
         }));
 
         setPerfis(perfisFormatados);
-        setNomeLista(listaData.nomeLista); // Corrigido para usar nomeLista
+        setNomeLista(listaData.nomeLista);
       } catch (err) {
         console.error("Erro ao buscar lista customizada:", err);
       } finally {
@@ -114,8 +107,6 @@ export default function ListaPage() {
 
   }, [id, isFavoritesList, listaId, router]);
 
-
-  // --- 3. REMOÇÃO DE PERFIL (DINÂMICA) ---
   const removerPerfil = async (idPerfil: number) => {
     const token = localStorage.getItem("token");
     const id_usuario_logado = localStorage.getItem("usuarioId");
@@ -130,7 +121,6 @@ export default function ListaPage() {
     if (isFavoritesList) {
       url = `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario_logado}&pesquisadorId=${idPerfil}`;
     } else {
-      // Endpoint de Listas Customizadas
       url = `http://localhost:8080/api/listas/alterarLista/${listaId}/perfil/${idPerfil}`;
     }
 
@@ -151,9 +141,13 @@ export default function ListaPage() {
     }
   };
 
-
-  // --- 4. FUNÇÕES DO MODAL ---
   const handleSalvarNome = async () => {
+    const token = localStorage.getItem("token");
+    const id_usuario_logado = localStorage.getItem("usuarioId");
+    if (!token || !id_usuario_logado) {
+      router.push("/login");
+      return;
+    }
     if (isFavoritesList) return; 
 
     try {
@@ -175,6 +169,12 @@ export default function ListaPage() {
   };
 
   const excluirLista = async () => {
+    const token = localStorage.getItem("token");
+    const id_usuario_logado = localStorage.getItem("usuarioId");
+    if (!token || !id_usuario_logado) {
+      router.push("/login");
+      return;
+    }
     if (isFavoritesList) return; 
 
     if (confirm(`Tem certeza que deseja excluir a lista "${nomeLista}"?`)) {
@@ -196,9 +196,6 @@ export default function ListaPage() {
       }
     }
   };
-
-
-  // --- 5. JSX (COM LÓGICA CONDICIONAL) ---
 
   if (loading) {
      return (

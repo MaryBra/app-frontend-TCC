@@ -336,7 +336,7 @@ export default function Home() {
 
     try{
       const response = await fetch(
-        `http://localhost:8080/api/seguidores/salvarSeguidor`,
+        `http://localhost:8080/api/favoritos/salvarFavorito`,
         {
           method: "POST",
           headers: {
