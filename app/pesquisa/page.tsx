@@ -105,6 +105,7 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
 
 // --- 3. Componente Principal da Página ---
 export default function PaginaDeBusca() {
+
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get("q");
@@ -117,6 +118,9 @@ export default function PaginaDeBusca() {
     const [nome, setNome] = useState(null);
 
     const [filtroAtivo, setFiltroAtivo] = useState<'todos' | 'pesquisador' | 'empresa'>('todos');
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
     const [modalOpen, setModalOpen] = useState(false);
     const [loadingModal, setLoadingModal] = useState(false);
@@ -218,6 +222,11 @@ export default function PaginaDeBusca() {
         fetchResultados();
     }, [query, router]);
 
+    const handleFilterChange = (filtro: "todos" | "pesquisador" | "empresa") => {
+        setFiltroAtivo(filtro);
+        setCurrentPage(1);
+    }
+
     const handleBookmarkClick = async (profileId: number) => {
         setSelectedProfileId(profileId); // Guarda qual perfil estamos adicionando
         setLoadingModal(true);
@@ -307,11 +316,30 @@ export default function PaginaDeBusca() {
     };
 
     const resultadosFiltrados = resultados.filter(resultado => {
-        if (filtroAtivo === 'todos') {
-            return true; // Mostra todos
+       if (filtroAtivo === 'todos') {
+            return true;
         }
         return resultado.tipo === filtroAtivo;
     });
+
+    const totalPages = Math.ceil(resultadosFiltrados.length / itemsPerPage);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    const currentItems = resultadosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+
+    const nextPage = () => {
+        if(currentPage < totalPages){
+            setCurrentPage(prev => prev + 1);
+        }
+    };
+
+    const prevPage = () => {
+        if(currentPage > 1){
+            setCurrentPage(prev => prev - 1);
+        }
+    }
 
     // --- 4. Renderização Final ---
     return (
@@ -382,7 +410,7 @@ export default function PaginaDeBusca() {
 
                 <div className="flex border-b border-gray-300 mb-6">
                     <button 
-                        onClick={() => setFiltroAtivo('todos')}
+                        onClick={() => handleFilterChange('todos')}
                         className={filtroAtivo === 'todos' 
                             ? "py-2 px-4 text-red-700 border-b-2 border-red-700 font-semibold" 
                             : "py-2 px-4 text-gray-500 hover:text-gray-800"}
@@ -390,7 +418,7 @@ export default function PaginaDeBusca() {
                         Todos
                     </button>
                     <button 
-                        onClick={() => setFiltroAtivo('empresa')}
+                        onClick={() => handleFilterChange('empresa')}
                         className={filtroAtivo === 'empresa' 
                             ? "py-2 px-4 text-red-700 border-b-2 border-red-700 font-semibold" 
                             : "py-2 px-4 text-gray-500 hover:text-gray-800"}
@@ -398,7 +426,7 @@ export default function PaginaDeBusca() {
                         Empresas
                     </button>
                     <button 
-                        onClick={() => setFiltroAtivo('pesquisador')}
+                        onClick={() => handleFilterChange('pesquisador')}
                         className={filtroAtivo === 'pesquisador' 
                             ? "py-2 px-4 text-red-700 border-b-2 border-red-700 font-semibold" 
                             : "py-2 px-4 text-gray-500 hover:text-gray-800"}
@@ -409,10 +437,15 @@ export default function PaginaDeBusca() {
 
                 {/* O GRID DE RESULTADOS */}
                 <div className="max-w-full">
-                    {/* ... (loading e "nenhum resultado") ... */}
+
+                    {carregandoResultados && <p>Carregando...</p>}
+                    
+                    {!carregandoResultados && resultadosFiltrados.length === 0 && (
+                        <p>Nenhum resultado encontrado para este filtro.</p>
+                    )}
                     {!carregandoResultados && resultadosFiltrados.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {resultadosFiltrados.map(resultado => (
+                            {currentItems.map(resultado => (
                                 <ResultadoCard 
                                     key={`${resultado.tipo}-${resultado.id}`} 
                                     resultado={resultado}
@@ -423,6 +456,28 @@ export default function PaginaDeBusca() {
                         </div>
                     )}
                 </div>
+
+                {!carregandoResultados && totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-8">
+                        <button
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 bg-white rounded-md shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-gray-700">
+                            Página {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            onClick={nextPage}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 bg-white rounded-md shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                )}
             </main>
 
             {modalOpen && (
