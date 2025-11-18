@@ -11,9 +11,7 @@ export default function TagsSelector() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const tagsQuery = searchParams.get("tags");
-    const idPesquisador = searchParams.get("idPesquisador");
-
-    console.log("Id do pesquisador na tela de seleção de tags: " + idPesquisador);
+    
 
     const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
     const [novaTag, setNovaTag] = useState("");
@@ -55,10 +53,12 @@ export default function TagsSelector() {
 
     const handleContinuar = async () => {
         const token = localStorage.getItem("token")
-        const id_usuario = localStorage.getItem("usuarioId")
+        const idPesquisador = searchParams.get("idPesquisador");
+
+        console.log("Id do pesquisador na tela de seleção de tags: " + idPesquisador);
 
         const jsonData = {
-            pesquisador: {id: id_usuario},
+            pesquisador: {id: idPesquisador},
             listaTags: tagsSelecionadas,
         };
     

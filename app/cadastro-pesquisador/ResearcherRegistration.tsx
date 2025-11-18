@@ -104,6 +104,7 @@ export default function ResearcherRegistration() {
 
         // Lê o conteúdo de palavras-chave que o backend respondeu
         const resultadoUpload = await respostaUpload.json();
+        console.log(resultadoUpload)
         const palavrasChave = resultadoUpload.keywords;
 
         const requisicaoTokenAtualizado = await fetch("http://localhost:8080/api/auth/refresh-token", {
@@ -123,12 +124,14 @@ export default function ResearcherRegistration() {
         localStorage.setItem("token", novoToken)
 
         const payload = jwtDecode<TokenPayload>(novoToken)
-        localStorage.setItem("usuarioId", String(payload.id_usuario))
+        localStorage.setItem("usuarioId", idSalvo)
         localStorage.setItem("tipo_usuario", payload.tipo_usuario)
+        console.log(resultadoUpload.idPesquisador)
 
+        const idPesquisador = resultadoUpload.idPesquisador;
         // Por fim, redireciona para a tela de tags com id + tags
         const tagsQuery = encodeURIComponent(palavrasChave.join(","));
-        router.push(`/selecionandoTags?tags=${tagsQuery}`);
+        router.push(`/selecionandoTags?idPesquisador=${idPesquisador}&tags=${tagsQuery}`);
 
     } catch (error) {
         console.error("Erro no processo:", error);
