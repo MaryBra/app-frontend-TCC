@@ -444,7 +444,7 @@ export default function Home() {
 
   const handleSelecionarResultado = (resultado) => {
     if (resultado.tipo === "pesquisador") {
-      router.push(`/pesquisadores/${resultado.id}`);
+      router.push(`/pesquisadores/${resultado.id+9}`);
     } else if (resultado.tipo === "empresa") {
       router.push(`/perfilEmpresa/${resultado.id}`);
     }
@@ -660,7 +660,7 @@ export default function Home() {
                       alt="user"
                       className="w-20 rounded-full mb-3 cursor-pointer"
                       onClick={() =>
-                        router.push(`/perfilPesquisador/${item.id}`)
+                        router.push(`/pesquisadores/${item.id+9}`)
                       }
                     />
                     <h3 className="font-semibold text-gray-800 cursor-default">

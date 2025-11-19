@@ -6,7 +6,8 @@ import MenuLateral from "../../components/MenuLateral";
 import { Heart, Bookmark, Trash2, X } from "lucide-react";
 
 interface Perfil {
-  id: number;
+  idUsuario: number;
+  idEntidade: number;
   nome: string;
   area: string;
   tags: string[];
@@ -19,9 +20,11 @@ interface UsuarioDTO {
 }
 
 interface PerfilSalvoDTO {
-  id: number;
-  nome: string; 
-  sobrenome: string;
+  idUsuario: number;
+  idEntidade: number;
+  nomeCompleto: string;
+  tipoPerfil: string;
+  area: string;
 }
 
 export default function ListaPage() {
@@ -90,10 +93,11 @@ export default function ListaPage() {
         const listaData = await response.json();
         
         const perfisFormatados = (listaData.perfisSalvos || []).map((item: PerfilSalvoDTO) => ({
-          id: item.id, // ID do Pesquisador
-          nome: `${item.nome} ${item.sobrenome || ''}`,
-          area: "Pesquisador",
-          tags: []
+          idUsuario: item.idUsuario,
+          idEntidade: item.idEntidade,
+          nome: item.nomeCompleto,
+          area: item.area,
+          // tags: item.tags
         }));
 
         setPerfis(perfisFormatados);
@@ -239,11 +243,11 @@ export default function ListaPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {perfis.map((pessoa) => (
             <div
-              key={pessoa.id}
+              key={pessoa.idUsuario}
               className="relative bg-white rounded-lg shadow p-4 flex flex-col items-center text-center"
             >
               <button
-                onClick={() => removerPerfil(pessoa.id)}
+                onClick={() => removerPerfil(pessoa.idUsuario)}
                 className="absolute top-2 right-2 p-1 rounded-full bg-gray-100 hover:bg-red-100 transition"
                 title="Remover da lista"
               >
@@ -252,7 +256,7 @@ export default function ListaPage() {
               <div className="w-20 h-20 bg-gray-200 rounded-full mb-3"></div>
               <h2 className="font-semibold">{pessoa.nome}</h2>
               <p className="text-sm text-gray-600">{pessoa.area}</p>
-              <div className="flex flex-wrap gap-2 justify-center my-2">
+              {/* <div className="flex flex-wrap gap-2 justify-center my-2">
                 {pessoa.tags.map((tag, idx) => (
                   <span
                     key={idx}
@@ -261,7 +265,7 @@ export default function ListaPage() {
                     {tag}
                   </span>
                 ))}
-              </div>
+              </div> */}
               <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition">
                 Contato
               </button>

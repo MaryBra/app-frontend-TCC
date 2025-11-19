@@ -8,6 +8,7 @@ import { Search, User, Bookmark, Heart, X, ListPlus } from "lucide-react";
 // --- 1. Define as Interfaces ---
 interface Resultado {
   id: number;
+  usuarioId: number;
   nome: string;
   tipo: "pesquisador" | "empresa";
   area: string;
@@ -15,7 +16,7 @@ interface Resultado {
 }
 
 // --- 2. Define o Componente do Card de Resultado ---
-const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, onBookmarkClick: () => void }) => {
+const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, onBookmarkClick: (usuarioId: number) => void }) => {
     const router = useRouter();
 
     const nomeParts = resultado.nome.split(' ');
@@ -24,7 +25,7 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
 
     const handleClick = () => {
         const path = resultado.tipo === "pesquisador" 
-            ? `/pesquisadores/${resultado.id+9}` // Rota correta para perfil
+            ? `/pesquisadores/${resultado.id}` // Rota correta para perfil
             : `/perfilEmpresa/${resultado.id}`;
         router.push(path);
     };
@@ -70,12 +71,14 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
             <div className="absolute top-3 right-3 flex gap-2">
                 <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
                     <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600"
-                    onClick={onBookmarkClick} />
+                    onClick={() => onBookmarkClick(resultado.usuarioId)} />
                 </button>
-                <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                    <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" 
-                    onClick={() => handleFavorito(resultado.id)}/>
-                </button>
+                {resultado.tipo === "pesquisador" && (
+                    <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
+                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" 
+                        onClick={() => handleFavorito(resultado.id)}/>
+                    </button>
+                )}
             </div>
 
             {/* Imagem Placeholder */}
@@ -210,6 +213,7 @@ export default function PaginaDeBusca() {
                     throw new Error("Falha ao buscar resultados");
                 }
                 const dados = await response.json();
+                console.log(dados)
                 setResultados(dados);
 
             } catch (error) {
@@ -227,8 +231,8 @@ export default function PaginaDeBusca() {
         setCurrentPage(1);
     }
 
-    const handleBookmarkClick = async (profileId: number) => {
-        setSelectedProfileId(profileId); // Guarda qual perfil estamos adicionando
+    const handleBookmarkClick = async (usuarioId: number) => {
+        setSelectedProfileId(usuarioId); // Guarda qual perfil estamos adicionando
         setLoadingModal(true);
         setModalOpen(true);
         setNovoNomeLista(""); // Limpa o input
@@ -448,7 +452,7 @@ export default function PaginaDeBusca() {
                                     key={`${resultado.tipo}-${resultado.id}`} 
                                     resultado={resultado}
                                     // 👇 PASSE A FUNÇÃO PARA O CARD
-                                    onBookmarkClick={() => handleBookmarkClick(resultado.id)}
+                                    onBookmarkClick={(usuarioId) => handleBookmarkClick(usuarioId)}
                                 />
                             ))}
                         </div>
