@@ -24,7 +24,7 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
 
     const handleClick = () => {
         const path = resultado.tipo === "pesquisador" 
-            ? `/pesquisadores/${resultado.id}` // Rota correta para perfil
+            ? `/pesquisadores/${resultado.id+9}` // Rota correta para perfil
             : `/perfilEmpresa/${resultado.id}`;
         router.push(path);
     };
@@ -269,8 +269,6 @@ export default function PaginaDeBusca() {
             } else {
                 throw new Error("Falha ao adicionar perfil");
             }
-            alert("Perfil salvo na lista!");
-            setModalOpen(false); // Fecha o modal
         } catch (err) {
             console.error(err);
             alert("Erro ao salvar perfil.");
