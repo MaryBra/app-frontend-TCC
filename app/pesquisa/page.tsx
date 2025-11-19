@@ -54,6 +54,13 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
                 }
             )
 
+            if (response.status === 409) {
+                console.warn("Perfil já está nos favoritos. Não adicionado.");
+                alert("Este perfil já está salvo como favorito.");
+                
+                return;
+            }
+
             if(!response.ok){
                 throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
             }

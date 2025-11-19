@@ -131,12 +131,8 @@ export default function ListaPage() {
       let method: string = "DELETE";
 
       if (isFavoritesList) {
-          // ✅ CASO 1: FAVORITOS
-          // Requer ID do Usuário Logado e ID da Entidade Pesquisador (pessoa.idEntidade)
           url = `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario_logado}&pesquisadorId=${pessoa.idEntidade}`;
       } else {
-          // ✅ CASO 2: LISTA CUSTOMIZADA
-          // Requer ID da Lista e ID do Usuário do Perfil (pessoa.idUsuario)
           url = `http://localhost:8080/api/listas/alterarLista/${listaId}/perfil/${pessoa.idUsuario}`;
       }
 

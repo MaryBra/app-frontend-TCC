@@ -355,6 +355,16 @@ export default function Home() {
         }
       )
 
+      if (response.status === 409) {
+          console.warn("Perfil já está nos favoritos. Não adicionado.");
+          alert("Este perfil já está salvo como favorito.");
+
+          setRecomendacoes(listaAtual => 
+              listaAtual.filter(perfil => perfil.id !== id)
+          );
+          return;
+      }
+
       if(!response.ok){
         throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
       }
