@@ -64,10 +64,12 @@ export default function ListaPage() {
         if (!response.ok) throw new Error("Falha ao buscar favoritos");
         
         const seguidores = await response.json();
+        console.log(seguidores)
         const perfisFormatados = seguidores
           .filter(item => item.pesquisador != null)
           .map(item => ({                      
-            id: item.pesquisador.id,
+            idEntidade: item.pesquisador.id,
+            idUsuario: item.pesquisador.id + 9,
             nome: `${item.pesquisador.nomePesquisador} ${item.pesquisador.sobrenome || ''}`,
             area: "Pesquisador", 
             tags: [] 
@@ -117,39 +119,57 @@ export default function ListaPage() {
 
   }, [id, isFavoritesList, listaId, router]);
 
-  const removerPerfil = async (idPerfil: number) => {
-    const token = localStorage.getItem("token");
-    const id_usuario_logado = localStorage.getItem("usuarioId");
-    if (!token || !id_usuario_logado) {
-      router.push("/login");
-      return;
-    }
-
-    let url: string;
-    let method: string = "DELETE";
-
-    if (isFavoritesList) {
-      url = `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario_logado}&pesquisadorId=${idPerfil}`;
-    } else {
-      url = `http://localhost:8080/api/listas/alterarLista/${listaId}/perfil/${idPerfil}`;
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error("Falha ao remover perfil da lista");
+  const removerPerfil = async (pessoa: Perfil) => {
+      const token = localStorage.getItem("token");
+      const id_usuario_logado = localStorage.getItem("usuarioId");
+      if (!token || !id_usuario_logado) {
+          router.push("/login");
+          return;
       }
-      
-      setPerfis((prev) => prev.filter((p) => p.id !== idPerfil));
-    } catch (err) {
-      console.error("Erro ao remover perfil:", err);
-      alert("Erro ao remover perfil.");
-    }
+
+      let url: string;
+      let method: string = "DELETE";
+
+      if (isFavoritesList) {
+          // ✅ CASO 1: FAVORITOS
+          // Requer ID do Usuário Logado e ID da Entidade Pesquisador (pessoa.idEntidade)
+          url = `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${id_usuario_logado}&pesquisadorId=${pessoa.idEntidade}`;
+      } else {
+          // ✅ CASO 2: LISTA CUSTOMIZADA
+          // Requer ID da Lista e ID do Usuário do Perfil (pessoa.idUsuario)
+          url = `http://localhost:8080/api/listas/alterarLista/${listaId}/perfil/${pessoa.idUsuario}`;
+      }
+
+      try {
+          const response = await fetch(url, {
+              method: method,
+              headers: { "Authorization": `Bearer ${token}` }
+          });
+
+          if (!response.ok) {
+              throw new Error("Falha ao remover perfil da lista");
+          }
+          
+          // Atualiza o estado: Filtra usando o ID ÚNICO (idUsuario)
+          setPerfis((prev) => prev.filter((p) => p.idUsuario !== pessoa.idUsuario)); 
+          
+      } catch (err) {
+          console.error("Erro ao remover perfil:", err);
+          alert("Erro ao remover perfil.");
+      }
   };
+
+  const handleProfileClick = (pessoa: Perfil) => {
+    const tipo = pessoa.area.toLowerCase();
+
+    if(tipo === "pesquisador"){
+      router.push(`/pesquisadores/${pessoa.idUsuario}`);
+    } else if (tipo === "empresa") {
+        router.push(`/perfilEmpresa/${pessoa.idUsuario}`);
+    } else {
+        console.error("Tipo de perfil desconhecido para navegação:", tipo);
+    }
+  }
 
   const handleSalvarNome = async () => {
     const token = localStorage.getItem("token");
@@ -244,10 +264,14 @@ export default function ListaPage() {
           {perfis.map((pessoa) => (
             <div
               key={pessoa.idUsuario}
-              className="relative bg-white rounded-lg shadow p-4 flex flex-col items-center text-center"
+              className="relative bg-white rounded-lg shadow p-4 flex flex-col items-center text-center cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => handleProfileClick(pessoa)}
             >
               <button
-                onClick={() => removerPerfil(pessoa.idUsuario)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removerPerfil(pessoa);
+                }}
                 className="absolute top-2 right-2 p-1 rounded-full bg-gray-100 hover:bg-red-100 transition"
                 title="Remover da lista"
               >
@@ -266,7 +290,8 @@ export default function ListaPage() {
                   </span>
                 ))}
               </div> */}
-              <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition">
+              <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition"
+              onClick={(e) => e.stopPropagation()}>
                 Contato
               </button>
             </div>

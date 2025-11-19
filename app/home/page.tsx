@@ -309,6 +309,7 @@ export default function Home() {
 
         const recomendacoesFormatadas = recomendacao.map(item => ({
           id: item.id,
+          usuarioId: item.usuario.id,
           nome: item.nomePesquisador,         // De: nomePesquisador -> Para: nome
           area: item.sobrenome,             // Usando sobrenome como 'area' (ajuste se necessário)
           tags: item.tags || []             // CRÍTICO: Garante que 'tags' seja um array vazio
@@ -444,9 +445,9 @@ export default function Home() {
 
   const handleSelecionarResultado = (resultado) => {
     if (resultado.tipo === "pesquisador") {
-      router.push(`/pesquisadores/${resultado.id+9}`);
+      router.push(`/pesquisadores/${resultado.usuarioId}`);
     } else if (resultado.tipo === "empresa") {
-      router.push(`/perfilEmpresa/${resultado.id}`);
+      router.push(`/perfilEmpresa/${resultado.usuarioId}`);
     }
     setMostrarResultados(false);
     setTermoBusca("");
@@ -648,7 +649,7 @@ export default function Home() {
                     <div className="absolute top-3 right-3 flex gap-2">
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
                         <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" 
-                        onClick={() => handleBookmarkClick(item.id)}/>
+                        onClick={() => handleBookmarkClick(item.usuarioId)}/>
                       </button>
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
                         <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleFavorito(item.id)}/>
@@ -660,7 +661,7 @@ export default function Home() {
                       alt="user"
                       className="w-20 rounded-full mb-3 cursor-pointer"
                       onClick={() =>
-                        router.push(`/pesquisadores/${item.id+9}`)
+                        router.push(`/pesquisadores/${item.usuarioId}`)
                       }
                     />
                     <h3 className="font-semibold text-gray-800 cursor-default">
