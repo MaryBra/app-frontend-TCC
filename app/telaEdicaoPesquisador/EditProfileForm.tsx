@@ -549,7 +549,7 @@ export default function EditProfileForm() {
                     <div className="flex justify-end space-x-4 mt-4">
                         <button className="px-6 py-2 border border-gray-400 rounded text-gray-700 hover:bg-gray-50"
                         onClick={() => {
-                            router.push(`/pesquisadores/${pesquisadorId}`)
+                            router.push(`/pesquisadores/${usuarioId}`)
                         }}>
                             Cancelar
                         </button>
