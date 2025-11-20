@@ -21,12 +21,11 @@ export function CardLinhaDoTempo({
 }: CardLinhaDoTempoProps) {
   
   // Altura fixa - mesma dos outros cards
-  const alturaCard = "h-[400px]";
   
   // Estado vazio
   if (items.length === 0) {
     return (
-      <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaCard} flex flex-col`}>
+      <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 h-[400px] flex flex-col`}>
         <div className="relative mb-4">
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-100 h-10 rounded-md"></div>
           <h2 className="relative z-10 text-center text-xl font-bold text-black tracking-wide">
@@ -61,7 +60,7 @@ export function CardLinhaDoTempo({
 
   // Lista com todos os itens
   return (
-    <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 ${alturaCard} flex flex-col`}>
+    <div className={`flex-1 bg-white rounded-2xl shadow-lg p-6 h-[400px] flex flex-col`}>
       <div className="relative mb-6">
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gray-100 h-10 rounded-md"></div>
         <h2 className="relative z-10 text-center text-xl font-bold text-black tracking-wide">

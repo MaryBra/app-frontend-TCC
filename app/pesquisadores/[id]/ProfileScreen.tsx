@@ -10,10 +10,12 @@ import MenuLateral from "@/app/components/MenuLateral";
 import { formatarDataHora, obterAnoOuPadrao, obterNumeroOuPadrao, obterValorOuPadrao } from "@/app/utils/formatadores";
 import { CardLinhaDoTempo } from "@/app/components/CardLinhaTempo";
 import { HeaderPesquisador } from "@/app/components/HeaderPesquisador";
+import { CardContato } from "@/app/components/CardContato";
 
 
 interface DadosPesquisador {
     pesquisador: Pesquisador,
+    preferencias: UsuarioPreferencias,
     formacoesAcademicas: FormacoesAcademicas[],
     atuacoesProfissionais: AtuacoesProfissionais[],
     artigos: Artigos[],
@@ -27,6 +29,11 @@ interface DadosPesquisador {
     tags: {
         listaTags: string[]
     }
+}
+
+interface UsuarioPreferencias {
+  exibirContato: boolean;
+  exibirLocalizacao: boolean;
 }
 
 interface Usuario {
@@ -46,6 +53,7 @@ interface Pesquisador {
   nacionalidade: string;
   paisNascimento: string;
   lattesId: number;
+  telefone: string;
   imagemPerfil: string | null;
 }
 
@@ -373,35 +381,16 @@ export default function ProfileScreen() {
         </div>
 
         {/* Modal Contato */}
-        {aberto && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={() => setAberto(false)}
-          >
-            <div
-              className="bg-white rounded-lg p-6 w-80 relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-xl font-semibold mb-4 text-black">Contato</h3>
-              <p className="mb-4">
-                <strong className="text-black">Email:</strong> {obterValorOuPadrao(dadosPesquisador.pesquisador.usuario.login)}
-              </p>
-              <button
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-                onClick={() => setAberto(false)}
-                aria-label="Fechar modal"
-              >
-                ✖
-              </button>
-              <button
-                className="mt-2 bg-[#990000] text-white px-4 py-2 rounded hover:bg-red-700 transition"
-                onClick={() => setAberto(false)}
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        )}
+        <CardContato
+          idPesquisador={dadosPesquisador.pesquisador.id}
+          aberto={aberto}
+          podeEditar={podeEditar}
+          onClose={() => setAberto(false)}
+          exibirContato={dadosPesquisador.preferencias.exibirContato}
+          email={dadosPesquisador.pesquisador.usuario.login}
+          telefone={dadosPesquisador.pesquisador.telefone}
+          localizacao="Curitiba, PR — Brasil"
+        />
       </main>
     </div>
   );
