@@ -1,7 +1,6 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export default function PerfilRedirect() {
   const tipoUsuario = localStorage.getItem("tipo_usuario")
@@ -16,5 +15,5 @@ export default function PerfilRedirect() {
     }
   }, [router]);
   
-  return LoadingSpinner()
+  return <div>Carregando...</div>;
 }

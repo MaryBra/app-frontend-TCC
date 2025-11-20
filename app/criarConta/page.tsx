@@ -113,7 +113,7 @@ export default function Cadastro() {
             className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto"
           />
 
-          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800">
+          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left">
             Criar Conta
           </h2>
 
@@ -219,7 +219,7 @@ export default function Cadastro() {
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4 text-gray-700">
+          <p className="text-sm text-center mt-4">
             Já tem uma conta?{" "}
             <a href="/login" className="text-red-700 font-medium">
               Entrar
