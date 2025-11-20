@@ -25,8 +25,8 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
 
     const handleClick = () => {
         const path = resultado.tipo === "pesquisador" 
-            ? `/pesquisadores/${resultado.id}` // Rota correta para perfil
-            : `/perfilEmpresa/${resultado.id}`;
+            ? `/pesquisadores/${resultado.usuarioId}` // Rota correta para perfil
+            : `/perfilEmpresa/${resultado.usuarioId}`;
         router.push(path);
     };
 

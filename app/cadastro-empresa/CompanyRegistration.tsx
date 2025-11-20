@@ -64,7 +64,7 @@ export default function CompanyRegistration() {
 
     // Função para enviar os dados ao backend
     const handleSubmit = async () => {
-
+        const idUsuario = localStorage.getItem("usuarioId")
         const token = localStorage.getItem("token");
         console.log(token)
 
@@ -107,7 +107,7 @@ export default function CompanyRegistration() {
                localStorage.setItem("token", token);
             }
             
-            router.push(`/perfilEmpresa/${empresaCriada.id}`); // vai direto para o perfil certo
+            router.push(`/perfilEmpresa/${idUsuario}`); // vai direto para o perfil certo
         } else {
             const errorText = await res.text();
             console.error("Erro do backend:", errorText);

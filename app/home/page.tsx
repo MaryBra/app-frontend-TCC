@@ -209,6 +209,7 @@ export default function Home() {
       }
 
       setCarregando(true);
+      console.log(id)
 
       try {
         const response = await fetch(
