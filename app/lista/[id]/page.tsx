@@ -10,6 +10,7 @@ interface Perfil {
   idEntidade: number;
   nome: string;
   area: string;
+  tipo: string;
   tags: string[];
 }
 
@@ -99,6 +100,7 @@ export default function ListaPage() {
           idEntidade: item.idEntidade,
           nome: item.nomeCompleto,
           area: item.area,
+          tipo: item.tipoPerfil,
           // tags: item.tags
         }));
 
