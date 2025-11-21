@@ -29,7 +29,7 @@ export default function CompanyProfile() {
         const idUsuarioLogado = localStorage.getItem("usuarioId");
         console.log(token)
         try {
-        const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${idUsuarioLogado}`, {
+        const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
             method: "GET",
             headers: { "Content-Type": "application/json",
             "Authorization": `Bearer ${token}` }

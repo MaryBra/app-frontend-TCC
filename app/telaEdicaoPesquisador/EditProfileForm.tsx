@@ -207,7 +207,7 @@ export default function EditProfileForm() {
                 router.push(`/login`);
             } else {
                 alert("Informações salvas com sucesso!");
-                router.push(`/pesquisadores/${pesquisadorId}`);
+                router.push(`/pesquisadores/${usuarioId}`);
             }
         }catch(err){
             console.error("Falha ao salvar as atualizações:", err);

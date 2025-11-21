@@ -134,7 +134,7 @@ export default function CompanyEditForm() {
     };
 
     const handleCancel = () => {
-        router.push(`/perfilEmpresa/${id}`);
+        router.push(`/perfilEmpresa/${idUsuarioLogado}`);
     };
 
     const handleSave = async () => {
