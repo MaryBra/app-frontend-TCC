@@ -30,11 +30,12 @@ export default function CompanyEditForm() {
     const [loading, setLoading] = useState(false);
 
     const token = localStorage.getItem("token");
+    const idUsuarioLogado = localStorage.getItem("usuarioId");
 
     // Buscar dados da empresa
     const buscarInfoEmpresa = async () => {
         try {
-        const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
+        const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${idUsuarioLogado}`, {
             method: "GET",
             headers: { 
                 "Content-Type": "application/json",
@@ -151,7 +152,7 @@ export default function CompanyEditForm() {
         if(!res.ok) throw new Error("Erro ao salvar empresa");
 
         setTimeout(() => {
-            router.push(`/perfilEmpresa/${id}`);
+            router.push(`/perfilEmpresa/${idUsuarioLogado}`);
         }, 1000);
 
         } catch (error) {
