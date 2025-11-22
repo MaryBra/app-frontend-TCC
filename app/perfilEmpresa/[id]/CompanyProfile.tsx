@@ -125,9 +125,9 @@ export default function CompanyProfile() {
 
             {/* Seção Visão Geral */}
             <section className="bg-gray-100 p-12 pt-6">
-            <h2 className="text-md font-semibold mb-4">Sobre a Empresa</h2>
+            <h2 className="text-md font-semibold text-gray-600 mb-4">Sobre a Empresa</h2>
 
-            <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+            <div className="bg-white rounded-xl text-gray-600 shadow-md p-6 space-y-4">
                 {infoEmpresa && <p>
                 {infoEmpresa.textoEmpresa}
                 </p>}

@@ -158,7 +158,7 @@ export default function ListaPage() {
   };
 
   const handleProfileClick = (pessoa: Perfil) => {
-    const tipo = pessoa.area.toLowerCase();
+    const tipo = pessoa.tipo.toLowerCase();
 
     if(tipo === "pesquisador"){
       router.push(`/pesquisadores/${pessoa.idUsuario}`);
@@ -276,7 +276,7 @@ export default function ListaPage() {
                 <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
               </button>
               <div className="w-20 h-20 bg-gray-200 rounded-full mb-3"></div>
-              <h2 className="font-semibold">{pessoa.nome}</h2>
+              <h2 className="font-semibold text-gray-600">{pessoa.nome}</h2>
               <p className="text-sm text-gray-600">{pessoa.area}</p>
               {/* <div className="flex flex-wrap gap-2 justify-center my-2">
                 {pessoa.tags.map((tag, idx) => (
