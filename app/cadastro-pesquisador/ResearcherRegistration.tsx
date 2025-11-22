@@ -382,7 +382,7 @@ export default function ResearcherRegistration() {
                   Processando...
                 </>
               ) : (
-                "Enviar para a API"
+                "Enviar Currículo Lattes"
               )}
             </motion.button>
           </form>

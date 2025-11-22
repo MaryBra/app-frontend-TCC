@@ -119,7 +119,7 @@ export default function Cadastro() {
           />
 
           {/* Título em vermelho */}
-          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left text-[#990000]">
+          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800">
             Criar Conta
           </h2>
 

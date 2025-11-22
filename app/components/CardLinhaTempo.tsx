@@ -4,6 +4,7 @@ interface ItemLinhaDoTempo {
   id?: number;
   ano: number;
   titulo: string;
+  tipo: string;
 }
 
 interface CardLinhaDoTempoProps {
@@ -77,20 +78,11 @@ export function CardLinhaDoTempo({
 
               <div className="ml-8 flex-1 min-w-0 flex items-start justify-between gap-6">
                 <div className="flex flex-col gap-1 flex-1">
-                  <p className="text-lg font-bold text-black">{item.ano}</p>
+                  <p className="text-lg font-bold text-black">{item.ano} - {item.tipo}</p>
                   <p className="text-sm text-gray-800 leading-relaxed break-words">
                     {item.titulo}
                   </p>
                 </div>
-
-                {onClickAcessar && (
-                  <button 
-                    onClick={() => onClickAcessar(item)}
-                    className="bg-red-700 text-white text-xs px-3 py-1 rounded shadow hover:bg-red-800 transition flex-shrink-0 self-start"
-                  >
-                    Acessar
-                  </button>
-                )}
               </div>
             </div>
           ))}

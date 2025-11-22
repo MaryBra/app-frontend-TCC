@@ -23,132 +23,9 @@ import {
 } from "@/app/utils/formatadores";
 import { CardLinhaDoTempo } from "@/app/components/CardLinhaTempo";
 import { HeaderPesquisador } from "@/app/components/HeaderPesquisador";
+import { DadosPesquisador } from "@/app/types/pesquisador.types";
 
-interface DadosPesquisador {
-  pesquisador: Pesquisador;
-  formacoesAcademicas: FormacoesAcademicas[];
-  atuacoesProfissionais: AtuacoesProfissionais[];
-  artigos: Artigos[];
-  linhaDoTempo?: LinhaDoTempo[];
-  livros: Livros[];
-  capitulos: Capitulos[];
-  trabalhosEvento: TrabalhosEvento[];
-  projetosPesquisa: ProjetosPesquisa[];
-  premiacoes: Premiacoes[];
-  orientacoes: Orientacoes[];
-  tags: {
-    listaTags: string[];
-  };
-}
 
-interface Usuario {
-  login: string;
-}
-
-interface Pesquisador {
-  id: number;
-  usuario: Usuario;
-  ocupacao: string;
-  nomePesquisador: string;
-  sobrenome: string;
-  dataNascimento: string;
-  nomeCitacoesBibliograficas: string;
-  dataAtualizacao: string;
-  horaAtualizacao: string;
-  nacionalidade: string;
-  paisNascimento: string;
-  lattesId: number;
-  imagemPerfil: string | null;
-}
-
-interface AtuacoesProfissionais {
-  id: number;
-  cargo: string;
-  instituicao: string;
-  anoInicio: number;
-  anoFim: number;
-}
-
-interface Artigos {
-  id: number;
-  ano: number;
-  titulo: string;
-  periodico: string;
-  doi: string;
-  idioma: string;
-  destaque: boolean;
-}
-
-interface Livros {
-  id: number;
-  isbn: string;
-  editora: string;
-  ano: number;
-  numeroPaginas: number;
-  titulo: string;
-  destaque: boolean;
-}
-
-interface Capitulos {
-  id: number;
-  tituloCapitulo: string;
-  nomeLivro: string;
-  ano: number;
-  destaque: boolean;
-}
-
-interface ProjetosPesquisa {
-  id: number;
-  titulo: string;
-  instituicao: string;
-  ano: number;
-  financiador: string;
-}
-
-interface TrabalhosEvento {
-  id: number;
-  titulo: string;
-  ano: number;
-  nomeEvento: string;
-  cidadeEvento: string;
-}
-
-interface FormacoesAcademicas {
-  id: number;
-  nivel: string;
-  sequenciaFormacao: number;
-  instituicao: string;
-  curso: string;
-  status: string;
-  anoInicio: number;
-  anoConclusao: number;
-  tituloTrabalho: string;
-  orientador: string;
-  destaque: boolean;
-}
-
-interface LinhaDoTempo {
-  ano: number;
-  titulo: string;
-  id?: number;
-}
-
-interface Premiacoes {
-  id: number;
-  titulo: string;
-  instituicao: string;
-  ano: number;
-}
-
-interface Orientacoes {
-  id: number;
-  nomeOrientado: string;
-  nomeCurso: string;
-  ano: number;
-  instituicao: string;
-  tituloTrabalho: string;
-  tipo: string;
-}
 
 export default function ProfileScreen() {
   const [carregando, setCarregando] = useState(true);
@@ -264,10 +141,10 @@ export default function ProfileScreen() {
                 id: item.id,
                 ano: item.ano,
                 titulo: obterValorOuPadrao(item.titulo),
+                tipo: item.tipo
               }))}
               podeEditar={podeEditar}
               onClickAdicionar={() => console.log("Adicionar destaque")}
-              onClickAcessar={(item) => console.log("Acessar item:", item)}
             />
 
             {/* Card 2 - Formação Acadêmica */}
@@ -284,6 +161,14 @@ export default function ProfileScreen() {
                   )} (${obterAnoOuPadrao(
                     formacao.anoInicio
                   )} - ${obterAnoOuPadrao(formacao.anoConclusao)})`,
+                  detalhes: {
+                    "Status": obterValorOuPadrao(formacao.status),
+                    "Título do Trabalho": obterValorOuPadrao(formacao.tituloTrabalho),
+                    "Orientador": obterValorOuPadrao(formacao.orientador),
+                    "Ano de Início": obterAnoOuPadrao(formacao.anoInicio),
+                    "Ano de Conclusão": obterAnoOuPadrao(formacao.anoConclusao),
+                  },
+                  destaque: formacao.destaque
                 })
               )}
               podeEditar={podeEditar}
@@ -303,6 +188,12 @@ export default function ProfileScreen() {
                   )} (${obterAnoOuPadrao(
                     atuacao.anoInicio
                   )} - ${obterAnoOuPadrao(atuacao.anoFim)})`,
+                  detalhes: {
+                    "Instituição": obterValorOuPadrao(atuacao.instituicao),
+                    "Ano de Início": obterAnoOuPadrao(atuacao.anoInicio),
+                    "Ano de Término": obterAnoOuPadrao(atuacao.anoFim),
+                  },
+                  destaque: atuacao.destaque
                 })
               )}
               podeEditar={podeEditar}
@@ -317,6 +208,13 @@ export default function ProfileScreen() {
                 subtitulo: `Periódico: ${obterValorOuPadrao(
                   artigo.periodico
                 )} (${obterNumeroOuPadrao(artigo.ano)})`,
+                detalhes: {
+                  "Periódico": obterValorOuPadrao(artigo.periodico),
+                  "Ano": obterNumeroOuPadrao(artigo.ano),
+                  "DOI": obterValorOuPadrao(artigo.doi),
+                  "Idioma": obterValorOuPadrao(artigo.idioma),
+                },
+                destaque: artigo.destaque
               }))}
               podeEditar={podeEditar}
             />
@@ -332,6 +230,13 @@ export default function ProfileScreen() {
                 subtitulo: `Editora: ${obterValorOuPadrao(
                   livro.editora
                 )} (${obterNumeroOuPadrao(livro.ano)})`,
+                detalhes: {
+                  "Editora": obterValorOuPadrao(livro.editora),
+                  "Ano": obterNumeroOuPadrao(livro.ano),
+                  "ISBN": obterValorOuPadrao(livro.isbn),
+                  "Número de Páginas": obterNumeroOuPadrao(livro.numeroPaginas),
+                },
+                destaque:livro.destaque
               }))}
               podeEditar={podeEditar}
             />
@@ -345,6 +250,11 @@ export default function ProfileScreen() {
                 subtitulo: `Livro: ${obterValorOuPadrao(
                   capitulo.nomeLivro
                 )} (${obterNumeroOuPadrao(capitulo.ano)})`,
+                detalhes: {
+                  "Nome do Livro": obterValorOuPadrao(capitulo.nomeLivro),
+                  "Ano": obterNumeroOuPadrao(capitulo.ano),
+                },
+                destaque: capitulo.destaque
               }))}
               podeEditar={podeEditar}
             />
@@ -361,6 +271,12 @@ export default function ProfileScreen() {
                   subtitulo: `${obterValorOuPadrao(
                     evento.nomeEvento
                   )} (${obterNumeroOuPadrao(evento.ano)})`,
+                  detalhes: {
+                    "Nome do Evento": obterValorOuPadrao(evento.nomeEvento),
+                    "Cidade": obterValorOuPadrao(evento.cidadeEvento),
+                    "Ano": obterNumeroOuPadrao(evento.ano),
+                  },
+                  destaque: evento.destaque
                 })
               )}
               podeEditar={podeEditar}
@@ -376,6 +292,12 @@ export default function ProfileScreen() {
                   subtitulo: `${obterValorOuPadrao(
                     projeto.instituicao
                   )} (${obterNumeroOuPadrao(projeto.ano)})`,
+                  detalhes: {
+                    "Instituição": obterValorOuPadrao(projeto.instituicao),
+                    "Ano": obterNumeroOuPadrao(projeto.ano),
+                    "Financiador": obterValorOuPadrao(projeto.financiador),
+                  },
+                  destaque: projeto.destaque
                 })
               )}
               podeEditar={podeEditar}
@@ -386,12 +308,17 @@ export default function ProfileScreen() {
             {/* Card 9 - Premiações */}
             <CardLista
               titulo="Premiações"
-              items={(dadosPesquisador?.premiacoes ?? []).map((preamiacao) => ({
-                id: preamiacao.id,
-                titulo: obterValorOuPadrao(preamiacao.titulo),
+              items={(dadosPesquisador?.premiacoes ?? []).map((premiacao) => ({
+                id: premiacao.id,
+                titulo: obterValorOuPadrao(premiacao.titulo),
                 subtitulo: `${obterValorOuPadrao(
-                  preamiacao.instituicao
-                )} (${obterNumeroOuPadrao(preamiacao.ano)})`,
+                  premiacao.instituicao
+                )} (${obterNumeroOuPadrao(premiacao.ano)})`,
+                detalhes: {
+                  "Instituição": obterValorOuPadrao(premiacao.instituicao),
+                  "Ano": obterNumeroOuPadrao(premiacao.ano),
+                },
+                destaque: premiacao.destaque
               }))}
               podeEditar={podeEditar}
             />
@@ -406,6 +333,14 @@ export default function ProfileScreen() {
                   subtitulo: `${obterValorOuPadrao(
                     orientacao.tipo
                   )} (${obterNumeroOuPadrao(orientacao.ano)})`,
+                  detalhes: {
+                    "Nome do Orientado": obterValorOuPadrao(orientacao.nomeOrientado),
+                    "Tipo": obterValorOuPadrao(orientacao.tipo),
+                    "Curso": obterValorOuPadrao(orientacao.nomeCurso),
+                    "Instituição": obterValorOuPadrao(orientacao.instituicao),
+                    "Ano": obterNumeroOuPadrao(orientacao.ano),
+                  },
+                  destaque: orientacao.destaque
                 })
               )}
               podeEditar={podeEditar}

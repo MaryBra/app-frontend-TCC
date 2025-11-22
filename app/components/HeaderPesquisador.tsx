@@ -230,16 +230,16 @@ export function HeaderPesquisador({
       )}
 
       <div className="flex flex-col lg:flex-row gap-8 lg:items-start items-center text-center lg:text-left">
-        <div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] rounded-2xl overflow-hidden bg-white/20">
-          <Image
-            src={imagemPerfil || "/images/user.png"}
-            alt="Foto do usuário"
-            width={360}
-            height={360}
-            className="object-cover w-full h-full"
+      <div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] rounded-2xl overflow-hidden bg-white/20">
+        <Image
+          src={imagemPerfil || "/images/user.png"}
+          alt="Foto do pesquisador"
+          width={360}
+          height={360}
+          className="object-cover w-full h-full"
             priority
-          />
-        </div>
+        />
+      </div>
 
         <div className="flex-1 flex flex-col min-h-[300px]">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-1">
