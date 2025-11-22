@@ -184,31 +184,31 @@ export default function CompanyEditForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Nome de Registro</label>
-                    <input type="text" name="nomeRegistro" value={formData.nomeRegistro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="nomeRegistro" value={formData.nomeRegistro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Nome Comercial</label>
-                    <input type="text" name="nomeComercial" value={formData.nomeComercial} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="nomeComercial" value={formData.nomeComercial} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">CNPJ</label>
-                    <input type="text" name="cnpj" value={formData.cnpj} onChange={handleCNPJChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="cnpj" value={formData.cnpj} onChange={handleCNPJChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
-                    <input type="tel" name="telefone" value={formData.telefone} onChange={handleTelefoneChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="tel" name="telefone" value={formData.telefone} onChange={handleTelefoneChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Site</label>
-                    <input type="url" name="site" value={formData.site} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="url" name="site" value={formData.site} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Setor</label>
-                    <select name="setor" value={formData.setor} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <select name="setor" value={formData.setor} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     <option value="Desenvolvimento de Software">Desenvolvimento de Software</option>
                     <option value="Tecnologia da Informação">Tecnologia da Informação</option>
                     <option value="Consultoria">Consultoria</option>
@@ -226,27 +226,27 @@ export default function CompanyEditForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">CEP</label>
-                    <input type="text" name="cep" value={formData.cep} onChange={handleCepChange} maxLength={9} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="cep" value={formData.cep} onChange={handleCepChange} maxLength={9} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Logradouro</label>
-                    <input type="text" name="logradouro" value={formData.logradouro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="logradouro" value={formData.logradouro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Número</label>
-                    <input type="text" name="numeroEndereco" value={formData.numeroEndereco} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="numeroEndereco" value={formData.numeroEndereco} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Bairro</label>
-                    <input type="text" name="bairro" value={formData.bairro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="bairro" value={formData.bairro} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Cidade</label>
-                    <input type="text" name="cidade" value={formData.cidade} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="cidade" value={formData.cidade} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select name="estado" value={formData.estado} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <select name="estado" value={formData.estado} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     <option value="AC">AC</option>
                     <option value="AL">AL</option>
                     <option value="AP">AP</option>
@@ -285,11 +285,11 @@ export default function CompanyEditForm() {
                 <div className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Frase de Destaque</label>
-                    <input type="text" name="frase" value={formData.frase} onChange={handleInputChange} placeholder="Frase que representa a empresa" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    <input type="text" name="frase" value={formData.frase} onChange={handleInputChange} placeholder="Frase que representa a empresa" className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Descrição da Empresa</label>
-                    <textarea name="textoEmpresa" value={formData.textoEmpresa} onChange={handleInputChange} rows={6} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-vertical" placeholder="Descreva a empresa, seus valores, missão e diferencias..." />
+                    <textarea name="textoEmpresa" value={formData.textoEmpresa} onChange={handleInputChange} rows={6} className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-vertical" placeholder="Descreva a empresa, seus valores, missão e diferencias..." />
                 </div>
                 </div>
             </div>
