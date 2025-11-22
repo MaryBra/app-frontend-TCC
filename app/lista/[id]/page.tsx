@@ -73,6 +73,7 @@ export default function ListaPage() {
             idUsuario: item.pesquisador.id + 9,
             nome: `${item.pesquisador.nomePesquisador} ${item.pesquisador.sobrenome || ''}`,
             area: "Pesquisador", 
+            tipo: item.pesquisador.usuario.tipoUsuario.name,
             tags: [] 
           }));
         
@@ -158,7 +159,9 @@ export default function ListaPage() {
   };
 
   const handleProfileClick = (pessoa: Perfil) => {
+    console.log("pessoa: ", pessoa)
     const tipo = pessoa.tipo.toLowerCase();
+    console.log("Tipo:", tipo)
 
     if(tipo === "pesquisador"){
       router.push(`/pesquisadores/${pessoa.idUsuario}`);

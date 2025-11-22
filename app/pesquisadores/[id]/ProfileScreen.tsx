@@ -250,6 +250,7 @@ export default function ProfileScreen() {
           horaAtualizacao=""
           podeEditar={podeEditar}
           idPesquisador={dadosPesquisador.pesquisador.id}
+          usuarioId={dadosPesquisador.pesquisador.usuario.id}
           onClickContato={() => setAberto(true)}
         />
 

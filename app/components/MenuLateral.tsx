@@ -47,7 +47,7 @@ export default function MenuLateral() {
         </button>
         <button
           className="text-black hover:text-[#990000] transition-colors cursor-pointer"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/home")}
           title="Dashboard"
         >
           <LayoutDashboard size={28} />

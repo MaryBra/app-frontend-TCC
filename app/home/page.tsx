@@ -216,6 +216,7 @@ export default function Home() {
 
       setCarregando(true);
       console.log(id);
+      localStorage.setItem("usuarioId", id)
 
       try {
         const response = await fetch(
