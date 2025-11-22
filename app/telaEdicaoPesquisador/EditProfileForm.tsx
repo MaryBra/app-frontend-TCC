@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import MenuLateral from "../components/MenuLateral";
 
 export default function EditProfileForm() { 
 // estado de exemplo
@@ -34,6 +35,10 @@ export default function EditProfileForm() {
         anoConclusao: number;
         destaque: boolean;
     }
+
+    const [imagemPerfil, setImagemPerfil] = useState<string | null>(null);
+    const [imagemAlterada, setImagemAlterada] = useState(false);
+    const [arquivoImagem, setArquivoImagem] = useState<File | null>(null);
 
     const [academics, setAcademics] = useState<FormacaoAcademica[]>([]);
 
@@ -129,6 +134,28 @@ export default function EditProfileForm() {
         })
     }
 
+    const atualizarFoto = () => {
+
+        if (!arquivoImagem) {
+        throw new Error('Nenhum arquivo de imagem selecionado');
+        }
+
+        const formData = new FormData();
+        formData.append("file", arquivoImagem)
+        return fetch(`http://localhost:8080/api/pesquisadores/${pesquisadorId}/imagem`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData
+        }).then(res => {
+            if(!res.ok){
+                throw new Error('Falha ao atualizar login');
+            }
+            return res;
+        })
+    }
+
     const adicionarFormacao = async (e) => {
         e.preventDefault(); // Impede o recarregamento da página se for um <form>
 
@@ -189,8 +216,13 @@ export default function EditProfileForm() {
                 atualizarTags(Number(idTag)),
                 atualizarPesquisador(Number(pesquisadorId))
             ];
+
             if (loginFoiAlterado) {
                 promessasDeAtualizacao.push(atualizarLogin());
+            }
+
+            if (imagemAlterada) {
+                promessasDeAtualizacao.push(atualizarFoto());
             }
 
             await Promise.all(promessasDeAtualizacao);
@@ -257,6 +289,27 @@ export default function EditProfileForm() {
                 setIdTag(dadosPesquisador.tags.id);
 
                 setAcademics(dadosPesquisador.formacoesAcademicas);
+
+
+                const res = await fetch (
+                    `http://localhost:8080/api/pesquisadores/${pesquisadorId}/imagem`,
+                    {
+                        method: "GET",
+                        headers: {
+                        Authorization: `Bearer ${token}`,
+                        }
+                    }
+                    );
+
+                    if (!res.ok) {
+                    throw new Error("Erro ao buscar imagem");
+                    }
+
+                    const blob = await res.blob();
+                    const urlImagem = URL.createObjectURL(blob);
+                    setImagemPerfil(urlImagem)
+
+
             } catch(err){
                 console.error("Erro ao buscar perfil:", err);
             } 
@@ -268,36 +321,8 @@ export default function EditProfileForm() {
 
     return (
         <div className="flex h-screen bg-gray-100">
-            <aside className="w-20 bg-white fixed left-0 top-0 h-screen flex flex-col items-center py-4 shadow-md">
-                {/* Logo */}
-                <div className="mb-10">
-                    <Image
-                        src="/images/logo.png"
-                        alt="Logo"
-                        width={50}
-                        height={50}
-                        quality={100}
-                        priority
-                    />
-                </div>
-
-                {/* Ícones do Menu */}
-                <nav className="flex flex-col gap-6 mt-auto mb-4">
-                    <button className="text-black hover:text-gray-600">
-                        <Target size={28} />
-                    </button>
-                    <button className="text-black hover:text-gray-600">
-                        <LayoutDashboard size={28} />
-                    </button>
-                    <hr className="border-gray-300 w-8 mx-auto" />
-                    <button className="text-black hover:text-gray-600">
-                        <Settings size={28} />
-                    </button>
-                    <button className="text-black hover:text-gray-600">
-                        <LogOut size={28} />
-                    </button>
-                </nav>
-            </aside>
+            
+            <MenuLateral/>
 
             {/* Main */}
             <main className="flex-1 overflow-y-auto p-8">
@@ -305,15 +330,43 @@ export default function EditProfileForm() {
 
                     {/* Seção de Avatar + Campos */}
                     <div className="flex flex-col md:flex-row md:items-start md:space-x-12">
+
                         {/* Avatar */}
                         <div className="flex-shrink-0 flex flex-col items-center -mt-4">
-                            <div className="w-32 h-32 bg-gray-200 rounded-full relative">
-                                <UserRound size={100} className="text-gray-400 m-auto mt-6" />
-                                <button className="absolute bottom-0 right-0 bg-red-700 text-white p-2 rounded-full shadow">
+                            <div className="w-32 h-32 rounded-full relative bg-gray-200">
+
+                                {imagemPerfil ? (
+                                    <img src={imagemPerfil} alt="Foto do pesquisador" className="w-full h-full object-cover rounded-full" />
+                                ) : (
+                                    <UserRound size={100} className="text-gray-400 m-auto mt-6" />
+                                )}
+
+                                <input
+                                    type="file"
+                                    id="upload-foto"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const arquivo = e.target.files?.[0];
+                                        if (arquivo) {
+                                            const url = URL.createObjectURL(arquivo);
+                                            setImagemPerfil(url);
+                                            setArquivoImagem(arquivo);
+                                            setImagemAlterada(true);
+                                        }
+                                    }}
+                                />
+
+                                <button
+                                    onClick={() => document.getElementById('upload-foto')?.click()}
+                                    className="absolute -bottom-2 -right-2 bg-red-700 text-white p-2 rounded-full shadow hover:bg-red-800 transition-colors">
                                     <UploadCloud size={16} />
                                 </button>
+
                             </div>
                         </div>
+
+
                         {/* Título + Campos de Nome e Especialidade */}
                         <div className="flex-1 space-y-4">
                             <h1 className="text-xl font-semibold text-red-700">Editar Perfil</h1>

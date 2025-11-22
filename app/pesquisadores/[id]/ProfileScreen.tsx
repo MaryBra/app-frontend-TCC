@@ -341,6 +341,7 @@ export default function ProfileScreen() {
                 titulo: obterValorOuPadrao(projeto.titulo),
                 subtitulo: `${obterValorOuPadrao(projeto.instituicao)} (${obterNumeroOuPadrao(projeto.ano)})`
               }))}
+              podeEditar={podeEditar}
               // onClickBotao={() => console.log("Ver mais projetos")}
             />
           </div>
@@ -366,6 +367,7 @@ export default function ProfileScreen() {
                 titulo: obterValorOuPadrao(orientacao.tituloTrabalho),
                 subtitulo: `${obterValorOuPadrao(orientacao.tipo)} (${obterNumeroOuPadrao(orientacao.ano)})`
               }))}
+              podeEditar={podeEditar}
               // onClickBotao={() => console.log("Ver mais projetos")}
             />
           </div>

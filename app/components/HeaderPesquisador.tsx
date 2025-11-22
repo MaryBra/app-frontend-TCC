@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BookmarkPlus, Heart, Pencil } from "lucide-react";
@@ -20,13 +20,48 @@ export function HeaderPesquisador({
   nomePesquisador,
   sobrenome,
   ocupacao,
-  imagemPerfil,
   tags,
   dataAtualizacao,
   podeEditar,
   idPesquisador,
   onClickContato,
 }: HeaderPesquisadorProps) {
+
+  const [imagemPerfil, setImagemPerfil] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    async function carregarImagem() {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/pesquisadores/${idPesquisador}/imagem`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Erro ao buscar imagem");
+        }
+
+        const blob = await res.blob();
+        const urlImagem = URL.createObjectURL(blob);
+        setImagemPerfil(urlImagem);
+
+      } catch (error) {
+        console.error("Erro ao carregar imagem", error);
+      }
+    }
+
+    carregarImagem();
+
+  }, [idPesquisador]);
+
+
   return (
     <div className="bg-[#990000] text-white py-6 px-10 relative shadow-lg">
 
@@ -73,15 +108,15 @@ export function HeaderPesquisador({
       <div className="flex flex-col lg:flex-row gap-8 lg:items-start items-center text-center lg:text-left">
 
         {/* Foto */}
-        <div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] overflow-hidden rounded-md flex justify-center items-center">
-          <Image
-            src={imagemPerfil || "/images/user.png"}
-            alt="Foto do usuário"
-            width={360}
-            height={360}
-            className="object-cover w-full h-full"
-          />
-        </div>
+<div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] rounded-2xl overflow-hidden">
+  <Image
+    src={imagemPerfil || "/images/user.png"}
+    alt="Foto do usuário"
+    width={360}
+    height={360}
+    className="object-cover w-full h-full"
+  />
+</div>
 
         {/* Texto + botões fixos ao rodapé */}
         <div className="flex-1 flex flex-col min-h-[300px]">
