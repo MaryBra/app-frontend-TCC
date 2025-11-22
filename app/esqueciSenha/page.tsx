@@ -12,6 +12,10 @@ export default function RedefinirSenha() {
   const validarEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  const handleLogoClick = () => {
+    window.location.href = "http://localhost:3000";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -25,13 +29,18 @@ export default function RedefinirSenha() {
     setLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:8080/api/redefinicao/enviar?email=${email}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
+      const res = await fetch(
+        `http://localhost:8080/api/redefinicao/enviar?email=${email}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (res.ok || res.status == 404) {
-        setSucesso("Se o e-mail estiver cadastrado, o link para redefinição de senha será enviado para a caixa de entrada.");
+        setSucesso(
+          "Se o e-mail estiver cadastrado, o link para redefinição de senha será enviado para a caixa de entrada."
+        );
         setEmail("");
       } else {
         const data = await res.json();
@@ -74,6 +83,7 @@ export default function RedefinirSenha() {
             quality={100}
             priority
             className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto"
+            onClick={handleLogoClick}
           />
 
           {/* Cabeçalho */}
@@ -129,20 +139,21 @@ export default function RedefinirSenha() {
               disabled={loading}
               className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
             >
-              {loading ? "Enviando..." : "Enviar e-mail de redefinição de senha"}
+              {loading
+                ? "Enviando..."
+                : "Enviar e-mail de redefinição de senha"}
             </button>
           </form>
 
           {/* Link Voltar */}
-            <p className="text-sm text-center mt-3 text-gray-700">
-              <a
-                href="/login"
-                className="text-red-800 font-medium hover:text-red-900 transition-colors"
-              >
-                Voltar para o login
-              </a>
-            </p>
-
+          <p className="text-sm text-center mt-3 text-gray-700">
+            <a
+              href="/login"
+              className="text-red-800 font-medium hover:text-red-900 transition-colors"
+            >
+              Voltar para o login
+            </a>
+          </p>
         </div>
       </div>
     </div>

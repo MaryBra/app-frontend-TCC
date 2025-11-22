@@ -19,6 +19,10 @@ export default function Cadastro() {
   const validarSenha = (senha: string) =>
     /^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/.test(senha);
 
+  const handleLogoClick = () => {
+    window.location.href = "http://localhost:3000";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,16 +64,16 @@ export default function Cadastro() {
 
       if (res.ok) {
         const data = await res.json();
-        console.log(data)
+        console.log(data);
 
         const token = data.token;
-        localStorage.setItem("token", token.token)
-        localStorage.setItem("usuarioId", data.usuarioId)
+        localStorage.setItem("token", token.token);
+        localStorage.setItem("usuarioId", data.usuarioId);
 
-        console.log(email)
+        console.log(email);
 
-        if(email){
-          localStorage.setItem("email", email)
+        if (email) {
+          localStorage.setItem("email", email);
         }
         router.push(`/aguardandoVerificacao`);
       } else {
@@ -111,9 +115,11 @@ export default function Cadastro() {
             quality={100}
             priority
             className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto"
+            onClick={handleLogoClick}
           />
 
-          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left">
+          {/* Título em vermelho */}
+          <h2 className="text-xl font-semibold mb-8 mt-6 text-center md:text-left text-[#990000]">
             Criar Conta
           </h2>
 
@@ -219,7 +225,7 @@ export default function Cadastro() {
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4">
+          <p className="text-sm text-center mt-4 text-gray-700">
             Já tem uma conta?{" "}
             <a href="/login" className="text-red-700 font-medium">
               Entrar

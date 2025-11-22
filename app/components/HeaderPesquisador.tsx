@@ -26,9 +26,8 @@ export function HeaderPesquisador({
   idPesquisador,
   onClickContato,
 }: HeaderPesquisadorProps) {
-
   const [imagemPerfil, setImagemPerfil] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -40,7 +39,7 @@ export function HeaderPesquisador({
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
-            }
+            },
           }
         );
 
@@ -51,76 +50,66 @@ export function HeaderPesquisador({
         const blob = await res.blob();
         const urlImagem = URL.createObjectURL(blob);
         setImagemPerfil(urlImagem);
-
       } catch (error) {
         console.error("Erro ao carregar imagem", error);
       }
     }
 
     carregarImagem();
-
   }, [idPesquisador]);
-
 
   return (
     <div className="bg-[#990000] text-white py-6 px-10 relative shadow-lg">
-
       {/* Botão de Edição */}
 
-      {podeEditar
-       ? 
-       <Link
+      {podeEditar ? (
+        <Link
           href={`/telaEdicaoPesquisador`}
           className="absolute top-8 right-8 bg-white text-[#990000] p-2 rounded-full shadow hover:bg-gray-100 transition"
         >
           <Pencil size={30} />
         </Link>
-       :
-       <div className="absolute top-8 right-8 flex gap-3">
-
-    {/* Coração */}
-    <button
-      className="
+      ) : (
+        <div className="absolute top-8 right-8 flex gap-3">
+          {/* Coração */}
+          <button
+            className="
         bg-white text-[#990000] p-2 rounded-full shadow
         hover:bg-gray-100 transition
       "
-      title="Favoritar"
-    >
-      <Heart size={30} />
-    </button>
+            title="Favoritar"
+          >
+            <Heart size={30} />
+          </button>
 
-    {/* Fitinha com + */}
-    <button
-      className="
+          {/* Fitinha com + */}
+          <button
+            className="
         bg-white text-[#990000] p-2 rounded-full shadow
         hover:bg-gray-100 transition
       "
-      title="Adicionar à lista"
-    >
-      <BookmarkPlus size={30} />
-    </button>
-
-  </div>
-       }
-
+            title="Adicionar à lista"
+          >
+            <BookmarkPlus size={30} />
+          </button>
+        </div>
+      )}
 
       {/* Container Responsivo */}
       <div className="flex flex-col lg:flex-row gap-8 lg:items-start items-center text-center lg:text-left">
-
         {/* Foto */}
-<div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] rounded-2xl overflow-hidden">
-  <Image
-    src={imagemPerfil || "/images/user.png"}
-    alt="Foto do usuário"
-    width={360}
-    height={360}
-    className="object-cover w-full h-full"
-  />
-</div>
+        <div className="w-[220px] h-[220px] md:w-[260px] md:h-[260px] lg:w-[320px] lg:h-[320px] rounded-2xl overflow-hidden">
+          <Image
+            src={imagemPerfil || "/images/user.png"}
+            alt="Foto do usuário"
+            width={360}
+            height={360}
+            className="object-cover w-full h-full"
+          />
+        </div>
 
         {/* Texto + botões fixos ao rodapé */}
         <div className="flex-1 flex flex-col min-h-[300px]">
-
           {/* Nome */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-1">
             {nomePesquisador} {sobrenome}
@@ -145,7 +134,6 @@ export function HeaderPesquisador({
 
           {/* ==== Botões fixados no rodapé do bloco ==== */}
           <div className="mt-auto flex gap-3 pt-4 justify-center lg:justify-start">
-
             <button
               onClick={onClickContato}
               className="
@@ -161,13 +149,12 @@ export function HeaderPesquisador({
               Contato
             </button>
 
-              <Link
-                href="/gerenciarListas"
-                className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
-              >
-                Gerenciar Listas
-              </Link>
-
+            <Link
+              href="/gerenciarListas"
+              className="border border-white text-white px-4 py-1 rounded hover:bg-white hover:text-[#990000] transition flex items-center justify-center"
+            >
+              Gerenciar Listas
+            </Link>
           </div>
         </div>
       </div>

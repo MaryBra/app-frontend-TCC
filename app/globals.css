@@ -47,3 +47,21 @@ button:disabled,
 .cursor-not-allowed {
   cursor: not-allowed;
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+.text-red-100 {
+  color: #fef2f2 !important;
+}
+
+.text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}

@@ -17,6 +17,10 @@ export default function Login() {
   const validarEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  const handleLogoClick = () => {
+    window.location.href = "http://localhost:3000";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -45,46 +49,43 @@ export default function Login() {
       });
 
       if (res.ok) {
-
         const data = await res.json();
         localStorage.setItem("token", data.token);
 
-        const tokenContent = jwtDecode<TokenPayload>(data.token)
-        
+        const tokenContent = jwtDecode<TokenPayload>(data.token);
+
         // Se a conta não for verificada, mandamos para a tela de verificação
         if (tokenContent.conta_verificada == false) {
           localStorage.setItem("email", email);
           router.push("/aguardandoVerificacao");
-        } 
-
-        else {
-
+        } else {
           switch (tokenContent.tipo_usuario) {
             // Se tiver cadastro de pesquisador não concluído
             case "pesquisador_pendente":
-              router.push("/cadastro-pesquisador")
+              router.push("/cadastro-pesquisador");
               break;
 
             // Se tiver cadastro de empresa não concluído
             case "empresa_pendente":
-              router.push("/cadastro-empresa")
+              router.push("/cadastro-empresa");
               break;
-            
+
             // Se tiver cadastro concluído
             case "empresa":
             case "pesquisador":
-              localStorage.setItem("tipo_usuario", tokenContent.tipo_usuario)
-              localStorage.setItem("usuarioId", String(tokenContent.id_usuario))
+              localStorage.setItem("tipo_usuario", tokenContent.tipo_usuario);
+              localStorage.setItem(
+                "usuarioId",
+                String(tokenContent.id_usuario)
+              );
               router.push("/home");
               break;
-            
+
             // Se não estiver nada definido
             default:
-              setErro("Conta indefinida. Contate o suporte.")
-
+              setErro("Conta indefinida. Contate o suporte.");
           }
         }
-      
       } else {
         const errorData = await res.json();
         setErro(errorData.message || "Credenciais inválidas");
@@ -125,6 +126,7 @@ export default function Login() {
             quality={100}
             priority
             className="drop-shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto"
+            onClick={handleLogoClick}
           />
 
           <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800">

@@ -10,13 +10,12 @@ import "swiper/css/navigation";
 import "swiper/css/a11y";
 import {
   Search,
-  User,
   Heart,
   Bookmark,
   X,
   ChevronLeft,
   ChevronRight,
-  ListPlus
+  ListPlus,
 } from "lucide-react";
 
 export default function Home() {
@@ -28,6 +27,7 @@ export default function Home() {
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [nome, setNome] = useState(null);
+  const [imagemPerfil, setImagemPerfil] = useState("/images/user.png");
   const searchRef = useRef(null);
   const swiperRef = useRef(null);
 
@@ -41,7 +41,9 @@ export default function Home() {
   const [recomendacoes, setRecomendacoes] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
-  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
+    null
+  );
   const [minhasListas, setMinhasListas] = useState([]);
   const [novoNomeLista, setNovoNomeLista] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -52,9 +54,7 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    
-  }, []);
+  useEffect(() => {}, []);
 
   // Fechar resultados ao clicar fora
   useEffect(() => {
@@ -69,6 +69,7 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   // Função de busca
   const handleBuscar = async (e) => {
     if (e) e.preventDefault();
@@ -88,7 +89,7 @@ export default function Home() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             termo: termoBusca,
@@ -150,14 +151,14 @@ export default function Home() {
   }, [termoBusca]);
 
   useEffect(() => {
-    const handleBuscarUsuario = async () =>{
+    const handleBuscarUsuario = async () => {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-      console.log(token)
+      console.log(token);
 
       if (!token || !email) {
         console.error("Usuário não logado. Redirecionando...");
-        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        router.push("/login");
         return;
       }
 
@@ -165,7 +166,6 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          // FIX: Use a variável 'email' direto na URL
           `http://localhost:8080/api/usuarios/listarUsuario/${email}`,
           {
             method: "GET",
@@ -181,25 +181,31 @@ export default function Home() {
         }
 
         const dadosUsuario = await response.json();
-        console.log(dadosUsuario)
+        console.log(dadosUsuario);
 
-        if(dadosUsuario.tipoUsuario.name == "PESQUISADOR"){
-          handleDadosPesquisador(dadosUsuario.id);
-          localStorage.setItem("tipo_usuario", dadosUsuario.tipoUsuario.name.toLowerCase())
-        }else{
-          handleDadosEmpresa(dadosUsuario.id)
-          localStorage.setItem("tipo_usuario", dadosUsuario.tipoUsuario.name.toLowerCase())
+        if (dadosUsuario.tipoUsuario.name == "PESQUISADOR") {
+          await handleDadosPesquisador(dadosUsuario.id);
+          localStorage.setItem(
+            "tipo_usuario",
+            dadosUsuario.tipoUsuario.name.toLowerCase()
+          );
+        } else {
+          await handleDadosEmpresa(dadosUsuario.id);
+          localStorage.setItem(
+            "tipo_usuario",
+            dadosUsuario.tipoUsuario.name.toLowerCase()
+          );
         }
-        
-        handleRecomendacao(dadosUsuario.id);
-    } catch(err){
-      console.error("Erro ao buscar perfil:", err);
-    } finally {
-        setCarregando(false); // Opcional
-    }
-  }
 
-  const handleDadosPesquisador = async (id) => {
+        await handleRecomendacao(dadosUsuario.id);
+      } catch (err) {
+        console.error("Erro ao buscar perfil:", err);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    const handleDadosPesquisador = async (id) => {
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -209,11 +215,10 @@ export default function Home() {
       }
 
       setCarregando(true);
-      console.log(id)
+      console.log(id);
 
       try {
         const response = await fetch(
-          // FIX: Use a variável 'email' direto na URL
           `http://localhost:8080/api/dadosPesquisador/${id}`,
           {
             method: "GET",
@@ -230,22 +235,43 @@ export default function Home() {
 
         const dadosPesquisador = await response.json();
 
-        localStorage.setItem("idTag", dadosPesquisador.pesquisador.id)
-        console.log(dadosPesquisador)
-        setNome(dadosPesquisador.pesquisador.nomePesquisador)
-      } catch(err){
+        localStorage.setItem("idTag", dadosPesquisador.pesquisador.id);
+        console.log(dadosPesquisador);
+        setNome(dadosPesquisador.pesquisador.nomePesquisador);
+
+        // Buscar imagem do perfil
+        try {
+          const imgResponse = await fetch(
+            `http://localhost:8080/api/pesquisadores/${dadosPesquisador.pesquisador.id}/imagem`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (imgResponse.ok) {
+            const blob = await imgResponse.blob();
+            const urlImagem = URL.createObjectURL(blob);
+            setImagemPerfil(urlImagem);
+          }
+        } catch (imgError) {
+          console.error("Erro ao carregar imagem do perfil:", imgError);
+        }
+      } catch (err) {
         console.error("Erro ao buscar perfil:", err);
       } finally {
-          setCarregando(false); // Opcional
+        setCarregando(false);
       }
-    }
+    };
 
     const handleDadosEmpresa = async (id) => {
       const token = localStorage.getItem("token");
 
       if (!token) {
         console.error("Usuário não logado. Redirecionando...");
-        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        router.push("/login");
         return;
       }
 
@@ -268,23 +294,26 @@ export default function Home() {
         }
 
         const dadosEmpresa = await response.json();
-        console.log("Dados da API:",dadosEmpresa)
-        setNome(dadosEmpresa.nomeRegistro)
-      } catch(err){
-        console.error("Erro ao buscar perfil:", err);
-      }finally {
-          setCarregando(false); // Opcional
-      }
-    }
+        console.log("Dados da API:", dadosEmpresa);
+        setNome(dadosEmpresa.nomeRegistro);
 
-    const handleRecomendacao = async (id) =>{
+        // Para empresas, manter imagem padrão por enquanto
+        setImagemPerfil("/images/user.png");
+      } catch (err) {
+        console.error("Erro ao buscar perfil:", err);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    const handleRecomendacao = async (id) => {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-      console.log(token)
+      console.log(token);
 
       if (!token || !email) {
         console.error("Usuário não logado. Redirecionando...");
-        router.push("/login"); // Exemplo: redireciona se não estiver logado
+        router.push("/login");
         return;
       }
 
@@ -301,31 +330,34 @@ export default function Home() {
             },
           }
         );
-        
+
         if (!response.ok) {
           throw new Error("Falha ao buscar dados do usuario");
         }
         const recomendacao = await response.json();
-        console.log("Dados da API:",recomendacao)
+        console.log("Dados da API:", recomendacao);
 
-        const recomendacoesFormatadas = recomendacao.map(item => ({
+        const recomendacoesFormatadas = recomendacao.map((item) => ({
           id: item.id,
           usuarioId: item.usuario.id,
-          nome: item.nomePesquisador,         // De: nomePesquisador -> Para: nome
-          area: item.sobrenome,             // Usando sobrenome como 'area' (ajuste se necessário)
-          tags: item.tags || []             // CRÍTICO: Garante que 'tags' seja um array vazio
+          nome: item.nomePesquisador,
+          area: item.sobrenome,
+          tags: item.tags || [],
+          email: item.email || "projetolaverse@gmail.com",
         }));
 
-        console.log("Dados Formatados para o Componente:", recomendacoesFormatadas);
+        console.log(
+          "Dados Formatados para o Componente:",
+          recomendacoesFormatadas
+        );
 
-        setRecomendacoes(recomendacoesFormatadas)
-
-    } catch(err){
-      console.error("Erro ao buscar perfil:", err);
-    } finally {
+        setRecomendacoes(recomendacoesFormatadas);
+      } catch (err) {
+        console.error("Erro ao buscar perfil:", err);
+      } finally {
         setCarregando(false);
-    }
-  }
+      }
+    };
 
     handleBuscarUsuario();
   }, [router]);
@@ -333,7 +365,7 @@ export default function Home() {
   const handleFavorito = async (id) => {
     const token = localStorage.getItem("token");
 
-    if(!token){
+    if (!token) {
       console.error("Usuário não logado. Redirecionando...");
       router.push("/login");
       return;
@@ -341,7 +373,7 @@ export default function Home() {
 
     setCarregando(true);
 
-    try{
+    try {
       const response = await fetch(
         `http://localhost:8080/api/favoritos/salvarFavorito`,
         {
@@ -351,101 +383,109 @@ export default function Home() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            "pesquisadorId": id
-          })
+            pesquisadorId: id,
+          }),
         }
-      )
+      );
 
       if (response.status === 409) {
-          console.warn("Perfil já está nos favoritos. Não adicionado.");
-          alert("Este perfil já está salvo como favorito.");
+        console.warn("Perfil já está nos favoritos. Não adicionado.");
+        alert("Este perfil já está salvo como favorito.");
 
-          setRecomendacoes(listaAtual => 
-              listaAtual.filter(perfil => perfil.id !== id)
-          );
-          return;
+        setRecomendacoes((listaAtual) =>
+          listaAtual.filter((perfil) => perfil.id !== id)
+        );
+        return;
       }
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
       }
 
       const novoSeguidor = await response.json();
       console.log("Seguidor salvo:", novoSeguidor);
 
-      setRecomendacoes(listaAtual => 
-            listaAtual.filter(perfil => perfil.id !== id)
+      setRecomendacoes((listaAtual) =>
+        listaAtual.filter((perfil) => perfil.id !== id)
       );
-    }catch(err){
+    } catch (err) {
       console.error("Erro ao seguir perfil:", err);
     } finally {
       setCarregando(false);
     }
-  }
+  };
 
   const handleBookmarkClick = async (profileId: number) => {
-      setSelectedProfileId(profileId);
-      setLoadingModal(true);
-      setModalOpen(true); // Garanta que este é o modal correto
-      setSelectedUser(null); // Fecha o modal de contato se estiver aberto
-      setNovoNomeLista(""); 
+    setSelectedProfileId(profileId);
+    setLoadingModal(true);
+    setModalOpen(true);
+    setSelectedUser(null);
+    setNovoNomeLista("");
 
-      const token = localStorage.getItem("token");
-      if (!token) { router.push("/login"); return; }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
 
-      try {
-          const res = await fetch("http://localhost:8080/api/listas/listarListas", {
-              headers: { "Authorization": `Bearer ${token}` }
-          });
-          if (!res.ok) throw new Error("Falha ao buscar listas");
-          const data = await res.json();
-          setMinhasListas(data);
-      } catch (err) {
-          console.error(err);
-      } finally {
-          setLoadingModal(false);
-      }
+    try {
+      const res = await fetch("http://localhost:8080/api/listas/listarListas", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Falha ao buscar listas");
+      const data = await res.json();
+      setMinhasListas(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingModal(false);
+    }
   };
 
   const handleAddToList = async (listaId: number) => {
-      const token = localStorage.getItem("token");
-      try {
-          // A API espera o ID do Pesquisador, que está no selectedProfileId
-          const res = await fetch(
-              `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`, 
-              {
-                  method: "POST",
-                  headers: { "Authorization": `Bearer ${token}` }
-              }
-          );
-          if (!res.ok) throw new Error("Falha ao adicionar perfil");
-          alert("Perfil salvo na lista!");
-          setModalOpen(false); 
-      } catch (err) {
-          console.error(err);
-          alert("Erro ao salvar perfil.");
-      }
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Falha ao adicionar perfil");
+      alert("Perfil salvo na lista!");
+      setModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar perfil.");
+    }
   };
 
   const handleCreateAndAddToList = async () => {
-      if (!novoNomeLista.trim()) return;
-      
-      const token = localStorage.getItem("token");
-      try {
-          const resCreate = await fetch("http://localhost:8080/api/listas/salvarLista", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-              body: JSON.stringify({ nomeLista: novoNomeLista })
-          });
-          if (!resCreate.ok) throw new Error("Falha ao criar lista");
-          
-          const novaLista = await resCreate.json();
-          await handleAddToList(novaLista.id);
-          setNovoNomeLista("");
-      } catch (err) {
-          console.error(err);
-          alert("Erro ao criar nova lista.");
-      }
+    if (!novoNomeLista.trim()) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      const resCreate = await fetch(
+        "http://localhost:8080/api/listas/salvarLista",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ nomeLista: novoNomeLista }),
+        }
+      );
+      if (!resCreate.ok) throw new Error("Falha ao criar lista");
+
+      const novaLista = await resCreate.json();
+      await handleAddToList(novaLista.id);
+      setNovoNomeLista("");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao criar nova lista.");
+    }
   };
 
   const limparBusca = () => {
@@ -509,7 +549,7 @@ export default function Home() {
                 value={termoBusca}
                 onChange={(e) => setTermoBusca(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 outline-none cursor-text"
+                className="flex-1 outline-none cursor-text text-gray-800"
               />
               {termoBusca && (
                 <button
@@ -545,7 +585,7 @@ export default function Home() {
                           <h3 className="font-semibold text-gray-900">
                             {resultado.nome}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-gray-700 mt-1">
                             {resultado.area}
                           </p>
                           {resultado.tags && resultado.tags.length > 0 && (
@@ -553,7 +593,7 @@ export default function Home() {
                               {resultado.tags.slice(0, 3).map((tag, idx) => (
                                 <span
                                   key={idx}
-                                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
+                                  className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full"
                                 >
                                   {tag}
                                 </span>
@@ -592,19 +632,17 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <div className="flex items-center bg-white px-3 py-2 rounded-lg shadow-md">
               <img
-                src="/images/user.png"
+                src={imagemPerfil}
                 alt="user"
-                className="w-8 rounded-full mr-2 cursor-pointer"
-                onClick={() =>
-                  router.push("meu-perfil")
-                }
+                className="w-8 h-8 rounded-full mr-2 cursor-pointer object-cover"
+                onClick={() => router.push("meu-perfil")}
               />
-              <span className="mr-2 cursor-default">{usuario.nome}</span>
+              <span className="mr-2 cursor-default text-gray-700">
+                {usuario.nome}
+              </span>
               <button
                 className="bg-[#990000] text-white px-3 py-1 rounded-md shadow-md hover:bg-red-700 cursor-pointer transition-colors"
-                onClick={() =>
-                  router.push("meu-perfil")
-                }
+                onClick={() => router.push("meu-perfil")}
               >
                 Ver Perfil
               </button>
@@ -659,14 +697,19 @@ export default function Home() {
                     {/* Botões de ação */}
                     <div className="absolute top-3 right-3 flex gap-2">
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
-                        <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" 
-                        onClick={() => handleBookmarkClick(item.usuarioId)}/>
+                        <Bookmark
+                          className="w-5 h-5 text-gray-500 hover:text-blue-600"
+                          onClick={() => handleBookmarkClick(item.usuarioId)}
+                        />
                       </button>
                       <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleFavorito(item.id)}/>
+                        <Heart
+                          className="w-5 h-5 text-gray-500 hover:text-red-600"
+                          onClick={() => handleFavorito(item.id)}
+                        />
                       </button>
                     </div>
-                
+
                     <img
                       src="/images/user.png"
                       alt="user"
@@ -760,7 +803,7 @@ export default function Home() {
       </div>
 
       {/* Modal de contato */}
-      {modalOpen && (
+      {modalOpen && selectedUser && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 cursor-pointer"
           onClick={() => setModalOpen(false)}
@@ -772,9 +815,11 @@ export default function Home() {
             <h2 className="text-xl font-bold text-[#990000] mb-4">
               Contato com {selectedUser?.nome}
             </h2>
-            <p className="mb-4 text-gray-600">
-              Aqui você pode abrir o chat ou enviar mensagem para{" "}
-              {selectedUser?.nome}.
+            <p className="mb-4 text-gray-700">
+              Entre em contato através do email:{" "}
+              <span className="font-semibold text-gray-700">
+                {selectedUser.email || "projetolaverse@gmail.com"}
+              </span>
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -791,12 +836,12 @@ export default function Home() {
         </div>
       )}
 
-      {modalOpen && (
-        <div 
+      {modalOpen && !selectedUser && (
+        <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
-          onClick={() => setModalOpen(false)} // Fecha este modal
+          onClick={() => setModalOpen(false)}
         >
-          <div 
+          <div
             className="bg-white p-6 rounded-lg shadow-lg w-96"
             onClick={(e) => e.stopPropagation()}
           >
@@ -806,7 +851,7 @@ export default function Home() {
                 <X className="w-5 h-5 text-gray-500 hover:text-black" />
               </button>
             </div>
-            
+
             {loadingModal ? (
               <p>Carregando listas...</p>
             ) : (
@@ -823,7 +868,9 @@ export default function Home() {
                     </button>
                   ))}
                   {minhasListas.length === 0 && (
-                    <p className="text-sm text-gray-500">Nenhuma lista customizada encontrada.</p>
+                    <p className="text-sm text-gray-500">
+                      Nenhuma lista customizada encontrada.
+                    </p>
                   )}
                 </div>
 
