@@ -857,7 +857,7 @@ export default function Home() {
             ) : (
               <>
                 {/* Lista de Listas Existentes */}
-                <div className="flex flex-col gap-2 max-h-40 overflow-y-auto mb-4">
+                <div className="flex flex-col text-gray-600 gap-2 max-h-40 overflow-y-auto mb-4">
                   {minhasListas.map((lista) => (
                     <button
                       key={lista.id}
@@ -881,7 +881,7 @@ export default function Home() {
                     placeholder="Criar nova lista..."
                     value={novoNomeLista}
                     onChange={(e) => setNovoNomeLista(e.target.value)}
-                    className="flex-1 w-full border px-3 py-2 rounded"
+                    className="flex-1 w-full border text-gray-600 px-3 py-2 rounded"
                   />
                   <button
                     onClick={handleCreateAndAddToList}

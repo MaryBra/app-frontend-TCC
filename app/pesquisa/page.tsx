@@ -367,7 +367,7 @@ export default function PaginaDeBusca() {
                                 value={termoBusca}
                                 onChange={(e) => setTermoBusca(e.target.value)}
                                 onKeyPress={handleKeyPress}
-                                className="flex-1 outline-none cursor-text"
+                                className="flex-1 text-gray-600 outline-none cursor-text"
                             />
                             {termoBusca && (
                                 <button
@@ -397,7 +397,7 @@ export default function PaginaDeBusca() {
                                 className="w-8 rounded-full mr-2 cursor-pointer"
                                 onClick={() => router.push("/meu-perfil")} // Ajuste a rota
                             />
-                            <span className="mr-2 cursor-default">{nome || "Carregando..."}</span>
+                            <span className="mr-2 text-gray-600 cursor-default">{nome || "Carregando..."}</span>
                             <button
                                 className="bg-[#990000] text-white px-3 py-1 rounded-md shadow-md hover:bg-red-700"
                                 onClick={() => router.push("/meu-perfil")} // Ajuste a rota
@@ -504,7 +504,7 @@ export default function PaginaDeBusca() {
                         ) : (
                             <>
                                 {/* Lista de Listas Existentes */}
-                                <div className="flex flex-col gap-2 max-h-40 overflow-y-auto mb-4">
+                                <div className="flex flex-col gap-2 text-gray-600 max-h-40 overflow-y-auto mb-4">
                                     {minhasListas.map((lista) => (
                                         <button
                                             key={lista.id}
@@ -526,7 +526,7 @@ export default function PaginaDeBusca() {
                                         placeholder="Criar nova lista..."
                                         value={novoNomeLista}
                                         onChange={(e) => setNovoNomeLista(e.target.value)}
-                                        className="flex-1 w-full border px-3 py-2 rounded"
+                                        className="flex-1 w-full border text-gray-600 px-3 py-2 rounded"
                                     />
                                     <button
                                         onClick={handleCreateAndAddToList}
