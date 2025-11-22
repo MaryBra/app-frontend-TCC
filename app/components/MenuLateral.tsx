@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import {
   Target,
@@ -9,9 +10,11 @@ import {
   Home,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ModalConfiguracoes from "./ModalConfiguracoes";
 
 export default function MenuLateral() {
   const router = useRouter();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -21,6 +24,7 @@ export default function MenuLateral() {
   };
 
   return (
+    <>
     <aside className="w-20 bg-white fixed left-0 top-0 h-screen flex flex-col items-center py-4 shadow-md z-40">
       {/* Logo */}
       <div className="mb-10 cursor-pointer">
@@ -56,10 +60,10 @@ export default function MenuLateral() {
         <hr className="border-gray-300 w-8 mx-auto" />
 
         <button
-          className="text-black hover:text-[#990000] transition-colors cursor-pointer"
-          onClick={() => router.push("/configuracoes")}
-          title="Configurações"
-        >
+            className="text-black hover:text-[#990000] transition-colors cursor-pointer"
+            onClick={() => setIsSettingsOpen(true)}
+            title="Configurações"
+          >
           <Settings size={28} />
         </button>
         <button
@@ -71,5 +75,11 @@ export default function MenuLateral() {
         </button>
       </nav>
     </aside>
+
+    <ModalConfiguracoes 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
+    </>
   );
 }
