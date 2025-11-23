@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ListPlus,
 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "../types/auth.types";
 
 export default function Home() {
   const router = useRouter();
@@ -140,8 +142,11 @@ export default function Home() {
   useEffect(() => {
     const handleBuscarUsuario = async () => {
       const token = localStorage.getItem("token");
-      const email = localStorage.getItem("email");
+  
+      const tokenContent = jwtDecode<TokenPayload>(token || "");
+      const email = tokenContent.sub
 
+      console.log(token)
       if (!token || !email) {
         router.push("/login");
         return;
