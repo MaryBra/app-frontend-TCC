@@ -11,8 +11,10 @@ import MenuLateral from "../components/MenuLateral";
 import FormField from "../components/FormField";
 import { ToggleSwitch } from "../components/ToggleSwitch";
 import { PerfilAcademicoTabs } from "../components/editar-perfil-pesquisador/PerfilAcademicoTabs";
-import { initialChanges, ChangesMap, mapFormacoesToChanges } from "../types/perfilAcademico.types";
+import { initialChanges, ChangesMap, mapFormacoesToChanges, ItemChange } from "../types/perfilAcademico.types";
 import { FormacoesSection } from "../components/editar-perfil-pesquisador/FormacoesSection";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { AtuacoesSection } from "../components/editar-perfil-pesquisador/AtuacoesSection";
 
 export default function EditProfileForm() {
   
@@ -26,16 +28,9 @@ export default function EditProfileForm() {
   const [activeTab, setActiveTab] = useState("Formações Acadêmicas");
   const [changes, setChanges] = useState<ChangesMap>(initialChanges);
 
+  const [isLoading, setIsLoading] = useState(true)
 
-  interface FormacaoAcademica {
-    id: number;
-    nivel: string;
-    instituicao: string;
-    curso: string;
-    anoInicio: number;
-    anoConclusao: number;
-    destaque: boolean;
-  }
+
 
   const [imagemPerfil, setImagemPerfil] = useState<string | null>(null);
   const [imagemAlterada, setImagemAlterada] = useState(false);
@@ -136,98 +131,132 @@ export default function EditProfileForm() {
     });
   };
 
-  const prepararFormacoesParaAPI = () => {
-  const formacoesAcademicas = changes["Formações Acadêmicas"];
+  function prepararItemParaEnvio(item: any) {
+    const novo = { ...item };
 
-  const adicionadas = formacoesAcademicas
-    .filter((item) => item.status === "adicionado")
-    .map((item) => item.data);
+    // Se o ID é UUID (não é número), remove antes de mandar
+    if (novo.id && isNaN(Number(novo.id))) {
+      delete novo.id;
+    }
 
-  const editadas = formacoesAcademicas
-    .filter((item) => item.status === "editado")
-    .map((item) => item.data);
+    // Converter anos de string -> number
+    if (novo.anoInicio !== undefined && novo.anoInicio !== null) {
+      novo.anoInicio = Number(novo.anoInicio);
+    }
 
-  const deletadas = formacoesAcademicas
-    .filter((item) => item.status === "deletado")
-    .map((item) => item.data.id);
+    if (novo.anoConclusao !== undefined && novo.anoConclusao !== null) {
+      novo.anoConclusao = Number(novo.anoConclusao);
+    }
 
+  return novo;
+}
+
+  function processarAba(changesArray: ItemChange[]) {
   return {
-    pesquisadorId: Number(pesquisadorId),
-    formacoesAcademicas: {
-      adicionadas,
-      editadas,
-      deletadas,
-    },
-  };
-};
+    adicionados: changesArray
+      .filter(i => i.status === "adicionado")
+      .map(i => prepararItemParaEnvio(i.data)),
 
-  const atualizarPerfilAcademico = (dados: any) => {
-      return fetch(
-      `http://localhost:8080/api/pesquisadores/${pesquisadorId}/perfilAcademico`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(dados),
-      }
-    ).then((res) => {
+    editados: changesArray
+      .filter(i => i.status === "editado")
+      .map(i => prepararItemParaEnvio(i.data)),
+
+    deletados: changesArray
+      .filter(i => i.status === "deletado")
+      .map(i => Number(i.data.id)), 
+  };
+}
+
+  function montarJsonFinal(changes: ChangesMap) {
+    return {
+      formacoesAcademicas: processarAba(changes["Formações Acadêmicas"]),
+      atuacoesProfissionais: processarAba(changes["Atuações Profissionais"]),
+      artigos: processarAba(changes["Artigos"]),
+      livros: processarAba(changes["Livros"]),
+      capitulos: processarAba(changes["Capítulos"]),
+      trabalhosEventos: processarAba(changes["Trabalho em Eventos"]),
+      projetosPesquisa: processarAba(changes["Projetos de Pesquisa"]),
+      premiacoes: processarAba(changes["Premiações"]),
+      orientacoes: processarAba(changes["Orientações"]),
+    };
+  }
+
+  const atualizarPerfilAcademico = (id: number, dados: any) => {
+    const payload = montarJsonFinal(dados)
+    console.log(payload)
+    return fetch(
+    `http://localhost:8080/api/perfilAcademico/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    }).then((res) => {
       if (!res.ok) {
-        throw new Error("Falha ao atualizar formações acadêmicas");
+        throw new Error("Falha ao atualizar perfil acadêmico");
       }
       return res;
     });
   }
 
   function addItem(tab: string, data: any) {
-    setChanges((prev) => ({
+    setChanges(prev => ({
       ...prev,
-      [tab]: [{ data, status: "added" }, ...prev[tab]], 
+      [tab]: [
+        {
+          data: { ...data, id: crypto.randomUUID() },
+          status: "adicionado"
+        },
+        ...prev[tab]
+      ]
     }));
   }
 
 
-    function editItem(tab: string, id: number | string, updatedData: any) {
-      setChanges((prev) => ({
-        ...prev,
-        [tab]: prev[tab].map((item) =>
-          item.data.id === id
-            ? { ...item, data: updatedData, status: item.status === "added" ? "added" : "edited" }
-            : item
-        ),
-      }));
-    }
+  function editItem(tab: string, id: number | string, updatedData: any) {
+    setChanges(prev => ({
+      ...prev,
+      [tab]: prev[tab].map(item =>
+        item.data.id === id
+          ? {
+              ...item,
+              data: updatedData,
+              status:
+                item.status === "adicionado" || item.status === "original"
+                  ? item.status === "adicionado" ? "adicionado" : "editado"
+                  : item.status
+            }
+          : item
+      )
+    }));
+  } 
 
     function deleteItem(tab: string, id: number | string) {
-      setChanges((prev) => ({
+      setChanges(prev => ({
         ...prev,
         [tab]: prev[tab]
-          .map((item) =>
+          .map(item =>
             item.data.id === id
-              ? item.status === "added"
-                ? null
-                : { ...item, status: "deleted" }
+              ? item.status === "adicionado"
+                  ? null 
+                  : { ...item, status: "deletado" }
               : item
           )
-          .filter(Boolean),
+          .filter(Boolean)
       }));
     }
 
   
 
   const handleSubmit = async () => {
-    const loginFoiAlterado = email !== originalLogin;
-
-     const formacoesParaEnviar = prepararFormacoesParaAPI();
-     console.log("=== JSON DAS FORMAÇÕES ACADÊMICAS ===");
-      console.log(JSON.stringify(formacoesParaEnviar, null, 2));
-      console.log("=====================================");
 
     try {
       const promessasDeAtualizacao = [
         atualizarTags(Number(idTag)),
         atualizarPesquisador(Number(pesquisadorId)),
+        atualizarPerfilAcademico(Number(pesquisadorId), changes)
       ];
 
       if (imagemAlterada) {
@@ -236,21 +265,8 @@ export default function EditProfileForm() {
 
       await Promise.all(promessasDeAtualizacao);
 
-      if (loginFoiAlterado) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuarioId");
-        localStorage.removeItem("tipo_usuario");
-
-        localStorage.setItem("email", email);
-
-        alert(
-          "Informações salvas! Como seu login foi alterado, por favor, faça login novamente."
-        );
-        router.push(`/login`);
-      } else {
-        alert("Informações salvas com sucesso!");
-        router.push(`/pesquisadores/${usuarioId}`);
-      }
+      router.push(`/pesquisadores/${usuarioId}`);
+      
     } catch (err) {
       console.error("Falha ao salvar as atualizações:", err);
       alert("Erro ao salvar. Por favor, tente novamente.");
@@ -299,11 +315,18 @@ export default function EditProfileForm() {
 
 
         if (dadosPesquisador?.formacoesAcademicas) {
-        setChanges((prev) => ({
-          ...prev,
-          "Formações Acadêmicas": mapFormacoesToChanges(dadosPesquisador.formacoesAcademicas),
-        }));
-  }
+          setChanges((prev) => ({
+            ...prev,
+            "Formações Acadêmicas": mapFormacoesToChanges(dadosPesquisador.formacoesAcademicas),
+          }));            
+        }
+
+        if (dadosPesquisador?.atuacoesProfissionais) {
+          setChanges((prev) => ({
+            ...prev,
+            "Atuações Profissionais": mapFormacoesToChanges(dadosPesquisador.atuacoesProfissionais),
+          }));            
+        }
 
         const res = await fetch(
           `http://localhost:8080/api/pesquisadores/${pesquisadorId}/imagem`,
@@ -324,11 +347,26 @@ export default function EditProfileForm() {
         setImagemPerfil(urlImagem);
       } catch (err) {
         console.error("Erro ao buscar perfil:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     handleDadosPesquisador();
   }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <MenuLateral />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4">
+            <LoadingSpinner></LoadingSpinner>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -514,12 +552,22 @@ export default function EditProfileForm() {
 
               {activeTab === "Formações Acadêmicas" && (
                 <FormacoesSection
-                  data={changes["Formações Acadêmicas"].filter((i) => i.status !== "deleted").map((i) => i.data)}
+                  data={changes["Formações Acadêmicas"].filter((i) => i.status !== "deletado").map((i) => i.data)}
                   onAdd={(data) => addItem("Formações Acadêmicas", data)}
                   onEdit={(id, data) => editItem("Formações Acadêmicas", id, data)}
                   onDelete={(id) => deleteItem("Formações Acadêmicas", id)}
                 />
               )}
+
+              {activeTab === "Atuações Profissionais" && (
+                <AtuacoesSection
+                  data={changes["Atuações Profissionais"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Atuações Profissionais", data)}
+                  onEdit={(id, data) => editItem("Atuações Profissionais", id, data)}
+                  onDelete={(id) => deleteItem("Atuações Profissionais", id)}
+                />
+              )}
+              
 
             </div>
           </section>

@@ -24,6 +24,7 @@ import {
 import { CardLinhaDoTempo } from "@/app/components/CardLinhaTempo";
 import { HeaderPesquisador } from "@/app/components/HeaderPesquisador";
 import { DadosPesquisador } from "@/app/types/pesquisador.types";
+import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 
 
 
@@ -86,12 +87,17 @@ export default function ProfileScreen() {
   }, [id]);
 
   if (carregando) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-xl">Carregando perfil...</p>
-      </div>
-    );
-  }
+      return (
+        <div className="flex h-screen bg-gray-100">
+          <MenuLateral />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="flex flex-col items-center space-y-4">
+              <LoadingSpinner></LoadingSpinner>
+            </div>
+          </main>
+        </div>
+      );
+    }
 
   // Erro
   if (erro || !dadosPesquisador) {

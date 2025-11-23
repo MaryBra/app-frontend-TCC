@@ -1,5 +1,5 @@
 
-type ItemChangeStatus = "adicionado" | "editado" | "deletado";
+type ItemChangeStatus = "original" | "adicionado" | "editado" | "deletado";
 
 export interface ItemChange {
   id?: number | string; 
@@ -28,6 +28,6 @@ export function mapFormacoesToChanges(formacoes: any[]): { data: any; status: It
   return formacoes.map((f) => ({
     id: f.id,
     data: f,
-    status: "editado",
+    status: "original",
   }));
 }
