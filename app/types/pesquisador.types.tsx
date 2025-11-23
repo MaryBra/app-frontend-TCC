@@ -4,6 +4,7 @@ export interface Usuario {
 
 export interface DadosPesquisador {
   pesquisador: Pesquisador;
+  endereco?: Endereco;
   formacoesAcademicas: FormacoesAcademicas[];
   atuacoesProfissionais: AtuacoesProfissionais[];
   artigos: Artigos[];
@@ -17,6 +18,15 @@ export interface DadosPesquisador {
   tags: {
     listaTags: string[];
   };
+}
+
+export interface Endereco {
+  id: number;
+  cidade: string;
+  telefone: string;
+  bairro: string;
+  pais: string;
+  email: string;
 }
 
 export interface Pesquisador {
@@ -33,6 +43,7 @@ export interface Pesquisador {
   paisNascimento: string;
   lattesId: number;
   imagemPerfil: string | null;
+  exibirContato: boolean;
 }
 
 export interface AtuacoesProfissionais {

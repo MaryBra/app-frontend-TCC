@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 interface ItemLinhaDoTempo {
@@ -48,12 +49,11 @@ export function CardLinhaDoTempo({
           </div>
           
           {podeEditar && (
-            <button 
-              onClick={onClickAdicionar}
-              className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm"
-            >
+          <Link href="/telaEdicaoPesquisador#perfil-academico" scroll={true}>
+            <button className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm">
               Adicionar Destaques
             </button>
+          </Link>
           )}
         </div>
       </div>

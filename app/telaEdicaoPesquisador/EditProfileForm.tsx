@@ -48,11 +48,15 @@ export default function EditProfileForm() {
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
   const [especialidade, setEspecialidade] = useState("");
+
+  const [idEndereco, setIdEndereco] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
-  const [originalLogin, setOriginalLogin] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [pais, setPais] = useState("");
+  const [bairro, setBairro] = useState("");
   const [nacionalidade, setNacionalidade] = useState("");
-  const [compartilharContato, setCompartilharContato] = useState(false);
+  const [exibirContato, setExibirContato] = useState(false);
 
 
   const addTag = () => {
@@ -68,7 +72,6 @@ export default function EditProfileForm() {
   const token = localStorage.getItem("token");
   const usuarioId = localStorage.getItem("usuarioId");
   const pesquisadorId = localStorage.getItem("idPesquisador");
-  const emailAtual = localStorage.getItem("email");
 
   const atualizarTags = (id: number) => {
     return fetch(`http://localhost:8080/api/tags/alterarTag/${id}`, {
@@ -94,6 +97,7 @@ export default function EditProfileForm() {
       sobrenome: sobrenome,
       nacionalidade: nacionalidade,
       ocupacao: especialidade,
+      exibirContato: exibirContato
     };
     return fetch(
       `http://localhost:8080/api/pesquisadores/alterarPesquisador/${id}`,
@@ -112,6 +116,34 @@ export default function EditProfileForm() {
       return res;
     });
   };
+
+  const atualizarEndereco = (id: number) => {
+    const dadosAtualizados = {
+      id: id,
+      cidade: cidade,
+      pais: pais,
+      bairro: bairro,
+      telefone: telefone,
+      email: email
+    };
+
+    return fetch(
+      `http://localhost:8080/api/enderecos/alterarEndereco/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dadosAtualizados),
+      }
+    ).then((res) => {
+      if (!res.ok) {
+        throw new Error("Falha ao atualizar pesquisador");
+      }
+      return res;
+    });
+  }
 
 
   const atualizarFoto = () => {
@@ -141,12 +173,10 @@ export default function EditProfileForm() {
   function prepararItemParaEnvio(item: any) {
     const novo = { ...item };
 
-    // Se o ID é UUID (não é número), remove antes de mandar
     if (novo.id && isNaN(Number(novo.id))) {
       delete novo.id;
     }
 
-    // Converter anos de string -> number
     if (novo.anoInicio !== undefined && novo.anoInicio !== null) {
       novo.anoInicio = Number(novo.anoInicio);
     }
@@ -263,6 +293,7 @@ export default function EditProfileForm() {
       const promessasDeAtualizacao = [
         atualizarTags(Number(idTag)),
         atualizarPesquisador(Number(pesquisadorId)),
+        atualizarEndereco(Number(idEndereco)),
         atualizarPerfilAcademico(Number(pesquisadorId), changes)
       ];
 
@@ -312,13 +343,34 @@ export default function EditProfileForm() {
         setNome(dadosPesquisador.pesquisador.nomePesquisador);
         setSobrenome(dadosPesquisador.pesquisador.sobrenome);
         setTags(dadosPesquisador.tags.listaTags);
-        setEmail(emailAtual);
-        setOriginalLogin(emailAtual);
+
+        // Informações de Contato:
+        if (dadosPesquisador.endereco) {
+          setIdEndereco(dadosPesquisador.endereco.id ?? "");
+          setEmail(dadosPesquisador.endereco.email ?? "");
+          setTelefone(dadosPesquisador.endereco.telefone ?? "");
+          setCidade(dadosPesquisador.endereco.cidade ?? "");
+          setPais(dadosPesquisador.endereco.pais ?? "");
+          setBairro(dadosPesquisador.endereco.bairro ?? "");
+          setExibirContato(dadosPesquisador.pesquisador.exibirContato)
+        } else {
+            setIdEndereco("");
+            setEmail("");
+            setTelefone("");
+            setCidade("");
+            setPais("");
+            setBairro("");
+        }
+
         setNacionalidade(dadosPesquisador.pesquisador.nacionalidade);
+
         if (dadosPesquisador.pesquisador.ocupacao != null) {
           setEspecialidade(dadosPesquisador.pesquisador.ocupacao);
         }
+        
         setIdTag(dadosPesquisador.tags.id);
+
+        console.log(dadosPesquisador)
 
 
         if (dadosPesquisador?.formacoesAcademicas) {
@@ -401,6 +453,12 @@ export default function EditProfileForm() {
         const blob = await res.blob();
         const urlImagem = URL.createObjectURL(blob);
         setImagemPerfil(urlImagem);
+
+        if (window.location.hash) {
+          const id = window.location.hash.replace("#", "");
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }
       } catch (err) {
         console.error("Erro ao buscar perfil:", err);
       } finally {
@@ -554,7 +612,7 @@ export default function EditProfileForm() {
 
 
           {/* Informações de Contato */}
-          <section className="mt-12 space-y-3">
+          <section className="mt-12 space-y-3" id="contato">
             <div>
               <h2 className="text-lg font-semibold text-gray-800">Informações de Contato</h2>
               <div className="w-full h-px bg-gray-300 mt-1"></div>
@@ -562,8 +620,8 @@ export default function EditProfileForm() {
 
             <ToggleSwitch
               label="Exibir minhas informações de contato para outros usuários"
-              value={compartilharContato}
-              onChange={(val) => setCompartilharContato(val)}
+              value={exibirContato}
+              onChange={(val) => setExibirContato(val)}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -572,8 +630,6 @@ export default function EditProfileForm() {
                   value={email}
                   onChange={(e: any) => setEmail(e.target.value)}
                   placeholder="Adicionar e-mail"
-                  required
-                  disabled
                 />
               
               <FormField
@@ -584,10 +640,17 @@ export default function EditProfileForm() {
               />
 
               <FormField
-                label="Endereço"
-                value={telefone}
-                onChange={(e: any) => setEmail(e.target.value)}
-                placeholder="Adicionar endereço"
+                label="Cidade"
+                value={cidade}
+                onChange={(e: any) => setCidade(e.target.value)}
+                placeholder="Adicionar cidade"
+              />
+
+              <FormField
+                label="País"
+                value={pais}
+                onChange={(e: any) => setPais(e.target.value)}
+                placeholder="Adicionar país"
               />
 
               <FormField
@@ -599,7 +662,7 @@ export default function EditProfileForm() {
             </div>
           </section>
 
-          <section className="mt-12 space-y-3">
+          <section className="mt-12 space-y-3" id="perfil-academico">
             <div>
               <h2 className="text-lg font-semibold text-gray-800">Editar Perfil Acadêmico</h2>
               <div className="w-full h-px bg-gray-300 mt-1"></div>

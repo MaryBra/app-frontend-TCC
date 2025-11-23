@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { BookmarkPlus, Heart, Pencil, X, ListPlus } from "lucide-react";
+import { BookmarkPlus, Heart, Pencil, X, ListPlus, MapPin, Map } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface HeaderPesquisadorProps {
@@ -17,6 +17,9 @@ interface HeaderPesquisadorProps {
   podeEditar: boolean;
   idPesquisador: number;
   usuarioId: number;
+  cidade?: string | null;
+  pais?: string | null;
+  nacionalidade?: string | null;
   onClickContato: () => void;
 }
 
@@ -34,6 +37,9 @@ export function HeaderPesquisador({
   podeEditar,
   idPesquisador,
   usuarioId,
+  cidade,
+  pais,
+  nacionalidade,
   onClickContato,
 }: HeaderPesquisadorProps) {
   const router = useRouter();
@@ -105,7 +111,6 @@ export function HeaderPesquisador({
 
     try {
         if (isFavorito) {
-            // Usa idPesquisador para remover favorito (Correto)
             const res = await fetch(
                 `http://localhost:8080/api/favoritos/excluirFavorito?usuarioId=${idUsuarioLogado}&pesquisadorId=${idPesquisador}`,
                 {
@@ -115,7 +120,6 @@ export function HeaderPesquisador({
             );
             if (res.ok) setIsFavorito(false);
         } else {
-            // Usa idPesquisador para adicionar favorito (Correto)
             const res = await fetch(`http://localhost:8080/api/favoritos/salvarFavorito`, {
                 method: "POST",
                 headers: {
@@ -155,7 +159,6 @@ export function HeaderPesquisador({
   const handleAddToList = async (listaId: number) => {
     const token = localStorage.getItem("token");
     try {
-        // 👇 CORREÇÃO AQUI: Usando 'usuarioId' em vez de 'idPesquisador'
         const res = await fetch(
             `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${usuarioId}`, 
             {
@@ -257,6 +260,30 @@ export function HeaderPesquisador({
               </span>
             ))}
           </div>
+
+          <div className="flex flex-wrap gap-4 mb-4 text-white/90 justify-center lg:justify-start items-center text-sm">
+
+          {(cidade || pais) && (
+            <div className="flex items-center gap-1">
+              <MapPin size={16} className="text-white" />
+              <span>
+                {cidade ? cidade : ""}
+                {cidade && pais ? ", " : ""}
+                {pais ? pais : ""}
+              </span>
+            </div>
+          )}
+
+          {nacionalidade && (
+            <div className="flex items-center gap-1">
+              <Map size={16} className="text-white" />
+              <span>{nacionalidade}</span>
+            </div>
+          )}
+
+        </div>
+
+          
 
           <div className="mt-auto flex gap-3 pt-4 justify-center lg:justify-start">
             <button

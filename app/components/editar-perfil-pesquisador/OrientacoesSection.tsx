@@ -107,11 +107,12 @@ export function OrientacoesSection({ data, onAdd, onEdit, onDelete }: any) {
                   required
                 />
 
-                <Dropdown
+                <FormField
                   label="Tipo de Orientação"
                   value={item.tipo}
-                  onChange={(value) => onEdit(item.id, { ...item, tipo: value })}
-                  options={opcoesTipo}
+                  onChange={(e) =>
+                    onEdit(item.id, { ...item, tipo: e.target.value })
+                  }
                   required
                 />
 
