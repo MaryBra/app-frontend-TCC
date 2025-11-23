@@ -25,6 +25,14 @@ export default function Inicio() {
     "contato",
   ];
 
+  const integrantes = [
+        { nome: "Mariana Braguim", foto: "/images/mariana.png" },
+        { nome: "Arthur Santos", foto: "/images/arthur.jpeg" },
+        { nome: "Giovanni Policene", foto: "/images/giovanni.jpg" },
+        { nome: "Matheus Hoerlle", foto: "/images/matheus.jpeg" },
+        { nome: "Lucas Carvalho", foto: "/images/lucas.jpeg" },
+      ];
+
   useEffect(() => {
     const observerOptions = {
       threshold: 0.3,
@@ -406,14 +414,9 @@ export default function Inicio() {
                 >
                   <h3 className="text-xl font-bold mb-4">Para Pesquisadores</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>• Aumente a visibilidade do seu trabalho</li>
-                    <li>• Encontre oportunidades de colaboração</li>
-                    <li>• Monetize seu conhecimento especializado</li>
-                    <li>
-                      • Conecte-se com empresas do seu setor e diversifique sua
-                      carreira
-                    </li>
-                    <li>• Amplie suas redes de pesquisa e suas áreas</li>
+                    <li>• Maior visibilidade fora do meio acadêmico;</li>
+                    <li>• Oportunidade de aplicar conhecimento em projetos reais;</li>
+                    <li>• Conexão com empresas que valorizam inovação.</li>
                   </ul>
                 </div>
 
@@ -427,17 +430,11 @@ export default function Inicio() {
                 >
                   <h3 className="text-xl font-bold mb-4">Para Empresas</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>• Tenha acesso rápido aos melhores especialistas</li>
+                    <li>• Acesso rápido a especialistas qualificados;</li>
                     <li>
-                      • Encontre soluções customizadas para problemas
-                      específicos
+                      • Redução de tempo na busca por profissionais;
                     </li>
-                    <li>• Acelere processos de inovação</li>
-                    <li>• Reduza custos com consultorias externas</li>
-                    <li>
-                      • Mantenha-se atualizado com as últimas pesquisas e
-                      inovações
-                    </li>
+                    <li>• Apoio à inovação e pesquisa de alto nível.</li>
                   </ul>
                 </div>
               </div>
@@ -483,7 +480,7 @@ export default function Inicio() {
             >
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/3ZnC4DTshc4"
+                src="https://www.youtube.com/embed/mTZFA9_V2Qk?si=CM5RjuAxd0srXLoM"
                 title="YouTube video"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -545,10 +542,17 @@ export default function Inicio() {
             style={{ transitionDelay: "300ms" }}
           >
             <div className="flex justify-center space-x-8">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="text-center group">
-                  <div className="w-24 h-24 bg-white rounded-full mx-auto mb-2 group-hover:scale-110 transition-transform duration-300"></div>
-                  <p className="text-white text-sm">Integrante {i}</p>
+              {integrantes.map((item, index) => (
+                <div key={index} className="text-center group">
+                  <div className="w-24 h-24 rounded-full mx-auto mb-2 overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                    <img
+                      src={item.foto}
+                      alt={item.nome}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <p className="text-white text-sm">{item.nome}</p>
                 </div>
               ))}
             </div>
@@ -580,8 +584,14 @@ export default function Inicio() {
               <div className="flex justify-center space-x-8">
                 {[1].map((i) => (
                   <div key={i} className="text-center group">
-                    <div className="w-24 h-24 bg-white rounded-full mx-auto mb-2 group-hover:scale-110 transition-transform duration-300"></div>
-                    <p className="text-white text-sm">Orientador</p>
+                    <div className="w-24 h-24 bg-white rounded-full mx-auto mb-2 overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                      <img
+                        src={"/images/aryel.png"}
+                        alt="aryel"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-white text-sm">Orientador - Aryel</p>
                   </div>
                 ))}
               </div>
