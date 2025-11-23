@@ -2,28 +2,30 @@
 
 import { useState, useEffect } from "react";
 import {
-  Trash2,
-  Star,
   Search,
   UploadCloud,
-  Settings,
-  Target,
-  LogOut,
-  LayoutDashboard,
   UserRound,
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import MenuLateral from "../components/MenuLateral";
+import FormField from "../components/FormField";
+import { ToggleSwitch } from "../components/ToggleSwitch";
+import { PerfilAcademicoTabs } from "../components/editar-perfil-pesquisador/PerfilAcademicoTabs";
+import { initialChanges, ChangesMap, mapFormacoesToChanges } from "../types/perfilAcademico.types";
+import { FormacoesSection } from "../components/editar-perfil-pesquisador/FormacoesSection";
 
 export default function EditProfileForm() {
-  // estado de exemplo
+  
   const searchParams = useSearchParams();
   const tagsParam = searchParams.get("tags");
   const [idTag, setIdTag] = useState("");
   const initialTags = tagsParam ? tagsParam.split(",") : [];
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
+
+  const [activeTab, setActiveTab] = useState("Formações Acadêmicas");
+  const [changes, setChanges] = useState<ChangesMap>(initialChanges);
+
 
   interface FormacaoAcademica {
     id: number;
@@ -39,28 +41,17 @@ export default function EditProfileForm() {
   const [imagemAlterada, setImagemAlterada] = useState(false);
   const [arquivoImagem, setArquivoImagem] = useState<File | null>(null);
 
-  const [academics, setAcademics] = useState<FormacaoAcademica[]>([]);
-
-  const [novaFormacaoNivel, setNovaFormacaoNivel] = useState("");
-  const [novaFormacaoInstituicao, setNovaFormacaoInstituicao] = useState("");
-  const [novaFormacaoCurso, setNovaFormacaoCurso] = useState("");
-  const [novaFormacaoStatus, setNovaFormacaoStatus] = useState("Concluído");
-  const [novaFormacaoAnoInicio, setNovaFormacaoAnoInicio] = useState("");
-  const [novaFormacaoAnoConclusao, setNovaFormacaoAnoConclusao] = useState("");
-  const [novaFormacaoTituloTrabalho, setNovaFormacaoTituloTrabalho] =
-    useState("");
-  const [novaFormacaoOrientador, setNovaFormacaoOrientador] = useState("");
-  const [novaFormacaoDestaque, setNovaFormacaoDestaque] = useState(false);
-
   const router = useRouter();
 
-  const [nome, setNome] = useState("Nome");
-  const [sobrenome, setSobrenome] = useState("Sobrenome");
-  const [especialidade, setEspecialidade] = useState("Especialidade");
-  const [telefone, setTelefone] = useState("(41) 99999‑9999");
-  const [email, setEmail] = useState("projetolaverse@gmail.com");
+  const [nome, setNome] = useState("");
+  const [sobrenome, setSobrenome] = useState("");
+  const [especialidade, setEspecialidade] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
   const [originalLogin, setOriginalLogin] = useState("");
-  const [nacionalidade, setNacionalidade] = useState("Brasileiro");
+  const [nacionalidade, setNacionalidade] = useState("");
+  const [compartilharContato, setCompartilharContato] = useState(false);
+
 
   const addTag = () => {
     if (newTag.trim()) {
@@ -68,10 +59,10 @@ export default function EditProfileForm() {
       setNewTag("");
     }
   };
+  
   const removeTag = (i: number) =>
     setTags((t) => t.filter((_, idx) => idx !== i));
-  const removeAcad = (id: number) =>
-    setAcademics((a) => a.filter((x) => x.id !== id));
+
   const token = localStorage.getItem("token");
   const usuarioId = localStorage.getItem("usuarioId");
   const pesquisadorId = localStorage.getItem("idPesquisador");
@@ -120,23 +111,6 @@ export default function EditProfileForm() {
     });
   };
 
-  const atualizarLogin = () => {
-    return fetch(`http://localhost:8080/api/usuarios/alterarLogin`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        novoLogin: email,
-      }),
-    }).then((res) => {
-      if (!res.ok) {
-        throw new Error("Falha ao atualizar login");
-      }
-      return res;
-    });
-  };
 
   const atualizarFoto = () => {
     if (!arquivoImagem) {
@@ -162,71 +136,99 @@ export default function EditProfileForm() {
     });
   };
 
-  const adicionarFormacao = async (e) => {
-    e.preventDefault(); // Impede o recarregamento da página se for um <form>
+  const prepararFormacoesParaAPI = () => {
+  const formacoesAcademicas = changes["Formações Acadêmicas"];
 
-    const novaFormacao = {
-      nivel: novaFormacaoNivel,
-      instituicao: novaFormacaoInstituicao,
-      curso: novaFormacaoCurso,
-      status: novaFormacaoStatus,
-      anoInicio: parseInt(novaFormacaoAnoInicio) || null,
-      anoConclusao: parseInt(novaFormacaoAnoConclusao) || null,
-      tituloTrabalho: novaFormacaoTituloTrabalho,
-      orientador: novaFormacaoOrientador,
-      destaque: novaFormacaoDestaque,
-    };
+  const adicionadas = formacoesAcademicas
+    .filter((item) => item.status === "adicionado")
+    .map((item) => item.data);
 
-    try {
-      const res = await fetch(
-        `http://localhost:8080/api/formacoes/salvarFormacao`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(novaFormacao),
-        }
-      );
+  const editadas = formacoesAcademicas
+    .filter((item) => item.status === "editado")
+    .map((item) => item.data);
 
-      if (!res.ok) {
-        throw new Error("Falha ao salvar formação acadêmica");
-      }
+  const deletadas = formacoesAcademicas
+    .filter((item) => item.status === "deletado")
+    .map((item) => item.data.id);
 
-      const formacaoSalva = await res.json();
-
-      setAcademics((listaAnterior) => [...listaAnterior, formacaoSalva]);
-
-      alert("Formação salva com sucesso!");
-
-      setNovaFormacaoNivel("");
-      setNovaFormacaoInstituicao("");
-      setNovaFormacaoCurso("");
-      setNovaFormacaoStatus("Concluído");
-      setNovaFormacaoAnoInicio("");
-      setNovaFormacaoAnoConclusao("");
-      setNovaFormacaoTituloTrabalho("");
-      setNovaFormacaoOrientador("");
-      setNovaFormacaoDestaque(false);
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao salvar formação.");
-    }
+  return {
+    pesquisadorId: Number(pesquisadorId),
+    formacoesAcademicas: {
+      adicionadas,
+      editadas,
+      deletadas,
+    },
   };
+};
+
+  const atualizarPerfilAcademico = (dados: any) => {
+      return fetch(
+      `http://localhost:8080/api/pesquisadores/${pesquisadorId}/perfilAcademico`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dados),
+      }
+    ).then((res) => {
+      if (!res.ok) {
+        throw new Error("Falha ao atualizar formações acadêmicas");
+      }
+      return res;
+    });
+  }
+
+  function addItem(tab: string, data: any) {
+    setChanges((prev) => ({
+      ...prev,
+      [tab]: [{ data, status: "added" }, ...prev[tab]], 
+    }));
+  }
+
+
+    function editItem(tab: string, id: number | string, updatedData: any) {
+      setChanges((prev) => ({
+        ...prev,
+        [tab]: prev[tab].map((item) =>
+          item.data.id === id
+            ? { ...item, data: updatedData, status: item.status === "added" ? "added" : "edited" }
+            : item
+        ),
+      }));
+    }
+
+    function deleteItem(tab: string, id: number | string) {
+      setChanges((prev) => ({
+        ...prev,
+        [tab]: prev[tab]
+          .map((item) =>
+            item.data.id === id
+              ? item.status === "added"
+                ? null
+                : { ...item, status: "deleted" }
+              : item
+          )
+          .filter(Boolean),
+      }));
+    }
+
+  
 
   const handleSubmit = async () => {
     const loginFoiAlterado = email !== originalLogin;
+
+     const formacoesParaEnviar = prepararFormacoesParaAPI();
+     console.log("=== JSON DAS FORMAÇÕES ACADÊMICAS ===");
+      console.log(JSON.stringify(formacoesParaEnviar, null, 2));
+      console.log("=====================================");
 
     try {
       const promessasDeAtualizacao = [
         atualizarTags(Number(idTag)),
         atualizarPesquisador(Number(pesquisadorId)),
       ];
-
-      if (loginFoiAlterado) {
-        promessasDeAtualizacao.push(atualizarLogin());
-      }
 
       if (imagemAlterada) {
         promessasDeAtualizacao.push(atualizarFoto());
@@ -295,7 +297,13 @@ export default function EditProfileForm() {
         }
         setIdTag(dadosPesquisador.tags.id);
 
-        setAcademics(dadosPesquisador.formacoesAcademicas);
+
+        if (dadosPesquisador?.formacoesAcademicas) {
+        setChanges((prev) => ({
+          ...prev,
+          "Formações Acadêmicas": mapFormacoesToChanges(dadosPesquisador.formacoesAcademicas),
+        }));
+  }
 
         const res = await fetch(
           `http://localhost:8080/api/pesquisadores/${pesquisadorId}/imagem`,
@@ -330,10 +338,11 @@ export default function EditProfileForm() {
       <main className="flex-1 overflow-y-auto p-8">
         <div className="max-w-4xl mx-auto bg-transparent rounded-lg p-8 space-y-8">
           {/* Seção de Avatar + Campos */}
-          <div className="flex flex-col md:flex-row md:items-start md:space-x-12">
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-12">
+
             {/* Avatar */}
-            <div className="flex-shrink-0 flex flex-col items-center -mt-4">
-              <div className="w-32 h-32 rounded-full relative bg-gray-200">
+            <div className="flex-shrink-0 flex flex-col items-center">
+              <div className="w-40 h-40 rounded-full relative bg-gray-200 shadow-md">
                 {imagemPerfil ? (
                   <img
                     src={imagemPerfil}
@@ -341,7 +350,7 @@ export default function EditProfileForm() {
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <UserRound size={100} className="text-gray-400 m-auto mt-6" />
+                  <UserRound size={120} className="text-gray-400 m-auto mt-7" />
                 )}
 
                 <input
@@ -361,366 +370,191 @@ export default function EditProfileForm() {
                 />
 
                 <button
-                  onClick={() =>
-                    document.getElementById("upload-foto")?.click()
-                  }
+                  onClick={() => document.getElementById("upload-foto")?.click()}
                   className="absolute -bottom-2 -right-2 bg-red-700 text-white p-2 rounded-full shadow hover:bg-red-800 transition-colors"
                 >
-                  <UploadCloud size={16} />
+                  <UploadCloud size={18} />
                 </button>
               </div>
             </div>
 
-            {/* Título + Campos de Nome e Especialidade */}
-            <div className="flex-1 space-y-4">
-              <h1 className="text-xl font-semibold text-red-700">
-                Editar Perfil
-              </h1>
-              <div>
-                <label className="block text-sm font-medium text-gray-800">
-                  Nome
-                </label>
-                <input
-                  type="text"
+            {/* Campos */}
+            <div className="flex-1 space-y-4 w-full">
+
+              <h1 className="text-xl font-semibold text-red-700">Editar Perfil</h1>
+
+                <FormField
+                  label="Nome"
                   value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
+                  onChange={(e: any) => setNome(e.target.value)}
+                  placeholder="Adicionar nome"
+                  required
                 />
-                <label className="block text-sm font-medium text-gray-800">
-                  Sobrenome
-                </label>
-                <input
-                  type="text"
+
+                <FormField
+                  label="Sobrenome"
                   value={sobrenome}
-                  onChange={(e) => setSobrenome(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
+                  onChange={(e: any) => setSobrenome(e.target.value)}
+                  placeholder="Adicionar sobrenome"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-800">
-                  Especialidade
-                </label>
-                <input
-                  type="text"
+
+                <FormField
+                  label="Ocupação/Especialidade"
                   value={especialidade}
-                  onChange={(e) => setEspecialidade(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
+                  onChange={(e: any) => setEspecialidade(e.target.value)}
+                  placeholder="Adicionar ocupação ou especialidade"
                 />
-              </div>
-            </div>
+                </div>
           </div>
 
+
           {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Tags
-            </label>
-            <div className="flex items-center space-x-2 mb-2">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Adicionar tag"
-                className="w-90 border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-              />
+          <section className="mt-12 space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Tags</h2>
+              <div className="w-full h-px bg-gray-300 mt-1"></div>
+            </div>
+
+            {/* Campo de adicionar tag */}
+            <div className="flex items-center space-x-2">
+              <div className="flex-1">
+
+                <FormField
+                  label=""
+                  value={newTag}
+                  onChange={(e: any) => setNewTag(e.target.value)}
+                  placeholder="Adicionar tag"
+                />
+              </div>
+
               <button
                 onClick={addTag}
-                className="bg-red-700 text-white p-2 rounded shadow"
+                className="bg-red-700 text-white p-2 rounded-xl shadow hover:bg-red-800 transition"
               >
-                <Search size={16} />
+                <Search size={18} />
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex flex-wrap gap-3">
               {tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="bg-gray-100 border border-gray-300 rounded-full px-3 py-1 flex items-center space-x-1"
-                >
-                  <span className="text-sm text-gray-700">{tag}</span>
-                  <button onClick={() => removeTag(i)}>
-                    <Trash2 size={14} className="text-red-700" />
+                <div key={i} className="relative">
+                  <span
+                    className="bg-gray-100 border border-gray-300 rounded-full px-4 py-1 pr-6 text-sm text-gray-700 shadow-sm block relative"
+                  >
+                    {tag}
+                  </span>
+
+                  <button
+                    onClick={() => removeTag(i)}
+                    className="absolute -top-1.5 -right-1.5 bg-red-700 text-red rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none shadow hover:bg-red-800 transition"
+                  >
+                    ×
                   </button>
-                </span>
+                </div>
               ))}
             </div>
           </div>
 
+        </section>
+
+
           {/* Informações de Contato */}
-          <section className="space-y-4">
-            <h2 className="text-lg font-medium text-gray-700">
-              Informações de Contato
-            </h2>
+          <section className="mt-12 space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Informações de Contato</h2>
+              <div className="w-full h-px bg-gray-300 mt-1"></div>
+            </div>
+
+            <ToggleSwitch
+              label="Exibir minhas informações de contato para outros usuários"
+              value={compartilharContato}
+              onChange={(val) => setCompartilharContato(val)}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-800">Email</label>
-                <input
-                  type="email"
+                <FormField
+                  label="E-mail"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
+                  onChange={(e: any) => setEmail(e.target.value)}
+                  placeholder="Adicionar e-mail"
+                  required
+                  disabled
                 />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-800">Telefone</label>
-                <input
-                  type="text"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-800">Endereço</label>
-                <input
-                  type="text"
-                  defaultValue="Curitiba, PR"
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-800">
-                  Nacionalidade
-                </label>
-                <input
-                  type="text"
-                  value={nacionalidade}
-                  onChange={(e) => setNacionalidade(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                />
-              </div>
+              
+              <FormField
+                label="Telefone"
+                value={telefone}
+                onChange={(e: any) => setTelefone(e.target.value)}
+                placeholder="Adicionar telefone"
+              />
+
+              <FormField
+                label="Endereço"
+                value={telefone}
+                onChange={(e: any) => setEmail(e.target.value)}
+                placeholder="Adicionar endereço"
+              />
+
+              <FormField
+                label="Nacionalidade"
+                value={nacionalidade}
+                onChange={(e: any) => setNacionalidade(e.target.value)}
+                placeholder="Adicionar nacionalidade"
+              />
             </div>
           </section>
 
-          <section className="space-y-4">
-            <h2 className="text-lg font-medium text-gray-700">
-              Formação Acadêmica
-            </h2>
+          <section className="mt-12 space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Editar Perfil Acadêmico</h2>
+              <div className="w-full h-px bg-gray-300 mt-1"></div>
 
-            {/* --- NOVO FORMULÁRIO DE ADIÇÃO --- */}
-            <form
-              onSubmit={adicionarFormacao}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4"
-            >
-              <h3 className="font-semibold text-gray-800">
-                Adicionar Nova Formação
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-800">
-                    Nível (ex: Graduação)
-                  </label>
-                  <input
-                    type="text"
-                    value={novaFormacaoNivel}
-                    onChange={(e) => setNovaFormacaoNivel(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-800">
-                    Instituição
-                  </label>
-                  <input
-                    type="text"
-                    value={novaFormacaoInstituicao}
-                    onChange={(e) => setNovaFormacaoInstituicao(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-800">Curso</label>
-                  <input
-                    type="text"
-                    value={novaFormacaoCurso}
-                    onChange={(e) => setNovaFormacaoCurso(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-800">Status</label>
-                  <select
-                    value={novaFormacaoStatus}
-                    onChange={(e) => setNovaFormacaoStatus(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                  >
-                    <option value="Concluído">Concluído</option>
-                    <option value="Em andamento">Em andamento</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-800">
-                    Ano Início
-                  </label>
-                  <input
-                    type="number"
-                    value={novaFormacaoAnoInicio}
-                    onChange={(e) => setNovaFormacaoAnoInicio(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-800">
-                    Ano Conclusão
-                  </label>
-                  <input
-                    type="number"
-                    value={novaFormacaoAnoConclusao}
-                    onChange={(e) =>
-                      setNovaFormacaoAnoConclusao(e.target.value)
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm text-gray-800">
-                    Título do Trabalho (TCC, Tese, etc.)
-                  </label>
-                  <input
-                    type="text"
-                    value={novaFormacaoTituloTrabalho}
-                    onChange={(e) =>
-                      setNovaFormacaoTituloTrabalho(e.target.value)
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm text-gray-800">
-                    Orientador
-                  </label>
-                  <input
-                    type="text"
-                    value={novaFormacaoOrientador}
-                    onChange={(e) => setNovaFormacaoOrientador(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={novaFormacaoDestaque}
-                    onChange={(e) => setNovaFormacaoDestaque(e.target.checked)}
-                    id="destaque"
-                    className="h-4 w-4 text-red-700 border-gray-300 rounded"
-                  />
-                  <label htmlFor="destaque" className="text-sm text-gray-800">
-                    Marcar como destaque
-                  </label>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
-                >
-                  Adicionar Formação
-                </button>
-              </div>
-            </form>
+              <PerfilAcademicoTabs active={activeTab} onChange={setActiveTab} />
 
-            <div className="space-y-4">
-              {academics.map((acad) => (
-                <div
-                  key={acad.id}
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-4"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-start">
-                    <div className="md:col-span-3">
-                      <label className="block text-sm text-gray-800">
-                        Nível
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={acad.nivel}
-                        className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                        readOnly
-                      />
-                    </div>
+              {activeTab === "Formações Acadêmicas" && (
+                <FormacoesSection
+                  data={changes["Formações Acadêmicas"].filter((i) => i.status !== "deleted").map((i) => i.data)}
+                  onAdd={(data) => addItem("Formações Acadêmicas", data)}
+                  onEdit={(id, data) => editItem("Formações Acadêmicas", id, data)}
+                  onDelete={(id) => deleteItem("Formações Acadêmicas", id)}
+                />
+              )}
 
-                    <div className="md:col-span-3">
-                      <label className="block text-sm text-gray-800">
-                        Curso
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={acad.curso}
-                        className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                        readOnly
-                      />
-                    </div>
-
-                    <div className="md:col-span-1 flex flex-col items-center justify-start space-y-2">
-                      <button
-                        onClick={() => removeAcad(acad.id)}
-                        className="bg-red-700 text-white p-2 rounded-full hover:bg-red-800 transition"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      <button className="text-gray-400 hover:text-gray-600 p-2 rounded-full transition">
-                        <Star size={18} />
-                      </button>
-                    </div>
-
-                    <div className="md:col-span-4">
-                      <label className="block text-sm text-gray-800">
-                        Instituição
-                      </label>
-                      <input
-                        defaultValue={acad.instituicao}
-                        className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                        readOnly
-                      />
-                    </div>
-
-                    <div className="md:col-span-1">
-                      <label className="block text-sm text-gray-800">
-                        Início
-                      </label>
-                      <input
-                        defaultValue={acad.anoInicio}
-                        className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                        readOnly
-                      />
-                    </div>
-
-                    <div className="md:col-span-1">
-                      <label className="block text-sm text-gray-800">
-                        Conclusão
-                      </label>
-                      <input
-                        defaultValue={acad.anoConclusao}
-                        className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700"
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </section>
 
           {/* Botões de Ação */}
-          <div className="flex justify-end space-x-4 mt-4">
-            <button
-              className="px-6 py-2 border border-gray-400 rounded text-gray-700 hover:bg-gray-50"
-              onClick={() => {
-                router.push(`/pesquisadores/${usuarioId}`);
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              className="px-6 py-2 bg-red-700 text-white rounded shadow hover:bg-red-800"
-              onClick={() => {
-                handleSubmit();
-              }}
-            >
-              Gravar
-            </button>
-          </div>
+          {/* Botões fixos no canto inferior direito, um pouco mais à esquerda */}
+<div className="fixed bottom-0 right-0 flex space-x-4 p-4 z-50 mr-8">
+  <button
+    className="
+      w-48 px-4 py-3 
+      border border-gray-400 rounded-lg shadow-md transition 
+      text-gray-700 hover:bg-gray-50
+    "
+    onClick={() => {
+      router.push(`/pesquisadores/${usuarioId}`);
+    }}
+  >
+    Cancelar
+  </button>
+
+  <button
+    className="
+      w-48 px-4 py-3 
+      text-white rounded-lg shadow-md transition 
+      bg-[#990000] hover:bg-red-700
+    "
+    onClick={() => {
+      handleSubmit();
+    }}
+  >
+    Salvar
+  </button>
+</div>
+
+
         </div>
       </main>
     </div>
