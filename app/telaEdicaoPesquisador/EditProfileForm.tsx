@@ -32,7 +32,9 @@ export default function EditProfileForm() {
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
 
-  const [activeTab, setActiveTab] = useState("Formações Acadêmicas");
+  const tabParam = searchParams.get("tab");
+
+  const [activeTab, setActiveTab] = useState("");
   const [changes, setChanges] = useState<ChangesMap>(initialChanges);
 
   const [isLoading, setIsLoading] = useState(true)
@@ -307,7 +309,6 @@ export default function EditProfileForm() {
       
     } catch (err) {
       console.error("Falha ao salvar as atualizações:", err);
-      alert("Erro ao salvar. Por favor, tente novamente.");
     }
   };
 
@@ -454,11 +455,14 @@ export default function EditProfileForm() {
         const urlImagem = URL.createObjectURL(blob);
         setImagemPerfil(urlImagem);
 
+
+
         if (window.location.hash) {
           const id = window.location.hash.replace("#", "");
           const el = document.getElementById(id);
           if (el) el.scrollIntoView({ behavior: "smooth" });
         }
+
       } catch (err) {
         console.error("Erro ao buscar perfil:", err);
       } finally {
@@ -466,8 +470,15 @@ export default function EditProfileForm() {
       }
     };
 
+    const t = searchParams.get("tab");
+    if (t) {
+      setActiveTab(t);
+    }
+
     handleDadosPesquisador();
-  }, [router]);
+
+    
+  }, [router, searchParams]);
 
   if (isLoading) {
     return (

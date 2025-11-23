@@ -182,6 +182,7 @@ export default function ProfileScreen() {
                 })
               )}
               podeEditar={podeEditar}
+              tabName="Formações Acadêmicas"
             />
           </div>
 
@@ -207,6 +208,7 @@ export default function ProfileScreen() {
                 })
               )}
               podeEditar={podeEditar}
+              tabName="Atuações Profissionais"
             />
 
             {/* Card 4 - Artigos Publicados */}
@@ -227,6 +229,7 @@ export default function ProfileScreen() {
                 destaque: artigo.destaque
               }))}
               podeEditar={podeEditar}
+              tabName="Artigos"
             />
           </div>
 
@@ -250,6 +253,7 @@ export default function ProfileScreen() {
                 destaque:livro.destaque
               }))}
               podeEditar={podeEditar}
+              tabName="Livros"
             />
 
             {/* Card 6 - Capítulos Publicados */}
@@ -271,6 +275,7 @@ export default function ProfileScreen() {
                 destaque: capitulo.destaque
               }))}
               podeEditar={podeEditar}
+              tabName="Capítulos"
             />
           </div>
 
@@ -295,6 +300,7 @@ export default function ProfileScreen() {
                 })
               )}
               podeEditar={podeEditar}
+              tabName="Trabalho em Eventos"
             />
 
             {/* Card 8 - Projetos de Pesquisa */}
@@ -316,6 +322,7 @@ export default function ProfileScreen() {
                 })
               )}
               podeEditar={podeEditar}
+              tabName="Projetos de Pesquisa"
             />
           </div>
 
@@ -336,6 +343,7 @@ export default function ProfileScreen() {
                 destaque: premiacao.destaque
               }))}
               podeEditar={podeEditar}
+              tabName="Premiações"
             />
 
             {/* Card 10 - Orientações */}
@@ -359,6 +367,7 @@ export default function ProfileScreen() {
                 })
               )}
               podeEditar={podeEditar}
+              tabName="Orientações"
             />
           </div>
         </div>

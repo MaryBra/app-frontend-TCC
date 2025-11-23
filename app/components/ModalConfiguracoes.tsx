@@ -108,7 +108,6 @@ export default function ModalConfiguracoes({ isOpen, onClose }: SettingsModalPro
     const usuarioId = localStorage.getItem("usuarioId");
 
     if (!token || !usuarioId) {
-        alert("Erro de autenticação. Faça login novamente.");
         return;
     }
 
@@ -123,7 +122,7 @@ export default function ModalConfiguracoes({ isOpen, onClose }: SettingsModalPro
         });
 
         if (res.ok) {
-            alert("Conta excluída com sucesso.");
+            
             localStorage.clear();
             onClose();
             router.push("/");
@@ -133,7 +132,6 @@ export default function ModalConfiguracoes({ isOpen, onClose }: SettingsModalPro
 
     } catch (error) {
         console.error(error);
-        alert("Ocorreu um erro ao tentar excluir a conta.");
     } finally {
         setLoading(false);
     }

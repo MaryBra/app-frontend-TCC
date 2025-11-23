@@ -516,7 +516,7 @@ export default function Home() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-4 text-center text-gray-500">Nenhum resultado encontrado</div>
+                  <div className="p-4 text-center text-gray-700">Nenhum resultado encontrado</div>
                 )}
               </div>
             )}

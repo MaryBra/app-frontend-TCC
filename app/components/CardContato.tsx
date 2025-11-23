@@ -132,7 +132,7 @@ export function CardContato({
                     <button className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50">
                         Configurar Informações de Contato
                     </button>
-                </Link>
+              </Link>
             </div>
           )}
 

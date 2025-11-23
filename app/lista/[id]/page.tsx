@@ -154,7 +154,6 @@ export default function ListaPage() {
           
       } catch (err) {
           console.error("Erro ao remover perfil:", err);
-          alert("Erro ao remover perfil.");
       }
   };
 
@@ -195,7 +194,6 @@ export default function ListaPage() {
       setShowModal(false); 
     } catch (err) {
       console.error(err);
-      alert("Erro ao salvar nome da lista.");
     }
   };
 
@@ -219,11 +217,9 @@ export default function ListaPage() {
         );
         if (!response.ok) throw new Error("Falha ao excluir a lista");
         
-        alert(`Lista "${nomeLista}" excluída!`);
         router.push("/gerenciarListas"); 
       } catch (err) {
         console.error(err);
-        alert("Erro ao excluir a lista.");
       }
     }
   };

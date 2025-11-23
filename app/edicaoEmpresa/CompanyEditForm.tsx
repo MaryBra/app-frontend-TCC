@@ -168,7 +168,6 @@ export default function CompanyEditForm() {
                estado: data.uf || ""
            }));
            } else {
-           alert("CEP não encontrado!");
            }
        } catch (err) {
            console.error("Erro ao buscar CEP:", err);
@@ -207,7 +206,6 @@ export default function CompanyEditForm() {
 
         } catch (error) {
             console.error(error);
-            alert("Erro ao salvar as alterações.");
         } finally {
             setLoading(false);
         }

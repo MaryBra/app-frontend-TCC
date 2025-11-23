@@ -61,7 +61,6 @@ export default function CompanyRegistration() {
           setCidade(data.localidade || ""); // <- cidade
           setEstado(data.uf || ""); // <- estado
         } else {
-          alert("CEP não encontrado!");
         }
       } catch (error) {
         console.error("Erro ao buscar CEP:", error);
@@ -108,7 +107,6 @@ export default function CompanyRegistration() {
 
       if (res.ok) {
         const empresaCriada = await res.json(); //Back retorna o id cadastrado
-        alert("Empresa cadastrada com sucesso!");
         console.log(token);
 
         if (token != null) {
@@ -119,11 +117,9 @@ export default function CompanyRegistration() {
       } else {
         const errorText = await res.text();
         console.error("Erro do backend:", errorText);
-        alert("Erro ao cadastrar a empresa.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erro na requisição.");
     }
   };
 
@@ -137,7 +133,6 @@ export default function CompanyRegistration() {
       !email ||
       !setor
     ) {
-      alert("Preencha os campos obrigatórios da Empresa antes de continuar!");
       return;
     }
     setAbaAtiva("endereco");

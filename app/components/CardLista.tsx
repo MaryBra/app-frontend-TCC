@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ModalDetalhes } from "./ModalDetalhes";
+import Link from "next/link";
 
 interface ItemLista {
   id: number;
@@ -16,7 +17,7 @@ interface CardListaProps {
   items: ItemLista[];
   textoBotao?: string;
   podeEditar?: boolean;
-  onClickAdicionar?: () => void;
+  tabName: string;
 }
 
 export function CardLista({ 
@@ -24,7 +25,7 @@ export function CardLista({
   items, 
   textoBotao = "Ver tudo", 
   podeEditar = false,
-  onClickAdicionar
+  tabName,
 }: CardListaProps) {
 
   const [modalAberto, setModalAberto] = useState(false);
@@ -55,12 +56,13 @@ export function CardLista({
           </div>
           
           {podeEditar && (
-            <button 
-              onClick={onClickAdicionar}
-              className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm"
-            >
-              Adicionar {titulo}
-            </button>
+
+            <Link href= {{pathname: "/telaEdicaoPesquisador", query: {tab: tabName}, hash: "perfil-academico"}} scroll={true}>
+                    <button className="bg-[#990000] hover:bg-red-700 text-white px-5 py-1.5 rounded-lg shadow-md transition text-sm">
+                        Adicionar {titulo}
+                    </button>
+            </Link>
+
           )}
         </div>
       </div>

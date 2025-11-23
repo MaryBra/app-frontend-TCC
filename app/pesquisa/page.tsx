@@ -42,7 +42,6 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
             });
 
             if (response.status === 409) {
-                alert("Este perfil já está salvo como favorito.");
                 return;
             }
             if(!response.ok) throw new Error(`Erro status: ${response.status}`);
@@ -345,7 +344,7 @@ export default function PaginaDeBusca() {
 
                 <div className="max-w-full">
                     {carregandoResultados && <p>Carregando...</p>}
-                    {!carregandoResultados && resultadosFiltrados.length === 0 && <p>Nenhum resultado encontrado para este filtro.</p>}
+                    {!carregandoResultados && resultadosFiltrados.length === 0 && <p className="text-gray-500 text-sm mb-1">Nenhum resultado encontrado para este filtro.</p>}
                     {!carregandoResultados && resultadosFiltrados.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {currentItems.map(resultado => (

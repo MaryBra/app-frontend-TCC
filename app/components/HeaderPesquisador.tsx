@@ -167,10 +167,8 @@ export function HeaderPesquisador({
             }
         );
         if (res.ok) {
-            alert("Perfil salvo na lista!");
             setModalOpen(false);
         } else if (res.status === 409) {
-            alert("Este perfil já está nesta lista.");
         }
     } catch (error) {
         console.error(error);

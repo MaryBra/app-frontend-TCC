@@ -124,7 +124,6 @@ export default function GerenciarListas() {
 
     } catch (err) {
       console.error("Erro ao salvar lista:", err);
-      alert("Erro ao salvar a lista.");
     }
   };
 
