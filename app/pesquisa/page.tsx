@@ -213,7 +213,6 @@ export default function PaginaDeBusca() {
         fetchResultados();
     }, [query, router]);
 
-    // ... Funções auxiliares (Filtros, Bookmark, Listas) ...
     const handleFilterChange = (filtro: "todos" | "pesquisador" | "empresa") => { setFiltroAtivo(filtro); setCurrentPage(1); }
     const handleBookmarkClick = async (usuarioId: number) => {
         setSelectedProfileId(usuarioId); setLoadingModal(true); setModalOpen(true); setNovoNomeLista("");
@@ -224,8 +223,54 @@ export default function PaginaDeBusca() {
             if (res.ok) setMinhasListas(await res.json());
         } catch (err) { console.error(err); } finally { setLoadingModal(false); }
     };
-    const handleAddToList = async (listaId: number) => { /* ...igual... */ setModalOpen(false); };
-    const handleCreateAndAddToList = async () => { /* ...igual... */ };
+    const handleAddToList = async (listaId: number) => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(
+                `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`, 
+                {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                }
+            );
+            if (res.ok) {
+                alert("Perfil salvo na lista!");
+                setModalOpen(false);
+            } else if (res.status === 409) {
+                alert("Este perfil já está salvo nesta lista.");
+            } else {
+                throw new Error("Falha ao adicionar perfil");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao salvar perfil.");
+        }
+    };
+    const handleCreateAndAddToList = async () => {
+        if (!novoNomeLista.trim()) return;
+        
+        const token = localStorage.getItem("token");
+        try {
+            // 1. Cria a nova lista
+            const resCreate = await fetch("http://localhost:8080/api/listas/salvarLista", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ nomeLista: novoNomeLista })
+            });
+            if (!resCreate.ok) throw new Error("Falha ao criar lista");
+            
+            const novaLista = await resCreate.json(); // { id, nomeLista, ... }
+            
+            // 2. Adiciona o perfil à lista recém-criada
+            await handleAddToList(novaLista.id);
+            
+            setNovoNomeLista(""); // Limpa o input
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao criar nova lista.");
+        }
+    };
+
     const handleNovaBusca = () => { if (termoBusca.trim()) router.push(`/pesquisa?q=${encodeURIComponent(termoBusca.trim())}`); };
     const handleKeyPress = (e) => { if (e.key === "Enter") handleNovaBusca(); };
 
