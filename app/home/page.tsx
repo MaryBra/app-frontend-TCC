@@ -317,7 +317,59 @@ export default function Home() {
   }, [router]);
 
   // ... Restante das funções handleFavorito, handleBookmarkClick, etc (sem alterações) ...
-  const handleFavorito = async (id) => { /* ...código existente... */ };
+  const handleFavorito = async (id) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("Usuário não logado. Redirecionando...");
+      router.push("/login");
+      return;
+    }
+
+    setCarregando(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/favoritos/salvarFavorito`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            pesquisadorId: id,
+          }),
+        }
+      );
+
+      if (response.status === 409) {
+        console.warn("Perfil já está nos favoritos. Não adicionado.");
+        alert("Este perfil já está salvo como favorito.");
+
+        setRecomendacoes((listaAtual) =>
+          listaAtual.filter((perfil) => perfil.id !== id)
+        );
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Falha ao salvar seguidor. Status: ${response.status}`);
+      }
+
+      const novoSeguidor = await response.json();
+      console.log("Seguidor salvo:", novoSeguidor);
+
+      setRecomendacoes((listaAtual) =>
+        listaAtual.filter((perfil) => perfil.id !== id)
+      );
+    } catch (err) {
+      console.error("Erro ao seguir perfil:", err);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
   const handleBookmarkClick = async (profileId: number) => { 
       setSelectedProfileId(profileId);
       setLoadingModal(true);
@@ -338,8 +390,51 @@ export default function Home() {
         }
       } catch (err) { console.error(err); } finally { setLoadingModal(false); }
   };
-  const handleAddToList = async (listaId: number) => { /* ...código existente... */ setModalOpen(false); };
-  const handleCreateAndAddToList = async () => { /* ...código existente... */ };
+
+  const handleAddToList = async (listaId: number) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/listas/salvarLista/${listaId}/perfil/${selectedProfileId}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Falha ao adicionar perfil");
+      alert("Perfil salvo na lista!");
+      setModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar perfil.");
+    }
+  };
+  const handleCreateAndAddToList = async () => {
+    if (!novoNomeLista.trim()) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      const resCreate = await fetch(
+        "http://localhost:8080/api/listas/salvarLista",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ nomeLista: novoNomeLista }),
+        }
+      );
+      if (!resCreate.ok) throw new Error("Falha ao criar lista");
+
+      const novaLista = await resCreate.json();
+      await handleAddToList(novaLista.id);
+      setNovoNomeLista("");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao criar nova lista.");
+    }
+  };
   const limparBusca = () => { setTermoBusca(""); setMostrarResultados(false); setResultadosBusca([]); };
   const handleSelecionarResultado = (resultado) => {
     if (resultado.tipo === "pesquisador") {
