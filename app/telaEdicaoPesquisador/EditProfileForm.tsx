@@ -319,7 +319,8 @@ export default function EditProfileForm() {
         router.push("/login");
         return;
       }
-
+      const email = localStorage.getItem("email");
+      const telefoneFicticio = "(99) 9999-9999"
       try {
         const response = await fetch(
           // FIX: Use a variável 'email' direto na URL
@@ -348,8 +349,8 @@ export default function EditProfileForm() {
         // Informações de Contato:
         if (dadosPesquisador.endereco) {
           setIdEndereco(dadosPesquisador.endereco.id ?? "");
-          setEmail(dadosPesquisador.endereco.email ?? "");
-          setTelefone(dadosPesquisador.endereco.telefone ?? "");
+          setEmail(email ?? "");
+          setTelefone(telefoneFicticio ?? "");
           setCidade(dadosPesquisador.endereco.cidade ?? "");
           setPais(dadosPesquisador.endereco.pais ?? "");
           setBairro(dadosPesquisador.endereco.bairro ?? "");

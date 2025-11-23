@@ -19,6 +19,8 @@ interface Resultado {
 const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, onBookmarkClick: (usuarioId: number) => void }) => {
     const router = useRouter();
 
+    const [isFavorite, setIsFavorite] = useState(false);
+
     const nomeParts = resultado.nome.split(' ');
     const primeiroNome = nomeParts[0];
     const restoDoNome = nomeParts.slice(1).join(' ');
@@ -34,6 +36,8 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
         const token = localStorage.getItem("token");
         if(!token){ router.push("/login"); return; }
 
+        //setIsFavorite(true);
+
         try{
             const response = await fetch(`http://localhost:8080/api/favoritos/salvarFavorito`, {
                 method: "POST",
@@ -41,13 +45,15 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
                 body: JSON.stringify({ "pesquisadorId": id })
             });
 
-            if (response.status === 409) {
+            if (response.status === 409 || response.status === 401) {
                 return;
             }
             if(!response.ok) throw new Error(`Erro status: ${response.status}`);
             console.log("Seguidor salvo");
+            setIsFavorite(true);
         }catch(err){
             console.error("Erro ao seguir perfil:", err);
+            setIsFavorite(false);
         }
     }
 
@@ -58,8 +64,15 @@ const ResultadoCard = ({ resultado, onBookmarkClick }: { resultado: Resultado, o
                     <Bookmark className="w-5 h-5 text-gray-500 hover:text-blue-600" onClick={() => onBookmarkClick(resultado.usuarioId)} />
                 </button>
                 {resultado.tipo === "pesquisador" && (
-                    <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
-                        <Heart className="w-5 h-5 text-gray-500 hover:text-red-600" onClick={() => handleFavorito(resultado.id)}/>
+                    <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer"
+                    onClick={() => handleFavorito(resultado.id)}>
+                        <Heart 
+                            className={`w-5 h-5 transition-all duration-300 ease-in-out ${
+                                isFavorite 
+                                    ? "text-red-600 fill-red-600 scale-110" // Se favorito: Vermelho, Preenchido e Maior
+                                    : "text-gray-500 hover:text-red-600 group-active:scale-90" // Se não: Cinza
+                            }`} 
+                        />
                     </button>
                 )}
             </div>
