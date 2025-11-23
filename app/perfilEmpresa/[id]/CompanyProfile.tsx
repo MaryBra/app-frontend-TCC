@@ -21,26 +21,44 @@ interface Empresa {
 export default function CompanyProfile() {
     const router = useRouter();
     const { id } = useParams(); // Este é o ID do Dono do Perfil (da URL)
+    
     const [infoEmpresa, setInfoEmpresa] = useState<Empresa | null>(null);
+    const [imagemUrl, setImagemUrl] = useState<string | null>(null); // <--- NOVO STATE
     const [loading, setLoading] = useState(false); 
     
-    // Estado para controlar a visibilidade do botão
     const [podeEditar, setPodeEditar] = useState(false);
+
+    // Função dedicada para buscar a imagem (Blob)
+    const buscarImagem = async (idEmpresa: number) => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`http://localhost:8080/api/empresas/${idEmpresa}/imagem`, {
+                method: "GET",
+                headers: { 
+                    "Authorization": `Bearer ${token}` 
+                }
+            });
+
+            if (res.ok) {
+                const blob = await res.blob();
+                if (blob.size > 0) {
+                    const url = URL.createObjectURL(blob);
+                    setImagemUrl(url);
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao buscar imagem:", error);
+        }
+    };
 
     const buscarInfoEmpresa = async () => {
         const token = localStorage.getItem("token");
         
-        // Removi o idUsuarioLogado daqui pois ele não é usado na busca, 
-        // usamos o 'id' da rota.
-        
         if (!token) {
-             // Opcional: Redirecionar se não houver token, ou permitir visualização pública
-             // router.push("/login");
              return;
         }
 
         try {
-            // Usa o 'id' da URL para buscar a empresa desse usuário específico
             const res = await fetch(`http://localhost:8080/api/empresas/listarEmpresa/${id}`, {
                 method: "GET",
                 headers: { 
@@ -53,6 +71,13 @@ export default function CompanyProfile() {
                 const data = await res.json();
                 console.log(data);
                 setInfoEmpresa(data);
+
+                // <--- AQUI A MÁGICA ACONTECE:
+                // Se a empresa veio com sucesso, pegamos o ID DELA para buscar a foto
+                if (data && data.id) {
+                    buscarImagem(data.id);
+                }
+
             } else {
                 console.error("Erro ao buscar empresa");
             }
@@ -63,10 +88,7 @@ export default function CompanyProfile() {
 
     useEffect(() => {
         if (id) {
-            // 1. Verifica se é o dono assim que o componente carrega ou o ID muda
             const idUsuarioLogado = localStorage.getItem("usuarioId");
-            
-            // Compara o ID da URL (perfil sendo visto) com o ID do LocalStorage (quem está logado)
             if (idUsuarioLogado && idUsuarioLogado === id) {
                 setPodeEditar(true);
             } else {
@@ -81,7 +103,6 @@ export default function CompanyProfile() {
         if(infoEmpresa){
             setLoading(true); 
             setTimeout(() => {
-                // Passa o ID da EMPRESA para a edição (infoEmpresa.id), não o do usuário
                 router.push(`/edicaoEmpresa?id=${infoEmpresa.id}`);
             }, 1000); 
         }
@@ -95,13 +116,24 @@ export default function CompanyProfile() {
             
             <section className="bg-gray-300 shadow-md p-6 pl-20 flex flex-col md:flex-row gap-6 relative">
             
-            <div className="bg-purple-500 rounded-xl flex items-center justify-center w-full md:w-80 h-80 md:h-80 shadow">
-                {/* Imagem de perfil */}
+            {/* Área da Imagem de Perfil */}
+            <div className="bg-purple-500 rounded-xl flex items-center justify-center w-full md:w-80 h-80 md:h-80 shadow overflow-hidden">
+                {imagemUrl ? (
+                    <img 
+                        src={imagemUrl} 
+                        alt="Perfil da Empresa" 
+                        className="w-full h-full object-cover" 
+                    />
+                ) : (
+                    // Fallback: Mostra a inicial ou ícone se não tiver foto
+                    <span className="text-white text-6xl font-bold">
+                        {infoEmpresa?.nomeComercial?.charAt(0).toUpperCase() || "E"}
+                    </span>
+                )}
             </div>
 
             <div className="flex-1 flex flex-col justify-between">
                 <div>
-                    {/* ... (Seus campos de texto) ... */}
                     {infoEmpresa && <h1 className="text-5xl font-bold text-gray-700 mb-2">{infoEmpresa.nomeComercial}</h1>}
                     {infoEmpresa && <h2 className="text-2xl text-gray-700">{infoEmpresa.frase}</h2>}
 
@@ -123,7 +155,6 @@ export default function CompanyProfile() {
                     </div>
                 </div>
                 
-                {/* Botão Gerenciar Listas (Visível apenas para o dono também? Se sim, envolva com podeEditar) */}
                 {podeEditar && (
                     <div className="mt-auto flex gap-3 pt-4 justify-center lg:justify-start">
                         <Link
@@ -137,7 +168,7 @@ export default function CompanyProfile() {
                 
             </div>
 
-            {/* Botão editar - Renderização Condicional */}
+            {/* Botão editar */}
             {podeEditar && (
                 <button
                     className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
