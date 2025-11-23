@@ -5,7 +5,7 @@ interface FormFieldProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
-  type?: "text" | "year";
+  type?: "text" | "number" | "year";
 }
 
 export default function FormField({
@@ -21,10 +21,12 @@ export default function FormField({
   const handleChange = (e: any) => {
     let v = e.target.value;
 
-    if (type === "year") {
+    if (type === "year" || type === "number") {
       v = v.replace(/\D/g, "");
 
-      if (v.length > 4) v = v.slice(0, 4);
+      if (type === "year" && v.length > 4) {
+        v = v.slice(0, 4);
+      }
 
       e.target.value = v;
     }

@@ -15,6 +15,13 @@ import { initialChanges, ChangesMap, mapFormacoesToChanges, ItemChange } from ".
 import { FormacoesSection } from "../components/editar-perfil-pesquisador/FormacoesSection";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { AtuacoesSection } from "../components/editar-perfil-pesquisador/AtuacoesSection";
+import { ArtigosSection } from "../components/editar-perfil-pesquisador/ArtigosSection";
+import { LivrosSection } from "../components/editar-perfil-pesquisador/LivrosSection";
+import { CapitulosSection } from "../components/editar-perfil-pesquisador/CapitulosSection";
+import { EventosSection } from "../components/editar-perfil-pesquisador/EventosSection";
+import { ProjetosPesquisaSection } from "../components/editar-perfil-pesquisador/ProjetosPesquisaSection";
+import { PremiacoesSection } from "../components/editar-perfil-pesquisador/PremiacoesSection";
+import { OrientacoesSection } from "../components/editar-perfil-pesquisador/OrientacoesSection";
 
 export default function EditProfileForm() {
   
@@ -328,6 +335,55 @@ export default function EditProfileForm() {
           }));            
         }
 
+        if (dadosPesquisador?.artigos) {
+          setChanges((prev) => ({
+            ...prev,
+            "Artigos": mapFormacoesToChanges(dadosPesquisador.artigos),
+          }));            
+        }
+
+        if (dadosPesquisador?.livros) {
+          setChanges((prev) => ({
+            ...prev,
+            "Livros": mapFormacoesToChanges(dadosPesquisador.livros),
+          }));            
+        }
+
+        if (dadosPesquisador?.capitulos) {
+          setChanges((prev) => ({
+            ...prev,
+            "Capítulos": mapFormacoesToChanges(dadosPesquisador.capitulos),
+          }));            
+        }
+
+        if (dadosPesquisador?.trabalhosEvento) {
+          setChanges((prev) => ({
+            ...prev,
+            "Trabalho em Eventos": mapFormacoesToChanges(dadosPesquisador.trabalhosEvento),
+          }));            
+        }
+
+        if (dadosPesquisador?.projetosPesquisa) {
+          setChanges((prev) => ({
+            ...prev,
+            "Projetos de Pesquisa": mapFormacoesToChanges(dadosPesquisador.projetosPesquisa),
+          }));            
+        }
+
+        if (dadosPesquisador?.premiacoes) {
+          setChanges((prev) => ({
+            ...prev,
+            "Premiações": mapFormacoesToChanges(dadosPesquisador.premiacoes),
+          }));            
+        }
+
+        if (dadosPesquisador?.orientacoes) {
+          setChanges((prev) => ({
+            ...prev,
+            "Orientações": mapFormacoesToChanges(dadosPesquisador.orientacoes),
+          }));            
+        }
+
         const res = await fetch(
           `http://localhost:8080/api/pesquisadores/${pesquisadorId}/imagem`,
           {
@@ -567,7 +623,69 @@ export default function EditProfileForm() {
                   onDelete={(id) => deleteItem("Atuações Profissionais", id)}
                 />
               )}
+
+              {activeTab === "Artigos" && (
+                <ArtigosSection
+                  data={changes["Artigos"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Artigos", data)}
+                  onEdit={(id, data) => editItem("Artigos", id, data)}
+                  onDelete={(id) => deleteItem("Artigos", id)}
+                />
+              )}
+
+              {activeTab === "Livros" && (
+                <LivrosSection
+                  data={changes["Livros"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Livros", data)}
+                  onEdit={(id, data) => editItem("Livros", id, data)}
+                  onDelete={(id) => deleteItem("Livros", id)}
+                />
+              )}
+
+              {activeTab === "Capítulos" && (
+                <CapitulosSection
+                  data={changes["Capítulos"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Capítulos", data)}
+                  onEdit={(id, data) => editItem("Capítulos", id, data)}
+                  onDelete={(id) => deleteItem("Capítulos", id)}
+                />
+              )}
               
+              {activeTab === "Trabalho em Eventos" && (
+                <EventosSection
+                  data={changes["Trabalho em Eventos"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Trabalho em Eventos", data)}
+                  onEdit={(id, data) => editItem("Trabalho em Eventos", id, data)}
+                  onDelete={(id) => deleteItem("Trabalho em Eventos", id)}
+                />
+              )}
+
+              {activeTab === "Projetos de Pesquisa" && (
+                <ProjetosPesquisaSection
+                  data={changes["Projetos de Pesquisa"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Projetos de Pesquisa", data)}
+                  onEdit={(id, data) => editItem("Projetos de Pesquisa", id, data)}
+                  onDelete={(id) => deleteItem("Projetos de Pesquisa", id)}
+                />
+              )}
+
+              {activeTab === "Premiações" && (
+                <PremiacoesSection
+                  data={changes["Premiações"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Premiações", data)}
+                  onEdit={(id, data) => editItem("Premiações", id, data)}
+                  onDelete={(id) => deleteItem("Premiações", id)}
+                />
+              )}
+
+              {activeTab === "Orientações" && (
+                <OrientacoesSection
+                  data={changes["Orientações"].filter((i) => i.status !== "deletado").map((i) => i.data)}
+                  onAdd={(data) => addItem("Orientações", data)}
+                  onEdit={(id, data) => editItem("Orientações", id, data)}
+                  onDelete={(id) => deleteItem("Orientações", id)}
+                />
+              )}
 
             </div>
           </section>

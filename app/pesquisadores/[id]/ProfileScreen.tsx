@@ -215,10 +215,10 @@ export default function ProfileScreen() {
                   artigo.periodico
                 )} (${obterNumeroOuPadrao(artigo.ano)})`,
                 detalhes: {
-                  "Periódico": obterValorOuPadrao(artigo.periodico),
                   "Ano": obterNumeroOuPadrao(artigo.ano),
                   "DOI": obterValorOuPadrao(artigo.doi),
                   "Idioma": obterValorOuPadrao(artigo.idioma),
+                  "Autores": obterValorOuPadrao(artigo.autores)
                 },
                 destaque: artigo.destaque
               }))}
@@ -237,10 +237,11 @@ export default function ProfileScreen() {
                   livro.editora
                 )} (${obterNumeroOuPadrao(livro.ano)})`,
                 detalhes: {
-                  "Editora": obterValorOuPadrao(livro.editora),
                   "Ano": obterNumeroOuPadrao(livro.ano),
                   "ISBN": obterValorOuPadrao(livro.isbn),
+                  "Idioma": obterValorOuPadrao(livro.idioma),
                   "Número de Páginas": obterNumeroOuPadrao(livro.numeroPaginas),
+                  "Autores": obterValorOuPadrao(livro.autores)
                 },
                 destaque:livro.destaque
               }))}
@@ -259,6 +260,9 @@ export default function ProfileScreen() {
                 detalhes: {
                   "Nome do Livro": obterValorOuPadrao(capitulo.nomeLivro),
                   "Ano": obterNumeroOuPadrao(capitulo.ano),
+                  "Página Inicial": obterNumeroOuPadrao(capitulo.paginaInicial),
+                  "Página Final": obterNumeroOuPadrao(capitulo.paginaFinal),
+                  "DOI do Livro": obterValorOuPadrao(capitulo.doi),
                 },
                 destaque: capitulo.destaque
               }))}
@@ -279,6 +283,7 @@ export default function ProfileScreen() {
                   )} (${obterNumeroOuPadrao(evento.ano)})`,
                   detalhes: {
                     "Nome do Evento": obterValorOuPadrao(evento.nomeEvento),
+                    "Classificação": obterValorOuPadrao(evento.classificacaoEvento),
                     "Cidade": obterValorOuPadrao(evento.cidadeEvento),
                     "Ano": obterNumeroOuPadrao(evento.ano),
                   },

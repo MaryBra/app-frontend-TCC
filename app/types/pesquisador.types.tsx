@@ -50,6 +50,7 @@ export interface Artigos {
   titulo: string;
   periodico: string;
   doi: string;
+  autores: string;
   idioma: string;
   destaque: boolean;
 }
@@ -61,7 +62,9 @@ export interface Livros {
   ano: number;
   numeroPaginas: number;
   titulo: string;
+  idioma: string;
   destaque: boolean;
+  autores: string;
 }
 
 export interface Capitulos {
@@ -73,6 +76,7 @@ export interface Capitulos {
   nomeLivro: string;
   ano: number;
   destaque: boolean;
+  doi: string;
 }
 
 export interface ProjetosPesquisa {
