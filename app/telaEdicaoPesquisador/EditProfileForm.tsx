@@ -349,8 +349,8 @@ export default function EditProfileForm() {
         // Informações de Contato:
         if (dadosPesquisador.endereco) {
           setIdEndereco(dadosPesquisador.endereco.id ?? "");
-          setEmail(email ?? "");
-          setTelefone(telefoneFicticio ?? "");
+          setEmail(dadosPesquisador.endereco.email ?? "");
+          setTelefone(dadosPesquisador.endereco.telefone ?? "");
           setCidade(dadosPesquisador.endereco.cidade ?? "");
           setPais(dadosPesquisador.endereco.pais ?? "");
           setBairro(dadosPesquisador.endereco.bairro ?? "");
