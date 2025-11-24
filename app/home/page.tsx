@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { TokenPayload } from "../types/auth.types";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Home() {
   const router = useRouter();
@@ -448,6 +449,17 @@ export default function Home() {
   const handleKeyPress = (e) => { if (e.key === "Enter") handleBuscaCompleta(); };
   const goNext = () => { swiperRef.current?.swiper.slideNext(); };
   const goPrev = () => { swiperRef.current?.swiper.slidePrev(); };
+
+  if (carregando) {
+    return <div className="flex h-screen bg-gray-100">
+            <MenuLateral />
+            <main className="flex-1 flex items-center justify-center">
+              <div className="flex flex-col items-center space-y-4">
+                <LoadingSpinner></LoadingSpinner>
+              </div>
+            </main>
+          </div>
+  }
 
   if (!nome) {
     return (
