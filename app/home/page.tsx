@@ -50,6 +50,10 @@ export default function Home() {
   const [novoNomeLista, setNovoNomeLista] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // NOVOS ESTADOS PARA HOVER
+  const [heartHovered, setHeartHovered] = useState<number | null>(null);
+  const [bookmarkHovered, setBookmarkHovered] = useState<number | null>(null);
+
   // --- LÓGICA DE NAVEGAÇÃO DO PERFIL ---
   const handleNavegarParaPerfil = () => {
     if (!currentUserId) return;
@@ -628,15 +632,31 @@ export default function Home() {
                 <SwiperSlide key={item.id}>
                   <div className="bg-white rounded-xl shadow-md p-4 flex flex-col items-center relative hover:shadow-lg transition-shadow">
                     <div className="absolute top-3 right-3 flex gap-2">
-                      <button className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer">
+                      <button
+                        className="p-1 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer"
+                        onMouseEnter={() => setBookmarkHovered(item.id)}
+                        onMouseLeave={() => setBookmarkHovered(null)}
+                      >
                         <Bookmark
-                          className="w-5 h-5 text-gray-500 hover:text-blue-600"
+                          className={`w-5 h-5 transition-colors ${
+                            bookmarkHovered === item.id
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-gray-500"
+                          }`}
                           onClick={() => handleBookmarkClick(item.usuarioId)}
                         />
                       </button>
-                      <button className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer">
+                      <button
+                        className="p-1 rounded-full bg-gray-100 hover:bg-red-100 transition-colors cursor-pointer"
+                        onMouseEnter={() => setHeartHovered(item.id)}
+                        onMouseLeave={() => setHeartHovered(null)}
+                      >
                         <Heart
-                          className="w-5 h-5 text-gray-500 hover:text-red-600"
+                          className={`w-5 h-5 transition-colors ${
+                            heartHovered === item.id
+                              ? "text-red-600 fill-red-600"
+                              : "text-gray-500"
+                          }`}
                           onClick={() => handleFavorito(item.id)}
                         />
                       </button>
