@@ -75,6 +75,10 @@ export default function Cadastro() {
         if (email) {
           localStorage.setItem("email", email);
         }
+
+        // Limpa o flag de email enviado ao criar nova conta
+        localStorage.removeItem("emailVerificacaoEnviado");
+
         router.push(`/aguardandoVerificacao`);
       } else {
         const errorData = await res.json();
@@ -105,7 +109,7 @@ export default function Cadastro() {
       </div>
 
       {/* Lado direito: formulário */}
-      <div className="flex-1 flex items-start justify-center bg-white pt-12 px-4 md:px-0">
+      <div className="flex-1 flex items-start justify-center bg-white dark:bg-gray-900 pt-12 px-4 md:px-0">
         <div className="w-full max-w-md">
           <Image
             src="/images/logo_1.png"
@@ -119,7 +123,7 @@ export default function Cadastro() {
           />
 
           {/* Título em vermelho */}
-          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800">
+          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800 dark:text-red-600">
             Criar Conta
           </h2>
 
@@ -129,8 +133,8 @@ export default function Cadastro() {
               type="button"
               className={`pb-2 ${
                 abaAtiva === "pesquisador"
-                  ? "border-b-2 border-[#990000] font-semibold text-[#990000]"
-                  : "text-gray-500"
+                  ? "border-b-2 border-[#990000] dark:border-red-600 font-semibold text-[#990000] dark:text-red-600"
+                  : "text-gray-500 dark:text-gray-400"
               }`}
               onClick={() => setAbaAtiva("pesquisador")}
             >
@@ -140,8 +144,8 @@ export default function Cadastro() {
               type="button"
               className={`pb-2 ${
                 abaAtiva === "empresa"
-                  ? "border-b-2 border-[#990000] font-semibold text-[#990000]"
-                  : "text-gray-500"
+                  ? "border-b-2 border-[#990000] dark:border-red-600 font-semibold text-[#990000] dark:text-red-600"
+                  : "text-gray-500 dark:text-gray-400"
               }`}
               onClick={() => setAbaAtiva("empresa")}
             >
@@ -151,83 +155,67 @@ export default function Cadastro() {
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email*
+              </label>
               <input
                 type="email"
-                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Digite seu email"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Email*
-              </label>
             </div>
 
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Senha*
+              </label>
               <input
                 type="password"
-                placeholder=" "
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Digite sua senha"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Senha*
-              </label>
             </div>
 
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Confirmar Senha*
+              </label>
               <input
                 type="password"
-                placeholder=" "
                 value={confirmarSenha}
                 onChange={(e) => setConfirmarSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Confirme sua senha"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Confirmar Senha*
-              </label>
             </div>
 
-            {erro && <p className="text-red-600 text-sm">{erro}</p>}
+            {erro && (
+              <p className="text-red-600 dark:text-red-400 text-sm">{erro}</p>
+            )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
+              className="w-full bg-red-800 dark:bg-red-700 text-white p-3 rounded-xl hover:bg-red-900 dark:hover:bg-red-600 transition disabled:opacity-50 font-medium"
             >
               {loading ? "Criando conta..." : "Criar conta"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4 text-gray-700">
+          <p className="text-sm text-center mt-4 text-gray-700 dark:text-gray-300">
             Já tem uma conta?{" "}
-            <a href="/login" className="text-red-700 font-medium">
+            <a
+              href="/login"
+              className="text-red-700 dark:text-red-400 font-medium"
+            >
               Entrar
             </a>
           </p>

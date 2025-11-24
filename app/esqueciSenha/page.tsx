@@ -72,7 +72,7 @@ export default function RedefinirSenha() {
       </div>
 
       {/* Lado direito: formulário */}
-      <div className="flex-1 flex items-start justify-center bg-white pt-12 px-4 md:px-0">
+      <div className="flex-1 flex items-start justify-center bg-white dark:bg-gray-900 pt-12 px-4 md:px-0">
         <div className="w-full max-w-md">
           {/* Logo */}
           <Image
@@ -87,37 +87,30 @@ export default function RedefinirSenha() {
           />
 
           {/* Cabeçalho */}
-          <h2 className="text-xl font-semibold mb-4 mt-32 text-center md:text-left text-red-800">
+          <h2 className="text-xl font-semibold mb-4 mt-32 text-center md:text-left text-red-800 dark:text-red-600">
             Redefinir Senha
           </h2>
 
           {/* Mensagem de instrução */}
-          <p className="text-gray-700 text-sm mb-8 text-center md:text-left">
+          <p className="text-gray-700 dark:text-gray-300 text-sm mb-8 text-center md:text-left">
             Digite o e-mail de sua conta e nós enviaremos um e-mail com o link
             de redefinição de senha.
           </p>
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email*
+              </label>
               <input
                 type="email"
-                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Digite seu email"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Email*
-              </label>
             </div>
 
             {/* Caixa de erro / sucesso */}
@@ -125,8 +118,8 @@ export default function RedefinirSenha() {
               <div
                 className={`p-3 rounded-lg border text-sm font-medium animate-fadeIn ${
                   erro
-                    ? "bg-red-100 border-red-300 text-red-700"
-                    : "bg-green-100 border-green-300 text-green-700"
+                    ? "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300"
+                    : "bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300"
                 }`}
               >
                 {erro || sucesso}
@@ -137,7 +130,7 @@ export default function RedefinirSenha() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
+              className="w-full bg-red-800 dark:bg-red-700 text-white p-3 rounded-xl hover:bg-red-900 dark:hover:bg-red-600 transition disabled:opacity-50 font-medium"
             >
               {loading
                 ? "Enviando..."
@@ -146,10 +139,10 @@ export default function RedefinirSenha() {
           </form>
 
           {/* Link Voltar */}
-          <p className="text-sm text-center mt-3 text-gray-700">
+          <p className="text-sm text-center mt-3 text-gray-700 dark:text-gray-300">
             <a
               href="/login"
-              className="text-red-800 font-medium hover:text-red-900 transition-colors"
+              className="text-red-800 dark:text-red-400 font-medium hover:text-red-900 dark:hover:text-red-300 transition-colors"
             >
               Voltar para o login
             </a>

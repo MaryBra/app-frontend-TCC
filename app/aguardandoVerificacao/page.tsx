@@ -3,39 +3,92 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function AguardandoVerificacao() {
   const params = useSearchParams();
   const email = localStorage.getItem("email");
-
+  const emailEnviadoRef = useRef(false);
 
   useEffect(() => {
-    const verificarEmail = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const email = localStorage.getItem("email")
-        console.log(email)
+    // Verifica se já enviou o email nesta sessão
+    const emailJaEnviado = localStorage.getItem("emailVerificacaoEnviado");
 
-        const res = await fetch(`http://localhost:8080/api/email/enviarVerificacao?email=${email}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+    const verificarEmail = async () => {
+      // Previne múltiplos envios
+      if (emailEnviadoRef.current || emailJaEnviado) {
+        console.log("Email já enviado, pulando...");
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        console.log("Enviando email de verificação para:", email);
+
+        emailEnviadoRef.current = true;
+        localStorage.setItem("emailVerificacaoEnviado", "true");
+
+        const res = await fetch(
+          `http://localhost:8080/api/email/enviarVerificacao?email=${email}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
 
         if (!res.ok) {
           console.error("Erro ao verificar e-mail:", res.status);
+          // Se deu erro, permite tentar novamente
+          emailEnviadoRef.current = false;
+          localStorage.removeItem("emailVerificacaoEnviado");
         } else {
-          console.log("E-mail verificado com sucesso!");
+          console.log("E-mail enviado com sucesso!");
         }
       } catch (e) {
         console.error("Erro na requisição de verificação:", e);
+        // Se deu erro, permite tentar novamente
+        emailEnviadoRef.current = false;
+        localStorage.removeItem("emailVerificacaoEnviado");
       }
-    }
+    };
+
     verificarEmail();
-  }, []);
+  }, []); // Array de dependências vazio - executa apenas uma vez
+
+  // Função para reenviar email manualmente
+  const reenviarEmail = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("email");
+      console.log("Reenviando email para:", email);
+
+      const res = await fetch(
+        `http://localhost:8080/api/email/enviarVerificacao?email=${email}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        console.error("Erro ao reenviar e-mail:", res.status);
+        alert("Erro ao reenviar email. Tente novamente.");
+      } else {
+        console.log("E-mail reenviado com sucesso!");
+        alert("Email reenviado com sucesso!");
+      }
+    } catch (e) {
+      console.error("Erro ao reenviar email:", e);
+      alert("Erro ao reenviar email. Tente novamente.");
+    }
+  };
 
   // Função para ocultar parte do email
   const maskEmail = (email: string | null) => {
@@ -44,7 +97,6 @@ export default function AguardandoVerificacao() {
     if (user.length <= 3) return `${user[0]}***@${domain}`;
     return `${user.slice(0, 3)}***@${domain}`;
   };
-
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12 relative overflow-hidden">
@@ -104,8 +156,6 @@ export default function AguardandoVerificacao() {
                   />
                 </svg>
               </div>
-              {/* Pulse ring */}
-              <div className="absolute inset-0 rounded-full bg-[#990000] opacity-20 animate-ping"></div>
             </div>
           </motion.div>
 
@@ -131,6 +181,16 @@ export default function AguardandoVerificacao() {
             </p>
           </div>
 
+          {/* Botão para reenviar email */}
+          <div className="text-center mb-6">
+            <button
+              onClick={reenviarEmail}
+              className="text-[#990000] hover:text-red-700 font-medium underline transition"
+            >
+              Reenviar email de verificação
+            </button>
+          </div>
+
           {/* Nota de rodapé */}
           <div className="pt-6 border-t border-gray-100">
             <p className="text-xs text-gray-500 text-center leading-relaxed">
@@ -143,7 +203,10 @@ export default function AguardandoVerificacao() {
         {/* Link de suporte (opcional) */}
         <p className="text-center mt-6 text-sm text-gray-500">
           Precisa de ajuda?{" "}
-          <a href="#" className="text-[#990000] hover:text-red-700 font-medium transition">
+          <a
+            href="#"
+            className="text-[#990000] hover:text-red-700 font-medium transition"
+          >
             Entre em contato
           </a>
         </p>

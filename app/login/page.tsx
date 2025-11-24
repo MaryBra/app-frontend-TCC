@@ -117,7 +117,7 @@ export default function Login() {
       </div>
 
       {/* Lado direito: formulário */}
-      <div className="flex-1 flex items-start justify-center bg-white pt-12 px-4 md:px-0">
+      <div className="flex-1 flex items-start justify-center bg-white dark:bg-gray-900 pt-12 px-4 md:px-0">
         <div className="w-full max-w-md">
           <Image
             src="/images/logo_1.png"
@@ -130,59 +130,45 @@ export default function Login() {
             onClick={handleLogoClick}
           />
 
-          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800">
+          <h2 className="text-xl font-semibold mb-8 mt-32 text-center md:text-left text-red-800 dark:text-red-600">
             Entrar
           </h2>
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email*
+              </label>
               <input
                 type="email"
-                placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Digite seu email"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Email*
-              </label>
             </div>
 
-            <div className="relative">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Senha*
+              </label>
               <input
                 type="password"
-                placeholder=" "
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
-                className="peer w-full border-0 border-b-2 border-gray-500 bg-transparent
-                         focus:border-red-700 focus:outline-none focus:ring-0
-                         text-gray-700 py-2 px-2 transition-colors duration-300"
+                className="form-input-login"
+                placeholder="Digite sua senha"
               />
-              <label
-                className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all
-                             peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-700
-                             peer-placeholder-shown:top-2
-                             peer-focus:-top-3.5 peer-focus:text-red-700 peer-focus:text-sm"
-              >
-                Senha*
-              </label>
             </div>
 
             {/* Link de esqueci minha senha */}
             <div className="text-right -mt-4">
               <a
                 href="/esqueciSenha"
-                className="text-sm text-red-700 font-medium hover:text-red-900 transition-colors"
+                className="text-sm text-red-700 dark:text-red-400 font-medium hover:text-red-900 dark:hover:text-red-300 transition-colors"
               >
                 Esqueci minha senha
               </a>
@@ -190,7 +176,7 @@ export default function Login() {
 
             {/* Caixa de erro acima do botão */}
             {erro && (
-              <div className="mt-2 mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 text-sm font-medium animate-fadeIn">
+              <div className="mt-2 mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium animate-fadeIn">
                 {erro}
               </div>
             )}
@@ -199,17 +185,17 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-800 text-white p-3 rounded-lg hover:bg-red-900 transition disabled:opacity-50"
+              className="w-full bg-red-800 dark:bg-red-700 text-white p-3 rounded-xl hover:bg-red-900 dark:hover:bg-red-600 transition disabled:opacity-50 font-medium"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4 text-gray-700">
+          <p className="text-sm text-center mt-4 text-gray-700 dark:text-gray-300">
             Ainda não possui uma conta?{" "}
             <a
               href="/criarConta"
-              className="text-red-800 font-medium hover:text-red-900 transition-colors"
+              className="text-red-800 dark:text-red-400 font-medium hover:text-red-900 dark:hover:text-red-300 transition-colors"
             >
               Criar conta
             </a>
