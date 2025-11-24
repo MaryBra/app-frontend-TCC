@@ -13,6 +13,7 @@ import {
   Map,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FormField from "./FormField";
 
 interface HeaderPesquisadorProps {
   nomePesquisador: string;
@@ -327,7 +328,8 @@ export function HeaderPesquisador({
 
       {/* --- MODAL SALVAR EM LISTA --- */}
       {modalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 text-black">
+        <div className="fixed inset-0 bg-gray-300/60 flex items-center justify-center z-50 text-black p-4">
+
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-[#990000]">Salvar em...</h2>
@@ -358,13 +360,11 @@ export function HeaderPesquisador({
                 </div>
 
                 <div className="border-t pt-4 flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Criar nova lista..."
-                    value={novoNomeLista}
-                    onChange={(e) => setNovoNomeLista(e.target.value)}
-                    className="flex-1 w-full border px-3 py-2 rounded"
-                  />
+                  <FormField
+                  placeholder="Crie uma nova lista..."
+                      value={novoNomeLista}
+                      onChange={(e) => setNovoNomeLista(e.target.value)} label={""} >
+                  </FormField>
                   <button
                     onClick={handleCreateAndAdd}
                     className="p-2 rounded bg-[#990000] text-white hover:bg-red-800"
