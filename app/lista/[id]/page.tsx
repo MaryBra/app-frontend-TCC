@@ -287,10 +287,10 @@ export default function ListaPage() {
                   </span>
                 ))}
               </div> */}
-              <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition"
+              {/* <button className="mt-auto w-full border border-[#990000] text-[#990000] py-1 rounded hover:bg-[#990000] hover:text-white transition"
               onClick={(e) => e.stopPropagation()}>
                 Contato
-              </button>
+              </button> */}
             </div>
           ))}
           {perfis.length === 0 && (
