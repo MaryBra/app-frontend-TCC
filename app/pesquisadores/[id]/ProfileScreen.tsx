@@ -26,11 +26,13 @@ import { HeaderPesquisador } from "@/app/components/HeaderPesquisador";
 import { DadosPesquisador } from "@/app/types/pesquisador.types";
 import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 import { CardContato } from "@/app/components/CardContato";
+import NotFound from "@/app/not-found";
 
-
+''
 
 export default function ProfileScreen() {
   const [carregando, setCarregando] = useState(true);
+  const [naoEncontrado, setNaoEncontrado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   const router = useRouter();
@@ -69,6 +71,12 @@ export default function ProfileScreen() {
           }
         );
 
+        if (res.status === 404) {
+          setNaoEncontrado(true);
+          setCarregando(false);
+          return;
+        }
+
         if (!res.ok) {
           throw new Error("Falha ao buscar dados do pesquisador");
         }
@@ -87,6 +95,10 @@ export default function ProfileScreen() {
     buscarDados();
   }, [id]);
 
+  if (naoEncontrado) {
+    return <NotFound/>
+  }
+
   if (carregando) {
       return (
         <div className="flex h-screen bg-gray-100">
@@ -98,7 +110,8 @@ export default function ProfileScreen() {
           </main>
         </div>
       );
-    }
+  }
+
 
   // Erro
   if (erro || !dadosPesquisador) {

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import MenuLateral from "../../components/MenuLateral";
+import NotFound from "@/app/not-found";
+import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 
 interface Empresa {
   id: number;
@@ -20,15 +22,16 @@ interface Empresa {
 
 export default function CompanyProfile() {
     const router = useRouter();
-    const { id } = useParams(); // Este é o ID do Dono do Perfil (da URL)
+    const { id } = useParams(); 
     
     const [infoEmpresa, setInfoEmpresa] = useState<Empresa | null>(null);
-    const [imagemUrl, setImagemUrl] = useState<string | null>(null); // <--- NOVO STATE
+    const [carregando, setCarregando] = useState(true);
+    const [naoEncontrado, setNaoEncontrado] = useState(false);
+    const [imagemUrl, setImagemUrl] = useState<string | null>(null); 
     const [loading, setLoading] = useState(false); 
     
     const [podeEditar, setPodeEditar] = useState(false);
 
-    // Função dedicada para buscar a imagem (Blob)
     const buscarImagem = async (idEmpresa: number) => {
         const token = localStorage.getItem("token");
         try {
@@ -67,13 +70,18 @@ export default function CompanyProfile() {
                 }
             });
 
+            if (res.status === 404) {
+                setCarregando(false)
+                setNaoEncontrado(true);
+                return;
+            }
+
             if (res.ok) {
                 const data = await res.json();
                 console.log(data);
                 setInfoEmpresa(data);
+                setCarregando(false)
 
-                // <--- AQUI A MÁGICA ACONTECE:
-                // Se a empresa veio com sucesso, pegamos o ID DELA para buscar a foto
                 if (data && data.id) {
                     buscarImagem(data.id);
                 }
@@ -83,6 +91,7 @@ export default function CompanyProfile() {
             }
         } catch (error) {
             console.error("Erro ao buscar empresa:", error);
+            setCarregando(false)
         }
     };
 
@@ -107,6 +116,23 @@ export default function CompanyProfile() {
             }, 1000); 
         }
     };
+
+    if (carregando) {
+          return (
+            <div className="flex h-screen bg-gray-100">
+              <MenuLateral />
+              <main className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <LoadingSpinner></LoadingSpinner>
+                </div>
+              </main>
+            </div>
+          );
+      }
+
+    if (naoEncontrado) {
+        return <NotFound/>
+    }
 
     return (
         <div className="flex h-screen bg-gray-100">
